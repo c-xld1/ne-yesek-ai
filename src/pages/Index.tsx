@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
@@ -9,6 +8,9 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, TrendingUp, Award, Video } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ProgressBar from "@/components/ProgressBar";
+import FloatingActionButton from "@/components/FloatingActionButton";
+import BackToTop from "@/components/BackToTop";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +28,9 @@ const Index = () => {
       rating: 4.8,
       author: "Chef Ayşe",
       dblScore: 95,
-      description: "Evdeki basit malzemelerle hazırlayabileceğiniz nefis tavuk sote tarifi."
+      description: "Evdeki basit malzemelerle hazırlayabileceğiniz nefis tavuk sote tarifi.",
+      isPopular: true,
+      viewCount: 1250
     },
     {
       id: "2",
@@ -37,7 +41,8 @@ const Index = () => {
       rating: 4.9,
       author: "Zeynep Hanım",
       dblScore: 88,
-      description: "Geleneksel Türk mutfağından sıcacık ve tok tutan mercimek çorbası."
+      description: "Geleneksel Türk mutfağından sıcacık ve tok tutan mercimek çorbası.",
+      viewCount: 980
     },
     {
       id: "3",
@@ -48,7 +53,9 @@ const Index = () => {
       rating: 4.7,
       author: "Mehmet Usta",
       dblScore: 92,
-      description: "Ev yapımı köfte ve tereyağlı pilavın mükemmel uyumu."
+      description: "Ev yapımı köfte ve tereyağlı pilavın mükemmel uyumu.",
+      isPopular: true,
+      viewCount: 1560
     },
     {
       id: "4",
@@ -59,7 +66,8 @@ const Index = () => {
       rating: 4.6,
       author: "Pasta Şefi",
       dblScore: 85,
-      description: "Evde kolayca yapabileceğiniz nemli ve lezzetli çikolatalı kek."
+      description: "Evde kolayca yapabileceğiniz nemli ve lezzetli çikolatalı kek.",
+      viewCount: 742
     }
   ];
 
@@ -127,6 +135,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <ProgressBar />
       <Navbar />
       <Hero />
       
@@ -168,7 +177,7 @@ const Index = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-2">
               ⭐ Haftanın Yıldız Tarifleri
-              <Award className="h-6 w-6 text-yellow-500" />
+              <Award className="h-6 w-6 text-yellow-500 animate-pulse" />
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Toplumumuzun en çok beğendiği ve yüksek DBL skoruna sahip tarifler
@@ -236,6 +245,8 @@ const Index = () => {
         </div>
       </section>
 
+      <FloatingActionButton />
+      <BackToTop />
       <Footer />
     </div>
   );

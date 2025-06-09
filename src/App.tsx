@@ -12,6 +12,8 @@ import Profile from "./pages/Profile";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import CookingTips from "./pages/CookingTips";
+import MenuPlanner from "./pages/MenuPlanner";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => (
           <Route path="/profil/:username" element={<Profile />} />
           <Route path="/hakkimizda" element={<About />} />
           <Route path="/iletisim" element={<Contact />} />
+          <Route path="/ipuclari" element={<CookingTips />} />
+          <Route path="/menu-planlayici" element={<MenuPlanner />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

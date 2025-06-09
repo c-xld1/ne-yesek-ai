@@ -1,21 +1,34 @@
-
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecipeCard from "@/components/RecipeCard";
+import AdvancedSearch from "@/components/AdvancedSearch";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, Filter, SlidersHorizontal, Grid, List } from "lucide-react";
 
 const Recipes = () => {
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState("grid");
+  const [sortBy, setSortBy] = useState("popular");
 
-  const categories = ["Tümü", "Ana Yemek", "Çorba", "Tatlı", "Kahvaltı", "15 Dakikada", "Vegan"];
+  const categories = [
+    "Tümü", "Ana Yemek", "Çorba", "Tatlı", "Kahvaltı", "15 Dakikada", 
+    "Vegan", "Et Yemekleri", "Deniz Ürünleri", "Hamur İşleri", "Salata", "İçecekler"
+  ];
+
+  const sortOptions = [
+    { value: "popular", label: "En Popüler" },
+    { value: "rating", label: "En Yüksek Puan" },
+    { value: "newest", label: "En Yeni" },
+    { value: "cooktime", label: "Hazırlık Süresi" },
+    { value: "difficulty", label: "Zorluk Derecesi" }
+  ];
 
   // Örnek tarif verileri
   const recipes = [
     {
+      id: "1",
       title: "Tavuk Sote",
       image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
       cookingTime: "25 dk",
@@ -107,9 +120,7 @@ const Recipes = () => {
 
   const filteredRecipes = recipes.filter(recipe => {
     const matchesCategory = selectedCategory === "Tümü" || recipe.category === selectedCategory;
-    const matchesSearch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         recipe.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesCategory;
   });
 
   return (
@@ -126,22 +137,46 @@ const Recipes = () => {
           </p>
         </div>
 
-        {/* Arama ve Filtreler */}
+        {/* Gelişmiş Arama */}
+        <AdvancedSearch />
+
+        {/* Filtreler ve Görünüm */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Tarif ara..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4 text-gray-500" />
+                <span className="text-sm font-medium">Sıralama:</span>
+              </div>
+              <select 
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              >
+                {sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
-            <Button variant="outline" className="md:w-auto">
-              <Filter className="h-4 w-4 mr-2" />
-              Gelişmiş Filtre
-            </Button>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Kategori Filtreleri */}
@@ -160,15 +195,31 @@ const Recipes = () => {
           </div>
         </div>
 
-        {/* Sonuçlar */}
+        {/* Aktif Filtreler */}
         <div className="mb-6">
-          <p className="text-gray-600">
-            <span className="font-semibold">{filteredRecipes.length}</span> tarif bulundu
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-gray-600">
+              <span className="font-semibold">{filteredRecipes.length}</span> tarif bulundu
+              {selectedCategory !== "Tümü" && (
+                <Badge className="ml-2 bg-food-100 text-food-800">
+                  {selectedCategory}
+                </Badge>
+              )}
+            </p>
+            {selectedCategory !== "Tümü" && (
+              <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("Tümü")}>
+                Filtreleri Temizle
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* Tarifler Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Tarifler */}
+        <div className={`${
+          viewMode === "grid" 
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+            : "space-y-4"
+        }`}>
           {filteredRecipes.map((recipe, index) => (
             <RecipeCard key={index} {...recipe} />
           ))}

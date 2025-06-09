@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
@@ -18,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import ProgressBar from "@/components/ProgressBar";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import BackToTop from "@/components/BackToTop";
+import VideoStories from "@/components/VideoStories";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -203,6 +203,9 @@ const Index = () => {
       <ProgressBar />
       <Navbar />
       <Hero />
+      
+      {/* Video Stories Section */}
+      <VideoStories />
       
       {/* Navigation Tabs */}
       <section className="bg-white sticky top-16 z-40 border-b border-gray-200 shadow-sm">

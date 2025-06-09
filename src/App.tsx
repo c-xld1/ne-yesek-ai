@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import CookingTips from "./pages/CookingTips";
 import MenuPlanner from "./pages/MenuPlanner";
+import VideoStoriesPage from "./pages/VideoStories";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +28,7 @@ const App = () => (
           <Route path="/tarif/:id" element={<RecipeDetail />} />
           <Route path="/tarif-paylas" element={<ShareRecipe />} />
           <Route path="/tarifler" element={<Recipes />} />
+          <Route path="/hikayeler" element={<VideoStoriesPage />} />
           <Route path="/profil/:username" element={<Profile />} />
           <Route path="/hakkimizda" element={<About />} />
           <Route path="/iletisim" element={<Contact />} />

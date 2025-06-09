@@ -72,12 +72,12 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold text-lg text-white">Kategoriler</h4>
             <ul className="space-y-2">
-              <li><Link to="/kategoriler?kategori=Ana Yemek" className="text-gray-300 hover:text-white transition-colors">Ana Yemek</Link></li>
-              <li><Link to="/kategoriler?kategori=Tatlılar" className="text-gray-300 hover:text-white transition-colors">Tatlılar</Link></li>
-              <li><Link to="/kategoriler?kategori=Çorbalar" className="text-gray-300 hover:text-white transition-colors">Çorbalar</Link></li>
-              <li><Link to="/kategoriler?kategori=Vegan" className="text-gray-300 hover:text-white transition-colors">Vegan</Link></li>
-              <li><Link to="/kategoriler?kategori=15 Dakikada" className="text-gray-300 hover:text-white transition-colors">15 Dakikada</Link></li>
-              <li><Link to="/kategoriler?kategori=Fit Tarifler" className="text-gray-300 hover:text-white transition-colors">Fit Tarifler</Link></li>
+              <li><Link to="/tarifler?kategori=Ana Yemek" className="text-gray-300 hover:text-white transition-colors">Ana Yemek</Link></li>
+              <li><Link to="/tarifler?kategori=Tatlılar" className="text-gray-300 hover:text-white transition-colors">Tatlılar</Link></li>
+              <li><Link to="/tarifler?kategori=Çorbalar" className="text-gray-300 hover:text-white transition-colors">Çorbalar</Link></li>
+              <li><Link to="/tarifler?kategori=Vegan" className="text-gray-300 hover:text-white transition-colors">Vegan</Link></li>
+              <li><Link to="/tarifler?kategori=15 Dakikada" className="text-gray-300 hover:text-white transition-colors">15 Dakikada</Link></li>
+              <li><Link to="/tarifler?kategori=Fit Tarifler" className="text-gray-300 hover:text-white transition-colors">Fit Tarifler</Link></li>
             </ul>
           </div>
 

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,7 @@ import Index from "./pages/Index";
 import RecipeDetail from "./pages/RecipeDetail";
 import ShareRecipe from "./pages/ShareRecipe";
 import Recipes from "./pages/Recipes";
+import Categories from "./pages/Categories";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -14,6 +16,9 @@ import NotFound from "./pages/NotFound";
 import CookingTips from "./pages/CookingTips";
 import MenuPlanner from "./pages/MenuPlanner";
 import VideoStoriesPage from "./pages/VideoStories";
+import Blog from "./pages/Blog";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -28,8 +33,12 @@ const App = () => (
           <Route path="/tarif/:id" element={<RecipeDetail />} />
           <Route path="/tarif-paylas" element={<ShareRecipe />} />
           <Route path="/tarifler" element={<Recipes />} />
+          <Route path="/kategoriler" element={<Categories />} />
           <Route path="/hikayeler" element={<VideoStoriesPage />} />
+          <Route path="/blog" element={<Blog />} />
           <Route path="/profil/:username" element={<Profile />} />
+          <Route path="/giris-yap" element={<Login />} />
+          <Route path="/kayit-ol" element={<Register />} />
           <Route path="/hakkimizda" element={<About />} />
           <Route path="/iletisim" element={<Contact />} />
           <Route path="/ipuclari" element={<CookingTips />} />

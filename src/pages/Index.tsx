@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
@@ -6,13 +7,8 @@ import CategoryCard from "@/components/CategoryCard";
 import SkeletonCard from "@/components/SkeletonCard";
 import Footer from "@/components/Footer";
 import CommunityFeatures from "@/components/CommunityFeatures";
-import AdvancedSearch from "@/components/AdvancedSearch";
-import WeeklyMealPlan from "@/components/WeeklyMealPlan";
-import SeasonalRecommendations from "@/components/SeasonalRecommendations";
-import RegionalRecipeMap from "@/components/RegionalRecipeMap";
-import ShoppingList from "@/components/ShoppingList";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, TrendingUp, Award, Video, Crown, Users, Star } from "lucide-react";
+import { RefreshCw, TrendingUp, Award, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ProgressBar from "@/components/ProgressBar";
 import FloatingActionButton from "@/components/FloatingActionButton";
@@ -22,7 +18,6 @@ import VideoStories from "@/components/VideoStories";
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [featuredRecipes, setFeaturedRecipes] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState("recipes");
   const { toast } = useToast();
 
   // Sample data
@@ -189,15 +184,6 @@ const Index = () => {
     });
   };
 
-  const navigationTabs = [
-    { id: "recipes", label: "🏠 Ana Sayfa", icon: Award },
-    { id: "search", label: "🔍 Gelişmiş Arama", icon: TrendingUp },
-    { id: "meal-plan", label: "📅 Haftalık Plan", icon: Video },
-    { id: "seasonal", label: "🍂 Mevsimsel", icon: RefreshCw },
-    { id: "regional", label: "🗺️ Yöresel", icon: Users },
-    { id: "shopping", label: "🛒 Market Listesi", icon: Star }
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       <ProgressBar />
@@ -207,124 +193,91 @@ const Index = () => {
       {/* Video Stories Section */}
       <VideoStories />
       
-      {/* Navigation Tabs */}
-      <section className="bg-white sticky top-16 z-40 border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex overflow-x-auto scrollbar-hide">
-            {navigationTabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-4 whitespace-nowrap font-medium transition-all duration-200 border-b-2 ${
-                  activeTab === tab.id
-                    ? 'border-food-500 text-food-600 bg-food-50'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            ))}
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-16">
+        {/* Bugün Ne Yesek AI */}
+        <section className="bg-gradient-to-r from-food-50 to-spice-50 p-8 rounded-2xl">
+          <div className="text-center">
+            <div className="bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-2">
+                🤖 Bugün Ne Yesek AI?
+                <TrendingUp className="h-6 w-6 text-food-600" />
+              </h2>
+              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Yapay zeka, bulunduğunuz konum, hava durumu ve saate göre size özel tarif önerisi hazırlıyor!
+              </p>
+              <div className="bg-gradient-to-r from-food-500 to-spice-500 text-white rounded-xl p-6 mb-6">
+                <h3 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Bugünün Önerisi
+                </h3>
+                <p className="text-food-100">
+                  "İstanbul'da soğuk bir akşam... Sıcak bir mercimek çorbası ve yanında tereyağlı ekmek nasıl olur? 🍲"
+                </p>
+              </div>
+              <Button onClick={handleNewSuggestion} className="gradient-primary text-white">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Yeni Öneri Al
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Tab Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {activeTab === "recipes" && (
-          <div className="space-y-16">
-            {/* Bugün Ne Yesek AI */}
-            <section className="bg-gradient-to-r from-food-50 to-spice-50 p-8 rounded-2xl">
-              <div className="text-center">
-                <div className="bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-2">
-                    🤖 Bugün Ne Yesek AI?
-                    <TrendingUp className="h-6 w-6 text-food-600" />
-                  </h2>
-                  <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                    Yapay zeka, bulunduğunuz konum, hava durumu ve saate göre size özel tarif önerisi hazırlıyor!
-                  </p>
-                  <div className="bg-gradient-to-r from-food-500 to-spice-500 text-white rounded-xl p-6 mb-6">
-                    <h3 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
-                      <Award className="h-5 w-5" />
-                      Bugünün Önerisi
-                    </h3>
-                    <p className="text-food-100">
-                      "İstanbul'da soğuk bir akşam... Sıcak bir mercimek çorbası ve yanında tereyağlı ekmek nasıl olur? 🍲"
-                    </p>
+        {/* Topluluk Özellikleri */}
+        <CommunityFeatures recipeId="featured" initialLikes={245} initialComments={67} />
+
+        {/* En Çok Puan Alanlar */}
+        <section>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center flex items-center justify-center gap-2">
+            🏆 Haftanın Şefleri
+            <Crown className="h-6 w-6 text-yellow-500" />
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {topChefs.map((chef, index) => (
+              <div key={index} className={`p-4 rounded-xl border-2 ${index === 0 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white'}`}>
+                <div className="text-center">
+                  <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${index === 0 ? 'bg-yellow-400' : 'bg-gray-200'}`}>
+                    <span className="text-xl">{index === 0 ? '👑' : '👨‍🍳'}</span>
                   </div>
-                  <Button onClick={handleNewSuggestion} className="gradient-primary text-white">
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Yeni Öneri Al
-                  </Button>
+                  <h4 className="font-semibold">{chef.name}</h4>
+                  <p className="text-sm text-gray-600">{chef.points} puan</p>
+                  <p className="text-xs text-gray-500">{chef.recipes} tarif</p>
+                  <div className="mt-2">
+                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
+                      {chef.badge}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </section>
-
-            {/* Topluluk Özellikleri */}
-            <CommunityFeatures recipeId="featured" initialLikes={245} initialComments={67} />
-
-            {/* En Çok Puan Alanlar */}
-            <section>
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center flex items-center justify-center gap-2">
-                🏆 Haftanın Şefleri
-                <Crown className="h-6 w-6 text-yellow-500" />
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                {topChefs.map((chef, index) => (
-                  <div key={index} className={`p-4 rounded-xl border-2 ${index === 0 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white'}`}>
-                    <div className="text-center">
-                      <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${index === 0 ? 'bg-yellow-400' : 'bg-gray-200'}`}>
-                        <span className="text-xl">{index === 0 ? '👑' : '👨‍🍳'}</span>
-                      </div>
-                      <h4 className="font-semibold">{chef.name}</h4>
-                      <p className="text-sm text-gray-600">{chef.points} puan</p>
-                      <p className="text-xs text-gray-500">{chef.recipes} tarif</p>
-                      <div className="mt-2">
-                        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
-                          {chef.badge}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Öne Çıkan Tarifler */}
-            <section>
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center flex items-center justify-center gap-2">
-                ⭐ Haftanın Yıldız Tarifleri
-                <Award className="h-6 w-6 text-yellow-500" />
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {isLoading ? (
-                  Array(4).fill(0).map((_, index) => <SkeletonCard key={index} />)
-                ) : (
-                  featuredRecipes.map((recipe) => <RecipeCard key={recipe.id} {...recipe} />)
-                )}
-              </div>
-            </section>
-
-            {/* Kategoriler */}
-            <section className="bg-gray-50 -mx-4 px-4 py-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-                🗂️ Tarif Kategorileri
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {categories.map((category, index) => (
-                  <CategoryCard key={index} {...category} />
-                ))}
-              </div>
-            </section>
+            ))}
           </div>
-        )}
+        </section>
 
-        {activeTab === "search" && <AdvancedSearch />}
-        {activeTab === "meal-plan" && <WeeklyMealPlan />}
-        {activeTab === "seasonal" && <SeasonalRecommendations />}
-        {activeTab === "regional" && <RegionalRecipeMap />}
-        {activeTab === "shopping" && <ShoppingList />}
+        {/* Öne Çıkan Tarifler */}
+        <section>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center flex items-center justify-center gap-2">
+            ⭐ Haftanın Yıldız Tarifleri
+            <Award className="h-6 w-6 text-yellow-500" />
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {isLoading ? (
+              Array(4).fill(0).map((_, index) => <SkeletonCard key={index} />)
+            ) : (
+              featuredRecipes.map((recipe) => <RecipeCard key={recipe.id} {...recipe} />)
+            )}
+          </div>
+        </section>
+
+        {/* Kategoriler */}
+        <section className="bg-gray-50 -mx-4 px-4 py-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            🗂️ Tarif Kategorileri
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {categories.map((category, index) => (
+              <CategoryCard key={index} {...category} />
+            ))}
+          </div>
+        </section>
       </div>
 
       <FloatingActionButton />

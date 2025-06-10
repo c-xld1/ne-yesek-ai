@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Bookmark, Share2, Play, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Share2, Play, ChevronLeft, ChevronRight, Plus, SkipForward, SkipBack } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface VideoStory {
@@ -26,6 +26,7 @@ interface VideoStory {
 
 const VideoStories = () => {
   const [selectedStory, setSelectedStory] = useState<VideoStory | null>(null);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [stories, setStories] = useState<VideoStory[]>([
     {
       id: "1",
@@ -119,6 +120,27 @@ const VideoStories = () => {
     }
   };
 
+  const handleStoryClick = (story: VideoStory) => {
+    setSelectedStory(story);
+    setCurrentStoryIndex(stories.findIndex(s => s.id === story.id));
+  };
+
+  const nextStory = () => {
+    if (currentStoryIndex < stories.length - 1) {
+      const nextIndex = currentStoryIndex + 1;
+      setCurrentStoryIndex(nextIndex);
+      setSelectedStory(stories[nextIndex]);
+    }
+  };
+
+  const prevStory = () => {
+    if (currentStoryIndex > 0) {
+      const prevIndex = currentStoryIndex - 1;
+      setCurrentStoryIndex(prevIndex);
+      setSelectedStory(stories[prevIndex]);
+    }
+  };
+
   const handleLike = (storyId: string) => {
     setStories(prev => prev.map(story => 
       story.id === storyId 
@@ -204,7 +226,7 @@ const VideoStories = () => {
               <div
                 key={story.id}
                 className="flex-shrink-0 cursor-pointer group"
-                onClick={() => setSelectedStory(story)}
+                onClick={() => handleStoryClick(story)}
               >
                 <div className="relative">
                   {/* Video Thumbnail */}
@@ -248,11 +270,50 @@ const VideoStories = () => {
           </Button>
         </div>
 
-        {/* Video Modal */}
+        {/* Video Modal with Story Navigation */}
         <Dialog open={!!selectedStory} onOpenChange={() => setSelectedStory(null)}>
           <DialogContent className="max-w-md p-0 bg-black">
             {selectedStory && (
               <div className="relative">
+                {/* Navigation Buttons */}
+                {currentStoryIndex > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-black bg-opacity-50 text-white hover:bg-black hover:bg-opacity-70"
+                    onClick={prevStory}
+                  >
+                    <SkipBack className="h-6 w-6" />
+                  </Button>
+                )}
+                
+                {currentStoryIndex < stories.length - 1 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-black bg-opacity-50 text-white hover:bg-black hover:bg-opacity-70"
+                    onClick={nextStory}
+                  >
+                    <SkipForward className="h-6 w-6" />
+                  </Button>
+                )}
+
+                {/* Story Progress Indicators */}
+                <div className="absolute top-2 left-4 right-4 z-20 flex gap-1">
+                  {stories.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`flex-1 h-1 rounded-full ${
+                        index === currentStoryIndex 
+                          ? 'bg-white' 
+                          : index < currentStoryIndex 
+                          ? 'bg-white bg-opacity-60' 
+                          : 'bg-white bg-opacity-30'
+                      }`}
+                    />
+                  ))}
+                </div>
+
                 {/* Video Player */}
                 <div className="aspect-[9/16] bg-black">
                   <iframe
@@ -334,7 +395,7 @@ const VideoStories = () => {
                 </div>
 
                 {/* Category Badge */}
-                <Badge className="absolute top-4 left-4 bg-food-500 text-white">
+                <Badge className="absolute top-12 left-4 bg-food-500 text-white">
                   {selectedStory.category}
                 </Badge>
               </div>

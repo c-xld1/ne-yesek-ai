@@ -1,212 +1,179 @@
+
 import { useState, useEffect } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecipeCard from "@/components/RecipeCard";
+import SearchBar from "@/components/SearchBar";
 import AdvancedSearch from "@/components/AdvancedSearch";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, SlidersHorizontal, Grid, List } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Filter, Grid, List, Clock, Users, Star, ChefHat } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useInView } from "react-intersection-observer";
+
+interface Recipe {
+  id: string;
+  title: string;
+  image: string;
+  cookingTime: string;
+  difficulty: "Kolay" | "Orta" | "Zor";
+  rating: number;
+  author: string;
+  dblScore: number;
+  description: string;
+  category?: string;
+  likes?: number;
+  views?: number;
+}
+
+const mockRecipes: Recipe[] = [
+  {
+    id: "1",
+    title: "Kremalı Mantarlı Tavuk",
+    image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
+    cookingTime: "35 dk",
+    difficulty: "Orta",
+    rating: 4.9,
+    author: "Chef Mehmet",
+    dblScore: 98,
+    description: "Restaurant kalitesinde kremalı mantarlı tavuk tarifi.",
+    category: "Ana Yemek",
+    likes: 1247,
+    views: 8950
+  },
+  {
+    id: "2",
+    title: "Ev Yapımı Pizza",
+    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+    cookingTime: "45 dk",
+    difficulty: "Kolay",
+    rating: 4.8,
+    author: "Pizza Ustası",
+    dblScore: 95,
+    description: "Evde kolayca yapabileceğiniz nefis pizza tarifi.",
+    category: "Ana Yemek",
+    likes: 856,
+    views: 6240
+  },
+  // ... daha fazla tarif
+];
+
+const fetchRecipes = async ({ pageParam = 0 }) => {
+  // API çağrısı simülasyonu
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  const startIndex = pageParam * 10;
+  const endIndex = startIndex + 10;
+  const paginatedRecipes = mockRecipes.slice(startIndex, endIndex);
+  
+  return {
+    recipes: paginatedRecipes,
+    nextPage: endIndex < mockRecipes.length ? pageParam + 1 : undefined,
+    hasNextPage: endIndex < mockRecipes.length
+  };
+};
 
 const Recipes = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Tümü");
-  const [viewMode, setViewMode] = useState("grid");
-  const [sortBy, setSortBy] = useState("popular");
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+  const { ref, inView } = useInView();
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error
+  } = useInfiniteQuery({
+    queryKey: ['recipes'],
+    queryFn: fetchRecipes,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: 0,
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage]);
+
+  const allRecipes = data?.pages.flatMap(page => page.recipes) || [];
 
   const categories = [
-    "Tümü", "Ana Yemek", "Çorba", "Tatlı", "Kahvaltı", "15 Dakikada", 
-    "Vegan", "Et Yemekleri", "Deniz Ürünleri", "Hamur İşleri", "Salata", "İçecekler"
+    { id: "all", label: "🍽️ Tümü", count: allRecipes.length },
+    { id: "main", label: "🥘 Ana Yemek", count: 45 },
+    { id: "dessert", label: "🧁 Tatlı", count: 32 },
+    { id: "soup", label: "🍲 Çorba", count: 28 },
+    { id: "breakfast", label: "🍳 Kahvaltı", count: 35 },
+    { id: "vegan", label: "🌱 Vegan", count: 22 }
   ];
 
   const sortOptions = [
-    { value: "popular", label: "En Popüler" },
-    { value: "rating", label: "En Yüksek Puan" },
-    { value: "newest", label: "En Yeni" },
-    { value: "cooktime", label: "Hazırlık Süresi" },
-    { value: "difficulty", label: "Zorluk Derecesi" }
+    { id: "popular", label: "En Popüler", icon: Star },
+    { id: "newest", label: "En Yeni", icon: Clock },
+    { id: "rating", label: "En Yüksek Puan", icon: ChefHat },
+    { id: "quick", label: "En Hızlı", icon: Clock }
   ];
 
-  // Örnek tarif verileri - sayfalama için genişletildi
-  const allRecipes = [
-    {
-      id: "1",
-      title: "Tavuk Sote",
-      image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
-      cookingTime: "25 dk",
-      difficulty: "Kolay" as const,
-      rating: 4.8,
-      author: "Chef Ayşe",
-      dblScore: 95,
-      description: "Evdeki basit malzemelerle hazırlayabileceğiniz nefis tavuk sote tarifi.",
-      category: "Ana Yemek"
-    },
-    {
-      id: "2",
-      title: "Mercimek Çorbası",
-      image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop",
-      cookingTime: "30 dk",
-      difficulty: "Kolay" as const,
-      rating: 4.9,
-      author: "Zeynep Hanım",
-      dblScore: 88,
-      description: "Geleneksel Türk mutfağından sıcacık ve tok tutan mercimek çorbası.",
-      category: "Çorba"
-    },
-    {
-      title: "Köfte ve Pilav",
-      image: "https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&h=300&fit=crop",
-      cookingTime: "45 dk",
-      difficulty: "Orta" as const,
-      rating: 4.7,
-      author: "Mehmet Usta",
-      dblScore: 92,
-      description: "Ev yapımı köfte ve tereyağlı pilavın mükemmel uyumu.",
-      category: "Ana Yemek"
-    },
-    {
-      title: "Çikolatalı Kek",
-      image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop",
-      cookingTime: "60 dk",
-      difficulty: "Orta" as const,
-      rating: 4.6,
-      author: "Pasta Şefi",
-      dblScore: 85,
-      description: "Evde kolayca yapabileceğiniz nemli ve lezzetli çikolatalı kek.",
-      category: "Tatlı"
-    },
-    {
-      title: "Avokado Toast",
-      image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=400&h=300&fit=crop",
-      cookingTime: "10 dk",
-      difficulty: "Kolay" as const,
-      rating: 4.5,
-      author: "Sağlık Uzmanı",
-      dblScore: 78,
-      description: "Sağlıklı ve lezzetli kahvaltı için mükemmel avokado toast.",
-      category: "Kahvaltı"
-    },
-    {
-      title: "Hızlı Omlet",
-      image: "https://images.unsplash.com/photo-1506084868230-bb9d95c24759?w=400&h=300&fit=crop",
-      cookingTime: "8 dk",
-      difficulty: "Kolay" as const,
-      rating: 4.4,
-      author: "Pratik Chef",
-      dblScore: 82,
-      description: "15 dakikada hazır olan pratik ve lezzetli omlet tarifi.",
-      category: "15 Dakikada"
-    },
-    {
-      title: "Vegan Buddha Bowl",
-      image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
-      cookingTime: "20 dk",
-      difficulty: "Kolay" as const,
-      rating: 4.7,
-      author: "Vegan Chef",
-      dblScore: 89,
-      description: "Besleyici ve renkli vegan buddha bowl tarifi.",
-      category: "Vegan"
-    },
-    {
-      title: "Domates Çorbası",
-      image: "https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=300&fit=crop",
-      cookingTime: "25 dk",
-      difficulty: "Kolay" as const,
-      rating: 4.6,
-      author: "Ana Chef",
-      dblScore: 84,
-      description: "Taze domates ve baharatlarla hazırlanan nefis çorba.",
-      category: "Çorba"
-    }
-  ];
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <LoadingSpinner />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
-  // Daha fazla tarif yükle
-  const loadMoreRecipes = () => {
-    if (loading || !hasMore) return;
-    
-    setLoading(true);
-    
-    // Simüle edilmiş API çağrısı
-    setTimeout(() => {
-      const startIndex = (page - 1) * 8;
-      const endIndex = startIndex + 8;
-      const newRecipes = allRecipes.slice(startIndex, endIndex);
-      
-      if (newRecipes.length === 0) {
-        setHasMore(false);
-      } else {
-        setRecipes(prev => [...prev, ...newRecipes]);
-        setPage(prev => prev + 1);
-      }
-      
-      setLoading(false);
-    }, 1000);
-  };
-
-  // Sayfa yüklendiğinde ilk tarifleri yükle
-  useEffect(() => {
-    setRecipes(allRecipes.slice(0, 8));
-    setPage(2);
-  }, []);
-
-  // Scroll eventi için infinite scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || loading) {
-        return;
-      }
-      loadMoreRecipes();
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, page, hasMore]);
-
-  const filteredRecipes = recipes.filter(recipe => {
-    const matchesCategory = selectedCategory === "Tümü" || recipe.category === selectedCategory;
-    return matchesCategory;
-  });
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Bir hata oluştu</h1>
+            <p className="text-gray-600">Tarifler yüklenirken bir sorun yaşandı.</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             🍽️ Tüm Tarifler
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Binlerce lezzetli tarif arasından size en uygun olanı bulun
+            Binlerce lezzetli tarif arasından size en uygun olanını bulun
           </p>
         </div>
 
-        {/* Gelişmiş Arama */}
-        <AdvancedSearch />
-
-        {/* Filtreler ve Görünüm */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="h-4 w-4 text-gray-500" />
-                <span className="text-sm font-medium">Sıralama:</span>
-              </div>
-              <select 
-                value={sortBy} 
-                onChange={(e) => setSortBy(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              >
-                {sortOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {/* Search Section */}
+        <div className="mb-8">
+          <SearchBar />
+          <div className="mt-4 flex items-center justify-between">
+            <Button
+              variant="outline"
+              onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Gelişmiş Arama
+            </Button>
             
             <div className="flex items-center gap-2">
               <Button
@@ -225,78 +192,95 @@ const Recipes = () => {
               </Button>
             </div>
           </div>
-
-          {/* Kategori Filtreleri */}
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category ? "gradient-primary text-white" : ""}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
+          
+          {showAdvancedSearch && (
+            <div className="mt-4">
+              <AdvancedSearch />
+            </div>
+          )}
         </div>
 
-        {/* Aktif Filtreler */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600">
-              <span className="font-semibold">{filteredRecipes.length}</span> tarif bulundu
-              {selectedCategory !== "Tümü" && (
-                <Badge className="ml-2 bg-food-100 text-food-800">
-                  {selectedCategory}
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-food-600">{allRecipes.length}</div>
+              <div className="text-sm text-gray-600">Toplam Tarif</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-spice-600">156</div>
+              <div className="text-sm text-gray-600">Bu Hafta Eklenen</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">4.8</div>
+              <div className="text-sm text-gray-600">Ortalama Puan</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-purple-600">25</div>
+              <div className="text-sm text-gray-600">Dakika Ort. Süre</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <TabsList className="grid grid-cols-3 lg:grid-cols-6 lg:w-auto">
+              {categories.map((category) => (
+                <TabsTrigger key={category.id} value={category.id} className="text-xs lg:text-sm">
+                  {category.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            
+            <div className="flex flex-wrap gap-2">
+              {sortOptions.map((option) => (
+                <Button key={option.id} variant="outline" size="sm">
+                  <option.icon className="h-4 w-4 mr-1" />
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {categories.map((category) => (
+            <TabsContent key={category.id} value={category.id} className="mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">
+                  {category.label} ({category.count} tarif)
+                </h2>
+                <Badge variant="secondary">
+                  {category.count} sonuç
                 </Badge>
-              )}
-            </p>
-            {selectedCategory !== "Tümü" && (
-              <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("Tümü")}>
-                Filtreleri Temizle
-              </Button>
-            )}
-          </div>
-        </div>
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
 
-        {/* Tarifler */}
-        <div className={`${
+        {/* Recipes Grid */}
+        <div className={`grid gap-6 mb-8 ${
           viewMode === "grid" 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-            : "space-y-4"
+            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+            : "grid-cols-1"
         }`}>
-          {filteredRecipes.map((recipe, index) => (
-            <RecipeCard key={`${recipe.id}-${index}`} {...recipe} />
+          {allRecipes.map((recipe) => (
+            <RecipeCard key={recipe.id} {...recipe} />
           ))}
         </div>
 
-        {/* Loading Indicator */}
-        {loading && (
-          <div className="text-center mt-8">
-            <div className="inline-flex items-center gap-2">
-              <div className="animate-spin rounded-full h-6 w-6 border-2 border-food-500 border-t-transparent"></div>
-              <span className="text-gray-600">Daha fazla tarif yükleniyor...</span>
-            </div>
-          </div>
-        )}
-
-        {/* End of results message */}
-        {!hasMore && recipes.length > 0 && (
-          <div className="text-center mt-8">
-            <p className="text-gray-600">Tüm tarifler yüklendi 🎉</p>
-          </div>
-        )}
-
-        {/* Manual Load More Button (fallback) */}
-        {hasMore && !loading && (
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg" onClick={loadMoreRecipes}>
-              Daha Fazla Tarif Yükle
-            </Button>
-          </div>
-        )}
+        {/* Loading indicator for infinite scroll */}
+        <div ref={ref} className="flex justify-center py-8">
+          {isFetchingNextPage && <LoadingSpinner />}
+          {!hasNextPage && allRecipes.length > 0 && (
+            <p className="text-gray-500">Tüm tarifler yüklendi</p>
+          )}
+        </div>
       </div>
 
       <Footer />
@@ -305,5 +289,3 @@ const Recipes = () => {
 };
 
 export default Recipes;
-
-</edits_to_apply>

@@ -24,6 +24,8 @@ import Authors from "./pages/Authors";
 import AdminPanel from "./pages/AdminPanel";
 import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
+import Seasonal from "./pages/Seasonal";
+import Regional from "./pages/Regional";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,8 @@ const App = () => (
           <Route path="/tarif-paylas" element={<ShareRecipe />} />
           <Route path="/tarifler" element={<Recipes />} />
           <Route path="/kategoriler" element={<Categories />} />
+          <Route path="/mevsimsel" element={<Seasonal />} />
+          <Route path="/yoresel" element={<Regional />} />
           <Route path="/hikayeler" element={<VideoStoriesPage />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/profil/:username" element={<Profile />} />

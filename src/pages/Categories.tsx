@@ -5,8 +5,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecipeCard from "@/components/RecipeCard";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Grid, List } from "lucide-react";
+import { useRecipes } from "@/hooks/useRecipes";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Categories = () => {
   const [searchParams] = useSearchParams();
@@ -14,45 +15,78 @@ const Categories = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("popular");
 
+  const { data: recipes, isLoading, error } = useRecipes();
+
+  // Static categories for now - in a real app these might come from the database
   const categories = [
-    { name: "Kahvaltı", count: 150, icon: "🍳" },
-    { name: "Ana Yemek", count: 320, icon: "🍽️" },
-    { name: "Çorbalar", count: 80, icon: "🍲" },
-    { name: "Tatlılar", count: 95, icon: "🧁" },
-    { name: "15 Dakikada", count: 65, icon: "⚡" },
-    { name: "Vegan", count: 45, icon: "🌱" },
-    { name: "Et Yemekleri", count: 89, icon: "🥩" },
-    { name: "Deniz Ürünleri", count: 67, icon: "🐟" },
-    { name: "Hamur İşleri", count: 73, icon: "🥖" },
-    { name: "Salata & Mezeler", count: 54, icon: "🥗" },
-    { name: "İçecekler", count: 41, icon: "🥤" },
-    { name: "Fit Tarifler", count: 38, icon: "💪" }
+    { name: "Kahvaltı", count: 0, icon: "🍳" },
+    { name: "Ana Yemek", count: 0, icon: "🍽️" },
+    { name: "Çorbalar", count: 0, icon: "🍲" },
+    { name: "Tatlılar", count: 0, icon: "🧁" },
+    { name: "15 Dakikada", count: 0, icon: "⚡" },
+    { name: "Vegan", count: 0, icon: "🌱" },
+    { name: "Et Yemekleri", count: 0, icon: "🥩" },
+    { name: "Deniz Ürünleri", count: 0, icon: "🐟" },
+    { name: "Hamur İşleri", count: 0, icon: "🥖" },
+    { name: "Salata & Mezeler", count: 0, icon: "🥗" },
+    { name: "İçecekler", count: 0, icon: "🥤" },
+    { name: "Fit Tarifler", count: 0, icon: "💪" }
   ];
 
-  const recipes = [
-    {
-      id: "1",
-      title: "Tavuk Sote",
-      image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
-      cookingTime: "25 dk",
-      difficulty: "Kolay" as const,
-      rating: 4.8,
-      author: "Chef Ayşe",
-      dblScore: 95,
-      description: "Evdeki basit malzemelerle hazırlayabileceğiniz nefis tavuk sote tarifi."
-    },
-    {
-      id: "2",
-      title: "Mercimek Çorbası",
-      image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop",
-      cookingTime: "30 dk",
-      difficulty: "Kolay" as const,
-      rating: 4.9,
-      author: "Zeynep Hanım",
-      dblScore: 88,
-      description: "Geleneksel Türk mutfağından sıcacık ve tok tutan mercimek çorbası."
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-64">
+          <LoadingSpinner />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-64">
+          <p className="text-red-500">Tarifler yüklenirken hata oluştu: {error.message}</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Filter recipes by category if needed
+  let filteredRecipes = recipes || [];
+
+  // Sort recipes
+  filteredRecipes = filteredRecipes.sort((a, b) => {
+    switch (sortBy) {
+      case "rating":
+        return (b.rating || 0) - (a.rating || 0);
+      case "newest":
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case "cooktime":
+        // For now, we'll just sort by rating since cooking_time is text
+        return (b.rating || 0) - (a.rating || 0);
+      default: // popular
+        return (b.rating || 0) - (a.rating || 0);
     }
-  ];
+  });
+
+  // Convert to component format
+  const formattedRecipes = filteredRecipes.map(recipe => ({
+    id: recipe.id,
+    title: recipe.title || 'Başlıksız Tarif',
+    image: recipe.image_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+    cookingTime: recipe.cooking_time || "Bilinmiyor",
+    difficulty: (recipe.difficulty as "Kolay" | "Orta" | "Zor") || "Kolay",
+    rating: recipe.rating || 0,
+    author: recipe.author_name || "Anonim",
+    dblScore: Math.round((recipe.rating || 0) * 20),
+    description: recipe.description || "Açıklama mevcut değil."
+  }));
 
   const currentCategory = categories.find(cat => cat.name === kategori);
 
@@ -66,7 +100,7 @@ const Categories = () => {
             {currentCategory?.icon} {kategori} Tarifleri
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            {currentCategory ? `${currentCategory.count} adet ${kategori.toLowerCase()} tarifi` : "Tüm kategorilerden tarifler"}
+            {formattedRecipes.length} adet {kategori.toLowerCase()} tarifi
           </p>
         </div>
 
@@ -111,7 +145,7 @@ const Categories = () => {
             ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
             : "space-y-4"
         }`}>
-          {recipes.map((recipe) => (
+          {formattedRecipes.map((recipe) => (
             <RecipeCard key={recipe.id} {...recipe} />
           ))}
         </div>

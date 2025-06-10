@@ -7,14 +7,14 @@ import { Heart, MessageCircle, Bookmark, UserPlus, Trophy, Star, Flame, Crown } 
 import { useToast } from "@/hooks/use-toast";
 
 interface CommunityFeaturesProps {
-  recipeId: string;
+  recipeId?: string;
   initialLikes?: number;
   initialComments?: number;
   initialBookmarks?: number;
 }
 
 const CommunityFeatures = ({ 
-  recipeId, 
+  recipeId = "sample", 
   initialLikes = 0, 
   initialComments = 0, 
   initialBookmarks = 0 

@@ -7,6 +7,8 @@ import RecipeCard from "@/components/RecipeCard";
 import { Button } from "@/components/ui/button";
 import { Search, Filter, Grid, List } from "lucide-react";
 import { useRecipes } from "@/hooks/useRecipes";
+import { useCategories } from "@/hooks/useCategories";
+import { useRecipeStats } from "@/hooks/useRecipeStats";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Categories = () => {
@@ -15,23 +17,11 @@ const Categories = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("popular");
 
-  const { data: recipes, isLoading, error } = useRecipes();
+  const { data: recipes, isLoading: recipesLoading, error } = useRecipes();
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: recipeStats } = useRecipeStats();
 
-  // Static categories for now - in a real app these might come from the database
-  const categories = [
-    { name: "Kahvaltı", count: 0, icon: "🍳" },
-    { name: "Ana Yemek", count: 0, icon: "🍽️" },
-    { name: "Çorbalar", count: 0, icon: "🍲" },
-    { name: "Tatlılar", count: 0, icon: "🧁" },
-    { name: "15 Dakikada", count: 0, icon: "⚡" },
-    { name: "Vegan", count: 0, icon: "🌱" },
-    { name: "Et Yemekleri", count: 0, icon: "🥩" },
-    { name: "Deniz Ürünleri", count: 0, icon: "🐟" },
-    { name: "Hamur İşleri", count: 0, icon: "🥖" },
-    { name: "Salata & Mezeler", count: 0, icon: "🥗" },
-    { name: "İçecekler", count: 0, icon: "🥤" },
-    { name: "Fit Tarifler", count: 0, icon: "💪" }
-  ];
+  const isLoading = recipesLoading || categoriesLoading;
 
   if (isLoading) {
     return (
@@ -59,6 +49,13 @@ const Categories = () => {
 
   // Filter recipes by category if needed
   let filteredRecipes = recipes || [];
+  
+  if (kategori !== "Tümü") {
+    const selectedCategory = categories?.find(cat => cat.name === kategori);
+    if (selectedCategory) {
+      filteredRecipes = filteredRecipes.filter(recipe => recipe.category_id === selectedCategory.id);
+    }
+  }
 
   // Sort recipes
   filteredRecipes = filteredRecipes.sort((a, b) => {
@@ -88,7 +85,8 @@ const Categories = () => {
     description: recipe.description || "Açıklama mevcut değil."
   }));
 
-  const currentCategory = categories.find(cat => cat.name === kategori);
+  const currentCategory = categories?.find(cat => cat.name === kategori);
+  const categoryIcon = currentCategory?.icon || "📖";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -97,7 +95,7 @@ const Categories = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-            {currentCategory?.icon} {kategori} Tarifleri
+            {categoryIcon} {kategori} Tarifleri
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
             {formattedRecipes.length} adet {kategori.toLowerCase()} tarifi

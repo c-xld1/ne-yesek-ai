@@ -1,3 +1,4 @@
+
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,12 +10,14 @@ import CommunityFeatures from "@/components/CommunityFeatures";
 import WeeklyMealPlan from "@/components/WeeklyMealPlan";
 import { Button } from "@/components/ui/button";
 import { useRecipes } from "@/hooks/useRecipes";
+import { useCategories } from "@/hooks/useCategories";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Index = () => {
-  const { data: recipes, isLoading } = useRecipes();
+  const { data: recipes, isLoading: recipesLoading } = useRecipes();
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
 
-  if (isLoading) {
+  if (recipesLoading || categoriesLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
@@ -64,7 +67,7 @@ const Index = () => {
           
           <div className="text-center mt-8">
             <Button asChild size="lg" className="gradient-primary text-white">
-              <a href="/recipes">Tüm Tarifleri Görüntüle</a>
+              <a href="/tarifler">Tüm Tarifleri Görüntüle</a>
             </Button>
           </div>
         </div>
@@ -83,12 +86,14 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <CategoryCard name="Kahvaltılık" icon="🍳" recipeCount={120} />
-            <CategoryCard name="Ana Yemek" icon="🍽️" recipeCount={245} />
-            <CategoryCard name="Tatlılar" icon="🧁" recipeCount={90} />
-            <CategoryCard name="Salatalar" icon="🥗" recipeCount={75} />
-            <CategoryCard name="Çorbalar" icon="🍲" recipeCount={60} />
-            <CategoryCard name="Vegan" icon="🌱" recipeCount={45} />
+            {categories?.slice(0, 6).map((category) => (
+              <CategoryCard 
+                key={category.id}
+                name={category.name} 
+                icon={category.icon || "🍽️"} 
+                recipeCount={0} // Bu sayı daha sonra gerçek veri ile güncellenecek
+              />
+            ))}
           </div>
         </div>
       </section>

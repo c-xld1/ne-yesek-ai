@@ -4,17 +4,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, Users } from "lucide-react";
 
 interface CategoryCardProps {
-  title: string;
-  description: string;
+  name: string;
   icon: string;
   recipeCount: number;
-  color: string;
 }
 
-const CategoryCard = ({ title, description, icon, recipeCount, color }: CategoryCardProps) => {
+const CategoryCard = ({ name, icon, recipeCount }: CategoryCardProps) => {
   return (
-    <Link to={`/kategoriler?kategori=${encodeURIComponent(title)}`}>
-      <Card className={`group cursor-pointer overflow-hidden rounded-xl border-0 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-2 ${color}`}>
+    <Link to={`/kategoriler?kategori=${encodeURIComponent(name)}`}>
+      <Card className="group cursor-pointer overflow-hidden rounded-xl border-0 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-gradient-to-br from-food-50 to-food-100">
         <CardContent className="p-6 text-center relative">
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <TrendingUp className="h-4 w-4 text-food-600" />
@@ -25,12 +23,8 @@ const CategoryCard = ({ title, description, icon, recipeCount, color }: Category
           </div>
           
           <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-food-700 transition-colors">
-            {title}
+            {name}
           </h3>
-          
-          <p className="text-gray-600 text-sm mb-3 group-hover:text-gray-700">
-            {description}
-          </p>
           
           <div className="flex items-center justify-center gap-1 text-xs text-gray-500 group-hover:text-food-600">
             <Users className="h-3 w-3" />

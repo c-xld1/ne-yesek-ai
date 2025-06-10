@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Bell, Heart, MessageCircle, User, ChefHat, Award, 
-  Settings, Check, X, Trash2, MarkAsUnread 
+  Settings, Check, X, Trash2 
 } from "lucide-react";
 
 const Notifications = () => {

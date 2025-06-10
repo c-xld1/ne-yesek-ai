@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,12 @@ import VideoStoriesPage from "./pages/VideoStories";
 import Blog from "./pages/Blog";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import QnA from "./pages/QnA";
+import UserDashboard from "./pages/UserDashboard";
+import Authors from "./pages/Authors";
+import AdminPanel from "./pages/AdminPanel";
+import Notifications from "./pages/Notifications";
+import Favorites from "./pages/Favorites";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +48,12 @@ const App = () => (
           <Route path="/iletisim" element={<Contact />} />
           <Route path="/ipuclari" element={<CookingTips />} />
           <Route path="/menu-planlayici" element={<MenuPlanner />} />
+          <Route path="/soru-cevap" element={<QnA />} />
+          <Route path="/kontrol-paneli" element={<UserDashboard />} />
+          <Route path="/yazarlar" element={<Authors />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/bildirimler" element={<Notifications />} />
+          <Route path="/favoriler" element={<Favorites />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

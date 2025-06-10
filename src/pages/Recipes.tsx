@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecipeCard from "@/components/RecipeCard";
@@ -11,6 +11,10 @@ const Recipes = () => {
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("popular");
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const categories = [
     "Tümü", "Ana Yemek", "Çorba", "Tatlı", "Kahvaltı", "15 Dakikada", 
@@ -25,8 +29,8 @@ const Recipes = () => {
     { value: "difficulty", label: "Zorluk Derecesi" }
   ];
 
-  // Örnek tarif verileri
-  const recipes = [
+  // Örnek tarif verileri - sayfalama için genişletildi
+  const allRecipes = [
     {
       id: "1",
       title: "Tavuk Sote",
@@ -40,6 +44,7 @@ const Recipes = () => {
       category: "Ana Yemek"
     },
     {
+      id: "2",
       title: "Mercimek Çorbası",
       image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop",
       cookingTime: "30 dk",
@@ -117,6 +122,48 @@ const Recipes = () => {
       category: "Çorba"
     }
   ];
+
+  // Daha fazla tarif yükle
+  const loadMoreRecipes = () => {
+    if (loading || !hasMore) return;
+    
+    setLoading(true);
+    
+    // Simüle edilmiş API çağrısı
+    setTimeout(() => {
+      const startIndex = (page - 1) * 8;
+      const endIndex = startIndex + 8;
+      const newRecipes = allRecipes.slice(startIndex, endIndex);
+      
+      if (newRecipes.length === 0) {
+        setHasMore(false);
+      } else {
+        setRecipes(prev => [...prev, ...newRecipes]);
+        setPage(prev => prev + 1);
+      }
+      
+      setLoading(false);
+    }, 1000);
+  };
+
+  // Sayfa yüklendiğinde ilk tarifleri yükle
+  useEffect(() => {
+    setRecipes(allRecipes.slice(0, 8));
+    setPage(2);
+  }, []);
+
+  // Scroll eventi için infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || loading) {
+        return;
+      }
+      loadMoreRecipes();
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, page, hasMore]);
 
   const filteredRecipes = recipes.filter(recipe => {
     const matchesCategory = selectedCategory === "Tümü" || recipe.category === selectedCategory;
@@ -221,16 +268,35 @@ const Recipes = () => {
             : "space-y-4"
         }`}>
           {filteredRecipes.map((recipe, index) => (
-            <RecipeCard key={index} {...recipe} />
+            <RecipeCard key={`${recipe.id}-${index}`} {...recipe} />
           ))}
         </div>
 
-        {/* Daha Fazla Yükle */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            Daha Fazla Tarif Yükle
-          </Button>
-        </div>
+        {/* Loading Indicator */}
+        {loading && (
+          <div className="text-center mt-8">
+            <div className="inline-flex items-center gap-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-food-500 border-t-transparent"></div>
+              <span className="text-gray-600">Daha fazla tarif yükleniyor...</span>
+            </div>
+          </div>
+        )}
+
+        {/* End of results message */}
+        {!hasMore && recipes.length > 0 && (
+          <div className="text-center mt-8">
+            <p className="text-gray-600">Tüm tarifler yüklendi 🎉</p>
+          </div>
+        )}
+
+        {/* Manual Load More Button (fallback) */}
+        {hasMore && !loading && (
+          <div className="text-center mt-12">
+            <Button variant="outline" size="lg" onClick={loadMoreRecipes}>
+              Daha Fazla Tarif Yükle
+            </Button>
+          </div>
+        )}
       </div>
 
       <Footer />
@@ -239,3 +305,5 @@ const Recipes = () => {
 };
 
 export default Recipes;
+
+</edits_to_apply>

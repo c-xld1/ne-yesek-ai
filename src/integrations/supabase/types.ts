@@ -43,19 +43,16 @@ export type Database = {
         Row: {
           added_at: string | null
           collection_id: string
-          id: string
           recipe_id: string
         }
         Insert: {
           added_at?: string | null
           collection_id: string
-          id?: string
           recipe_id: string
         }
         Update: {
           added_at?: string | null
           collection_id?: string
-          id?: string
           recipe_id?: string
         }
         Relationships: [
@@ -82,7 +79,6 @@ export type Database = {
           id: string
           is_public: boolean | null
           name: string
-          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -91,7 +87,6 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           name: string
-          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -100,7 +95,6 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           name?: string
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -112,7 +106,6 @@ export type Database = {
           id: string
           parent_id: string | null
           recipe_id: string
-          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -121,7 +114,6 @@ export type Database = {
           id?: string
           parent_id?: string | null
           recipe_id: string
-          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -130,7 +122,6 @@ export type Database = {
           id?: string
           parent_id?: string | null
           recipe_id?: string
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -153,19 +144,16 @@ export type Database = {
       favorites: {
         Row: {
           created_at: string | null
-          id: string
           recipe_id: string
           user_id: string
         }
         Insert: {
           created_at?: string | null
-          id?: string
           recipe_id: string
           user_id: string
         }
         Update: {
           created_at?: string | null
-          id?: string
           recipe_id?: string
           user_id?: string
         }
@@ -184,19 +172,16 @@ export type Database = {
           created_at: string | null
           follower_id: string
           following_id: string
-          id: string
         }
         Insert: {
           created_at?: string | null
           follower_id: string
           following_id: string
-          id?: string
         }
         Update: {
           created_at?: string | null
           follower_id?: string
           following_id?: string
-          id?: string
         }
         Relationships: []
       }
@@ -204,7 +189,6 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
-          created_at: string | null
           full_name: string | null
           id: string
           updated_at: string | null
@@ -213,7 +197,6 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
-          created_at?: string | null
           full_name?: string | null
           id: string
           updated_at?: string | null
@@ -222,7 +205,6 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
-          created_at?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string | null
@@ -237,7 +219,6 @@ export type Database = {
           rating: number
           recipe_id: string
           review: string | null
-          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -246,7 +227,6 @@ export type Database = {
           rating: number
           recipe_id: string
           review?: string | null
-          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -255,7 +235,6 @@ export type Database = {
           rating?: number
           recipe_id?: string
           review?: string | null
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -270,11 +249,11 @@ export type Database = {
       }
       recipes: {
         Row: {
-          author_name: string | null
+          author_id: string | null
           calories_per_serving: number | null
           category_id: string | null
           cooking_time: string | null
-          created_at: string
+          created_at: string | null
           description: string | null
           difficulty: string | null
           id: string
@@ -282,19 +261,17 @@ export type Database = {
           ingredients: Json | null
           instructions: Json | null
           prep_time: string | null
-          rating: number | null
           servings: number | null
-          title: string | null
+          title: string
           total_time: string | null
-          user_id: string | null
           view_count: number | null
         }
         Insert: {
-          author_name?: string | null
+          author_id?: string | null
           calories_per_serving?: number | null
           category_id?: string | null
           cooking_time?: string | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           difficulty?: string | null
           id?: string
@@ -302,19 +279,17 @@ export type Database = {
           ingredients?: Json | null
           instructions?: Json | null
           prep_time?: string | null
-          rating?: number | null
           servings?: number | null
-          title?: string | null
+          title: string
           total_time?: string | null
-          user_id?: string | null
           view_count?: number | null
         }
         Update: {
-          author_name?: string | null
+          author_id?: string | null
           calories_per_serving?: number | null
           category_id?: string | null
           cooking_time?: string | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           difficulty?: string | null
           id?: string
@@ -322,11 +297,9 @@ export type Database = {
           ingredients?: Json | null
           instructions?: Json | null
           prep_time?: string | null
-          rating?: number | null
           servings?: number | null
-          title?: string | null
+          title?: string
           total_time?: string | null
-          user_id?: string | null
           view_count?: number | null
         }
         Relationships: [

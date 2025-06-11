@@ -2,6 +2,7 @@
 import { useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AffiliateLinks from "@/components/AffiliateLinks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,6 +45,11 @@ const RecipeDetail = () => {
   // Parse JSON data
   const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
   const instructions = Array.isArray(recipe.instructions) ? recipe.instructions : [];
+
+  // Extract ingredient names for affiliate links
+  const ingredientNames = ingredients.map((ingredient: any) => 
+    typeof ingredient === 'string' ? ingredient : ingredient.name || ingredient.item || 'Malzeme'
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -116,6 +122,11 @@ const RecipeDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Affiliate Links Section */}
+            {ingredientNames.length > 0 && (
+              <AffiliateLinks ingredients={ingredientNames} />
+            )}
+
             {/* Ingredients */}
             <Card>
               <CardContent className="p-6">

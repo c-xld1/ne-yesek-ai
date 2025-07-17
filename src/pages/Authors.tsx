@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -13,7 +12,7 @@ const Authors = () => {
   const [sortBy, setSortBy] = useState("popular");
 
   const categories = [
-    "Tümü", "Profesyonel Şefler", "Ev Aşçıları", "Beslenme Uzmanları", 
+    "Tümü", "Profesyonel Şefler", "Ev Aşçıları", "Beslenme Uzmanları",
     "Pasta Şefleri", "Dünya Mutfakları", "Vegan Uzmanları", "Yeni Üyeler"
   ];
 
@@ -67,18 +66,17 @@ const Authors = () => {
       achievements: ["Uzman Onayı", "Sağlık Lideri", "En Yararlı"]
     }
   ];
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             👨‍🍳 Yazarlarımız
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Deneyimli şeflerden ev aşçılarına, beslenme uzmanlarından pasta şeflerine kadar 
+            Deneyimli şeflerden ev aşçılarına, beslenme uzmanlarından pasta şeflerine kadar
             geniş yazar kadromuzla tanışın
           </p>
         </div>
@@ -97,8 +95,10 @@ const Authors = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <select 
-                value={sortBy} 
+              <label htmlFor="sortBy" className="sr-only">Sırala</label>
+              <select
+                id="sortBy"
+                value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
               >
@@ -195,7 +195,7 @@ const Authors = () => {
                     <div className="flex text-yellow-400">
                       {[...Array(5)].map((_, i) => (
                         <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                         </svg>
                       ))}
                     </div>
@@ -244,8 +244,8 @@ const Authors = () => {
               Siz de Yazar Olmak İster misiniz?
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto mb-6">
-              Mutfak deneyimlerinizi binlerce kişiyle paylaşın, takipçi kazanın ve 
-              tariflerinizden gelir elde edin. Platformumuzda içerik üreticisi olarak 
+              Mutfak deneyimlerinizi binlerce kişiyle paylaşın, takipçi kazanın ve
+              tariflerinizden gelir elde edin. Platformumuzda içerik üreticisi olarak
               kazanç elde edebilir, kendi mutfak topluluğunuzu oluşturabilirsiniz.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

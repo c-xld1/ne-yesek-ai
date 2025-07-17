@@ -1,194 +1,202 @@
-
-import { useState } from "react";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Heart, MessageCircle, Share2, Clock, ChefHat, Star, Eye, Bookmark } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Clock, Star, User, Heart, Share2, BookOpen, ChefHat, Eye } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
-import ImageWithFallback from "./ImageWithFallback";
-import TrendingBadge from "./TrendingBadge";
+import SocialShare from "./SocialShare";
 
 interface RecipeCardProps {
-  title: string;
-  image: string;
-  cookingTime: string;
-  difficulty: "Kolay" | "Orta" | "Zor";
-  rating: number;
-  author: string;
-  dblScore?: number;
-  description: string;
-  id?: string;
-  isPopular?: boolean;
-  viewCount?: number;
+    id: number | string;
+    title: string;
+    image?: string;
+    cookingTime?: string;
+    difficulty?: string;
+    rating?: number;
+    author?: string;
+    authorAvatar?: string;
+    description?: string;
+    viewCount?: number;
+    likeCount?: number;
+    commentCount?: number;
+    isPopular?: boolean;
+    isMinimal?: boolean;
+    tags?: string[];
 }
 
-const RecipeCard = ({ 
-  title, 
-  image, 
-  cookingTime, 
-  difficulty, 
-  rating, 
-  author, 
-  dblScore,
-  description,
-  id = "1",
-  isPopular = false,
-  viewCount = Math.floor(Math.random() * 1000) + 100
-}: RecipeCardProps) => {
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [isSharing, setIsSharing] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const { toast } = useToast();
+const RecipeCard: React.FC<RecipeCardProps> = ({
+    id,
+    title,
+    image,
+    cookingTime,
+    difficulty,
+    rating = 4.5,
+    author = "Chef Ahmet",
+    authorAvatar,
+    description,
+    viewCount = 1250,
+    likeCount = 89,
+    commentCount = 12,
+    isPopular = false,
+    tags = ["Kolay", "Hızlı"]
+}) => {
+    const [isLiked, setIsLiked] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
 
-  const getDifficultyColor = (diff: string) => {
-    switch (diff) {
-      case "Kolay": return "bg-green-100 text-green-800 border-green-200";
-      case "Orta": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Zor": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
+    const handleLike = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsLiked(!isLiked);
+    };
 
-  const handleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsFavorited(!isFavorited);
-    toast({
-      title: isFavorited ? "💔 Favorilerden çıkarıldı" : "❤️ Favorilere eklendi",
-      description: `"${title}" ${isFavorited ? 'favorilerden çıkarıldı' : 'favorilerinize eklendi'}`,
-    });
-  };
+    const handleSave = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsSaved(!isSaved);
+    };
 
-  const handleShare = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsSharing(true);
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: title,
-          text: description,
-          url: window.location.href,
-        });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast({
-          title: "🔗 Link kopyalandı",
-          description: "Tarif linki panoya kopyalandı",
-        });
-      }
-    } catch (error) {
-      console.log('Share failed:', error);
-    } finally {
-      setIsSharing(false);
-    }
-  };
+    return (
+        <motion.div
+            className="group cursor-pointer"
+            whileHover={{ y: -4 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
+            <div className="bg-white rounded-2xl shadow-card border border-gray-100/50 overflow-hidden transition-all duration-300 hover:shadow-card-hover hover:border-orange-200/50">
+                {/* Header with Author Info */}
+                <div className="p-4 pb-2">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10 ring-2 ring-orange-100">
+                                <AvatarImage src={authorAvatar} />
+                                <AvatarFallback className="bg-gradient-to-r from-orange-400 to-orange-500 text-white text-sm font-semibold">
+                                    {author?.charAt(0) || 'C'}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-semibold text-gray-900 text-sm">{author}</p>
+                                <p className="text-xs text-gray-500">{cookingTime}</p>
+                            </div>
+                        </div>
 
-  return (
-    <Card 
-      className="group overflow-hidden rounded-xl border-0 shadow-md hover:shadow-2xl transition-all duration-500 bg-white hover:-translate-y-2 cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Image */}
-      <div className="relative overflow-hidden">
-        <ImageWithFallback
-          src={image}
-          alt={title}
-          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ${getDifficultyColor(difficulty)}`}>
-            {difficulty}
-          </span>
-          {isPopular && <TrendingBadge type="hot" />}
-        </div>
-        
-        {dblScore && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-food-600 to-spice-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-            DBL: {dblScore}
-          </div>
-        )}
+                        {isPopular && (
+                            <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                <Star className="h-3 w-3 fill-current" />
+                                Popüler
+                            </div>
+                        )}
+                    </div>
+                </div>
 
-        {/* View count */}
-        <div className="absolute bottom-3 left-3 bg-black/50 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
-          <Eye className="h-3 w-3" />
-          {viewCount}
-        </div>
+                {/* Image */}
+                {image && (
+                    <div className="relative overflow-hidden mx-4 rounded-xl">
+                        <motion.img
+                            src={image}
+                            alt={title}
+                            className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                            whileHover={{ scale: 1.05 }}
+                        />
 
-        {/* Action buttons overlay */}
-        <div className={`absolute top-3 right-3 flex gap-2 transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`} 
-             style={{marginTop: dblScore ? '35px' : '0'}}>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 h-8 w-8 p-0 hover:scale-110 transition-all duration-300"
-            onClick={handleFavorite}
-          >
-            <Heart className={`h-4 w-4 transition-colors duration-300 ${isFavorited ? 'fill-red-500 text-red-500' : ''}`} />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 h-8 w-8 p-0 hover:scale-110 transition-all duration-300"
-            onClick={handleShare}
-            disabled={isSharing}
-          >
-            <Share2 className={`h-4 w-4 ${isSharing ? 'animate-spin' : ''}`} />
-          </Button>
-        </div>
-      </div>
+                        {/* Overlay Actions */}
+                        <div className="absolute top-3 right-3 flex gap-2">
+                            <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={handleSave}
+                                className={`p-2 rounded-full backdrop-blur-md transition-all duration-200 ${isSaved
+                                    ? 'bg-orange-500 text-white shadow-glow'
+                                    : 'bg-white/80 text-gray-700 hover:bg-white'
+                                    }`}
+                            >
+                                <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
+                            </motion.button>
+                        </div>
 
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-lg text-gray-900 line-clamp-2 group-hover:text-food-600 transition-colors flex-1">
-            {title}
-          </h3>
-          <div className="flex items-center gap-1 ml-2 bg-yellow-50 px-2 py-1 rounded-full">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{rating}</span>
-          </div>
-        </div>
-        
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
-          {description}
-        </p>
+                        {/* Tags */}
+                        <div className="absolute bottom-3 left-3 flex gap-2">
+                            {tags.slice(0, 2).map((tag, index) => (
+                                <span
+                                    key={index}
+                                    className="bg-white/90 backdrop-blur-sm text-gray-700 px-2 py-1 rounded-full text-xs font-medium"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
-        {/* Meta Info */}
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-          <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-full">
-            <Clock className="h-4 w-4 text-blue-600" />
-            <span className="text-blue-700 font-medium">{cookingTime}</span>
-          </div>
-          <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full">
-            <ChefHat className="h-4 w-4 text-green-600" />
-            <span className="text-green-700 font-medium text-xs">{author}</span>
-          </div>
-        </div>
+                {/* Content */}
+                <div className="p-4 pt-3">
+                    <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors duration-200">
+                        {title}
+                    </h3>
 
-        {/* Author and Action */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-food-100 to-spice-100 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300">
-              <User className="h-4 w-4 text-food-600" />
+                    {description && (
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                            {description}
+                        </p>
+                    )}
+
+                    {/* Stats */}
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                <span>{cookingTime}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <ChefHat className="h-4 w-4" />
+                                <span>{difficulty}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <Star className="h-4 w-4 fill-orange-400 text-orange-400" />
+                                <span>{rating}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-gray-400">
+                            <Eye className="h-4 w-4" />
+                            <span>{viewCount}</span>
+                        </div>
+                    </div>
+
+                    {/* Social Actions */}
+                    <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+                        <div className="flex items-center gap-4">
+                            <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleLike}
+                                className={`flex items-center gap-2 transition-all duration-200 ${isLiked
+                                    ? 'text-red-500'
+                                    : 'text-gray-500 hover:text-red-500'
+                                    }`}
+                            >
+                                <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
+                                <span className="text-sm font-medium">{likeCount + (isLiked ? 1 : 0)}</span>
+                            </motion.button>
+
+                            <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-colors duration-200">
+                                <MessageCircle className="h-5 w-5" />
+                                <span className="text-sm font-medium">{commentCount}</span>
+                            </button>
+                        </div>
+
+                        <SocialShare
+                            recipe={{
+                                id: id.toString(),
+                                title,
+                                image: image || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+                                description: description || "Lezzetli tarif",
+                                author,
+                                cookingTime: cookingTime || "30 dk",
+                                difficulty: difficulty || "Kolay",
+                                rating
+                            }}
+                        />
+                    </div>
+                </div>
             </div>
-            <span className="text-sm text-gray-600 font-medium">{author}</span>
-          </div>
-          <Link to={`/tarif/${id}`}>
-            <Button 
-              size="sm" 
-              className="gradient-primary text-white hover:opacity-90 transition-all duration-300 hover:scale-105 hover:shadow-lg group"
-            >
-              <BookOpen className="h-3 w-3 mr-1 group-hover:animate-pulse" />
-              Tarife Git
-            </Button>
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </motion.div>
+    );
 };
 
 export default RecipeCard;

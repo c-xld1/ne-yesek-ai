@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Users, ChefHat, MessageSquare, TrendingUp, Settings, 
-  Shield, DollarSign, BarChart3, Eye, Flag, Ban, 
+import {
+  Users, ChefHat, MessageSquare, TrendingUp, Settings,
+  Shield, DollarSign, BarChart3, Eye, Flag, Ban,
   CheckCircle, XCircle, AlertTriangle, Calendar,
   Search, Filter, Download, Upload, Bell
 } from "lucide-react";
@@ -101,10 +101,10 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       {/* Admin Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Ne Yesek AI - Admin Panel</h1>
@@ -128,7 +128,7 @@ const AdminPanel = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
@@ -396,7 +396,7 @@ const AdminPanel = () => {
           {/* System Tab */}
           <TabsContent value="system" className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Sistem Monitoring</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardContent className="p-6">

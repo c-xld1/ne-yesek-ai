@@ -1,18 +1,20 @@
-
 import { useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecipeCard from "@/components/RecipeCard";
+import UserProfileCard from "@/components/UserProfileCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Calendar, Star, Award, Users, Heart } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MapPin, Calendar, Star, Award, Users, Heart, Settings, Share2, MessageCircle, ChefHat } from "lucide-react";
 
 const Profile = () => {
   const { username } = useParams();
 
   // Örnek kullanıcı verisi
   const user = {
-    username: username,
+    username: username || 'chef',
     name: "Chef Ayşe Demir",
     avatar: "https://images.unsplash.com/photo-1494790108755-2616c4f23456?w=150&h=150&fit=crop&crop=face",
     location: "İstanbul, Türkiye",
@@ -23,169 +25,171 @@ const Profile = () => {
       followers: 1250,
       following: 186,
       totalLikes: 3420
-    },
-    badges: [
-      { name: "Çorba Ustası", icon: "🍲", color: "bg-blue-500" },
-      { name: "Tatlı Şampiyonu", icon: "🧁", color: "bg-pink-500" },
-      { name: "Haftanın Kahramanı", icon: "⭐", color: "bg-yellow-500" },
-      { name: "Topluluk Lideri", icon: "👑", color: "bg-purple-500" }
-    ]
+    }
   };
 
   // Örnek kullanıcı tarifleri
   const userRecipes = [
     {
+      id: "1",
       title: "Tavuk Sote",
       image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
       cookingTime: "25 dk",
       difficulty: "Kolay" as const,
       rating: 4.8,
       author: "Chef Ayşe",
-      dblScore: 95,
-      description: "Evdeki basit malzemelerle hazırlayabileceğiniz nefis tavuk sote tarifi."
+      description: "Evdeki basit malzemelerle hazırlayabileceğiniz nefis tavuk sote tarifi.",
+      category: "Ana Yemek"
     },
     {
+      id: "2",
       title: "Mercimek Çorbası",
       image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop",
       cookingTime: "30 dk",
       difficulty: "Kolay" as const,
-      rating: 4.9,
-      author: "Chef Ayşe",
-      dblScore: 88,
-      description: "Geleneksel Türk mutfağından sıcacık ve tok tutan mercimek çorbası."
-    },
-    {
-      title: "Ev Böreği",
-      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-      cookingTime: "45 dk",
-      difficulty: "Orta" as const,
       rating: 4.7,
       author: "Chef Ayşe",
-      dblScore: 92,
-      description: "Anne elinden çıkmış gibi nefis ev böreği tarifi."
+      description: "Geleneksel Türk mutfağından sıcacık mercimek çorbası.",
+      category: "Çorba"
+    },
+    {
+      id: "3",
+      title: "Çikolatalı Kek",
+      image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop",
+      cookingTime: "60 dk",
+      difficulty: "Orta" as const,
+      rating: 4.9,
+      author: "Chef Ayşe",
+      description: "Evde kolayca yapabileceğiniz nemli çikolatalı kek.",
+      category: "Tatlı"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <Navbar />
-      
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Profil Header */}
-        <Card className="mb-8">
-          <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-shrink-0">
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-food-200"
-                />
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{user.name}</h1>
-                    <p className="text-gray-600 mb-2">@{user.username}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {user.location}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {user.joinDate} tarihinde katıldı
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button className="gradient-primary text-white">
-                      <Users className="h-4 w-4 mr-2" />
-                      Takip Et
-                    </Button>
-                    <Button variant="outline">
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
 
-                <p className="text-gray-700 mb-6">{user.bio}</p>
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-orange-400/10 to-orange-600/5 rounded-full blur-3xl"
+          animate={{
+            x: [0, 30, 0],
+            y: [0, 20, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-br from-blue-400/10 to-purple-600/5 rounded-full blur-3xl"
+          animate={{
+            x: [0, -25, 0],
+            y: [0, -30, 0],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
 
-                {/* İstatistikler */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-food-600">{user.stats.recipes}</div>
-                    <div className="text-sm text-gray-600">Tarif</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-food-600">{user.stats.followers}</div>
-                    <div className="text-sm text-gray-600">Takipçi</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-food-600">{user.stats.following}</div>
-                    <div className="text-sm text-gray-600">Takip</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-food-600">{user.stats.totalLikes}</div>
-                    <div className="text-sm text-gray-600">Beğeni</div>
-                  </div>
-                </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Modern Profile Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
+        >
+          <UserProfileCard
+            user={{
+              id: '1',
+              name: user.name,
+              username: user.username,
+              bio: user.bio,
+              avatar: user.avatar,
+              coverImage: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=300&fit=crop',
+              location: user.location,
+              joinDate: user.joinDate,
+              website: 'https://neyesek.ai',
+              socialLinks: {
+                instagram: '@' + user.username,
+                youtube: user.name,
+                twitter: '@' + user.username
+              }
+            }}
+            stats={{
+              recipes: user.stats.recipes,
+              followers: user.stats.followers,
+              following: user.stats.following,
+              likes: user.stats.totalLikes,
+              views: 45800,
+              rating: 4.8
+            }}
+            isOwnProfile={true}
+          />
+        </motion.div>
 
-                {/* Rozetler */}
-                <div>
-                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                    <Award className="h-5 w-5 text-food-600" />
-                    Rozetler
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {user.badges.map((badge, index) => (
-                      <div
-                        key={index}
-                        className={`${badge.color} text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1`}
-                      >
-                        <span>{badge.icon}</span>
-                        <span>{badge.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tarif Sekmeleri */}
-        <div className="mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8">
-              <button className="border-b-2 border-food-500 text-food-600 pb-2 font-medium">
-                Tarifleri ({user.stats.recipes})
-              </button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">
+        {/* User Recipes Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Tabs defaultValue="recipes" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur-sm border border-orange-100">
+              <TabsTrigger value="recipes" className="flex items-center gap-2">
+                <ChefHat className="h-4 w-4" />
+                Tarifler ({user.stats.recipes})
+              </TabsTrigger>
+              <TabsTrigger value="favorites" className="flex items-center gap-2">
+                <Heart className="h-4 w-4" />
                 Favoriler
-              </button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">
+              </TabsTrigger>
+              <TabsTrigger value="collections" className="flex items-center gap-2">
+                <Star className="h-4 w-4" />
                 Koleksiyonlar
-              </button>
-            </nav>
-          </div>
-        </div>
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Tarifler Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {userRecipes.map((recipe, index) => (
-            <RecipeCard key={index} {...recipe} />
-          ))}
-        </div>
+            <TabsContent value="recipes" className="mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {userRecipes.map((recipe, index) => (
+                  <motion.div
+                    key={recipe.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="transform hover:scale-105 transition-all duration-300"
+                  >
+                    <RecipeCard
+                      id={recipe.id}
+                      title={recipe.title}
+                      image={recipe.image}
+                      cookingTime={recipe.cookingTime}
+                      difficulty={recipe.difficulty}
+                      rating={recipe.rating}
+                      author={recipe.author}
+                      description={recipe.description}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </TabsContent>
 
-        {/* Daha Fazla Yükle */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            Daha Fazla Tarif Yükle
-          </Button>
-        </div>
+            <TabsContent value="favorites" className="mt-8">
+              <div className="text-center py-12">
+                <Heart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-500">Henüz favori tarif eklenmemiş</p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="collections" className="mt-8">
+              <div className="text-center py-12">
+                <Star className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-500">Henüz koleksiyon oluşturulmamış</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
       </div>
 
       <Footer />

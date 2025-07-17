@@ -1,6 +1,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PremiumHeader from "@/components/PremiumHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +43,7 @@ const CookingTips = () => {
         {
           title: "Et Nasıl Yumuşatılır?",
           description: "Sert eti yumuşatmanın doğal yolları",
-          difficulty: "Orta", 
+          difficulty: "Orta",
           duration: "4 dk",
           views: 1678
         }
@@ -72,22 +73,30 @@ const CookingTips = () => {
       category: "Hazırlık"
     }
   ];
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <Navbar />
-      
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-            <Lightbulb className="h-8 w-8 text-yellow-500" />
-            🍳 Yemek Püf Noktaları
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Mutfakta ustalaşmanız için gerekli tüm teknikler, sırlar ve püf noktaları burada!
-          </p>
-        </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Premium Header */}
+        <PremiumHeader
+          title="Yemek Püf Noktaları"
+          description="Mutfakta ustalaşmanız için gerekli tüm teknikler, sırlar ve püf noktaları burada!"
+          emoji="🍳"
+          primaryBadge={{
+            icon: Lightbulb,
+            text: "Öğren",
+            animate: true
+          }}
+          secondaryBadge={{
+            icon: ChefHat,
+            text: "Mutfak Sırları"
+          }}
+          breadcrumbItems={[
+            { label: "Ana Sayfa", href: "/" },
+            { label: "Yemek Püf Noktaları", isActive: true }
+          ]}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Ana İçerik */}
@@ -109,8 +118,8 @@ const CookingTips = () => {
                           <h3 className="font-semibold text-lg text-gray-900">{tip.title}</h3>
                           <Badge className={
                             tip.difficulty === "Kolay" ? "bg-green-100 text-green-800" :
-                            tip.difficulty === "Orta" ? "bg-yellow-100 text-yellow-800" :
-                            "bg-red-100 text-red-800"
+                              tip.difficulty === "Orta" ? "bg-yellow-100 text-yellow-800" :
+                                "bg-red-100 text-red-800"
                           }>
                             {tip.difficulty}
                           </Badge>

@@ -2,13 +2,14 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PremiumHeader from "@/components/PremiumHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X, Upload, Camera, Video, Sparkles, DollarSign, Users, Crown } from "lucide-react";
+import { Plus, X, Upload, Camera, Video, Sparkles, DollarSign, Users, Crown, Share, ChefHat } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ShareRecipe = () => {
@@ -54,21 +55,28 @@ const ShareRecipe = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <Navbar />
-      
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            🍳 Tarif Paylaş
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Lezzetli tariflerinizi toplulukla paylaşın ve diğer kullanıcıların beğenisini kazanın!
-          </p>
-          <Badge className="mt-2 bg-green-100 text-green-800">
-            💰 Popüler tariflerden para kazanın!
-          </Badge>
-        </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <PremiumHeader
+          title="Tarif Paylaş"
+          description="Lezzetli tariflerinizi toplulukla paylaşın ve diğer kullanıcıların beğenisini kazanın!"
+          emoji="🍳"
+          primaryBadge={{
+            icon: Share,
+            text: "Paylaş",
+            animate: true
+          }}
+          secondaryBadge={{
+            icon: ChefHat,
+            text: "İçerik Üretici"
+          }}
+          breadcrumbItems={[
+            { label: "Ana Sayfa", href: "/" },
+            { label: "Tarif Paylaş", isActive: true }
+          ]}
+        />
 
         {/* Creator Economy Notice */}
         <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
@@ -116,7 +124,7 @@ const ShareRecipe = () => {
                   <label className="block text-sm font-medium mb-2">Tarif Adı *</label>
                   <Input placeholder="Tarifinizin çekici adını yazın..." />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2">Kısa Açıklama *</label>
                   <Textarea
@@ -136,7 +144,7 @@ const ShareRecipe = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Zorluk</label>
-                    <select className="w-full p-2 border border-gray-200 rounded-lg">
+                    <select className="w-full p-2 border border-gray-200 rounded-lg" title="Zorluk Seviyesi Seçiniz">
                       <option>Kolay</option>
                       <option>Orta</option>
                       <option>Zor</option>
@@ -151,7 +159,7 @@ const ShareRecipe = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Ana Kategori</label>
-                    <select className="w-full p-2 border border-gray-200 rounded-lg">
+                    <select className="w-full p-2 border border-gray-200 rounded-lg" title="Ana Kategori Seçiniz">
                       <option>Ana Yemek</option>
                       <option>Çorba</option>
                       <option>Tatlı</option>
@@ -162,7 +170,7 @@ const ShareRecipe = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Alt Kategori</label>
-                    <select className="w-full p-2 border border-gray-200 rounded-lg">
+                    <select className="w-full p-2 border border-gray-200 rounded-lg" title="Alt Kategori Seçiniz">
                       <option>Tavuk Yemekleri</option>
                       <option>Et Yemekleri</option>
                       <option>Sebze Yemekleri</option>
@@ -191,7 +199,7 @@ const ShareRecipe = () => {
                     <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600 mb-2">Yüksek kaliteli fotoğraf yükleyin</p>
                     <p className="text-sm text-gray-500">PNG, JPG (Max 5MB)</p>
-                    <input type="file" className="hidden" accept="image/*" />
+                    <input type="file" className="hidden" accept="image/*" title="Ana fotoğraf yükle" />
                   </div>
                 </div>
 
@@ -206,7 +214,7 @@ const ShareRecipe = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2">Video URL (Opsiyonel)</label>
                   <Input placeholder="YouTube, TikTok veya Instagram video linki..." />
@@ -381,13 +389,13 @@ const ShareRecipe = () => {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Marka İşbirliği</label>
-                    <select className="w-full p-2 border border-gray-200 rounded-lg">
+                    <select className="w-full p-2 border border-gray-200 rounded-lg" title="Marka İşbirliği Tercihi">
                       <option>İşbirliği kabul ediyorum</option>
                       <option>Sadece gıda markaları</option>
                       <option>İşbirliği istemiyorum</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Minimum İşbirliği Ücreti</label>
                     <Input placeholder="₺500" />
@@ -408,28 +416,28 @@ const ShareRecipe = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div 
+                    <div
                       className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                       onClick={handlePremiumFeature}
                     >
                       <h4 className="font-semibold mb-2">📊 Detaylı Analitik</h4>
                       <p className="text-sm text-gray-600">Hangi ülkelerden görüntülendiğini görün</p>
                     </div>
-                    <div 
+                    <div
                       className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                       onClick={handlePremiumFeature}
                     >
                       <h4 className="font-semibold mb-2">🎯 Hedef Kitle</h4>
                       <p className="text-sm text-gray-600">Belirli demografiye göster</p>
                     </div>
-                    <div 
+                    <div
                       className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                       onClick={handlePremiumFeature}
                     >
                       <h4 className="font-semibold mb-2">📱 Sosyal Medya Auto-Post</h4>
                       <p className="text-sm text-gray-600">Otomatik Instagram/TikTok paylaşımı</p>
                     </div>
-                    <div 
+                    <div
                       className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                       onClick={handlePremiumFeature}
                     >
@@ -449,12 +457,12 @@ const ShareRecipe = () => {
                     <label className="block text-sm font-medium mb-2">SEO Başlığı</label>
                     <Input placeholder="Arama motorları için optimize edilmiş başlık..." />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Meta Açıklama</label>
                     <Textarea className="resize-none h-20" placeholder="Arama sonuçlarında görünecek açıklama..." />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Trend Anahtar Kelimeler</label>
                     <Input placeholder="#kolaytarif #hızlıyemek #ekonomik" />

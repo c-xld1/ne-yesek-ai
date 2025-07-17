@@ -2,12 +2,13 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PremiumHeader from "@/components/PremiumHeader";
 import RecipeCard from "@/components/RecipeCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, BookOpen, Users, Grid, List, Filter, Search } from "lucide-react";
+import { Heart, BookOpen, Users, Grid, List, Filter, Search, Star } from "lucide-react";
 
 const Favorites = () => {
   const [viewMode, setViewMode] = useState("grid");
@@ -93,20 +94,29 @@ const Favorites = () => {
       createdDate: "2 hafta önce"
     }
   ];
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            ❤️ Favorilerim
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Beğendiğiniz tarifler, takip ettiğiniz yazarlar ve koleksiyonlarınız
-          </p>
-        </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <PremiumHeader
+          title="Favorilerim"
+          description="Beğendiğiniz tarifler, takip ettiğiniz yazarlar ve koleksiyonlarınız"
+          emoji="❤️"
+          primaryBadge={{
+            icon: Heart,
+            text: "Favoriler",
+            animate: true
+          }}
+          secondaryBadge={{
+            icon: Star,
+            text: "Kişisel Koleksiyon"
+          }}
+          breadcrumbItems={[
+            { label: "Ana Sayfa", href: "/" },
+            { label: "Favorilerim", isActive: true }
+          ]}
+        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
@@ -166,11 +176,10 @@ const Favorites = () => {
             </div>
 
             {favoriteRecipes.length > 0 ? (
-              <div className={`${
-                viewMode === "grid" 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-                  : "space-y-4"
-              }`}>
+              <div className={`${viewMode === "grid"
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                : "space-y-4"
+                }`}>
                 {favoriteRecipes.map((recipe) => (
                   <div key={recipe.id} className="relative">
                     <RecipeCard {...recipe} />
@@ -215,8 +224,8 @@ const Favorites = () => {
                   <Card key={author.id} className="hover:shadow-lg transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4 mb-4">
-                        <img 
-                          src={author.avatar} 
+                        <img
+                          src={author.avatar}
                           alt={author.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
@@ -228,7 +237,7 @@ const Favorites = () => {
                           Takip Ediliyor
                         </Button>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div className="text-center">
                           <div className="text-lg font-bold text-gray-900">{author.followers.toLocaleString()}</div>
@@ -292,8 +301,8 @@ const Favorites = () => {
                 {savedCollections.map((collection) => (
                   <Card key={collection.id} className="hover:shadow-lg transition-shadow cursor-pointer">
                     <CardContent className="p-0">
-                      <img 
-                        src={collection.thumbnail} 
+                      <img
+                        src={collection.thumbnail}
                         alt={collection.name}
                         className="w-full h-40 object-cover rounded-t-lg"
                       />

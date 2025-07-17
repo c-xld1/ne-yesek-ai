@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Bell, Heart, MessageCircle, User, ChefHat, Award, 
-  Settings, Check, X, Trash2 
+import {
+  Bell, Heart, MessageCircle, User, ChefHat, Award,
+  Settings, Check, X, Trash2
 } from "lucide-react";
 
 const Notifications = () => {
@@ -88,10 +88,10 @@ const Notifications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <Navbar />
-      
-      <div className="max-w-4xl mx-auto px-4 py-8">
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             🔔 Bildirimler
@@ -150,7 +150,7 @@ const Notifications = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-gray-900">{notification.title}</h3>
@@ -164,16 +164,16 @@ const Notifications = () => {
 
                     <div className="flex items-center gap-2">
                       {!notification.read && (
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => markAsRead(notification.id)}
                         >
                           <Check className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => deleteNotification(notification.id)}
                       >

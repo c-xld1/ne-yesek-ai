@@ -7,7 +7,7 @@ import RecipeCard from "@/components/RecipeCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, Grid, List } from "lucide-react";
-import { useRecipes } from "@/hooks/useRecipes";
+import { useRecipes, useSearchRecipes } from "@/hooks/useRecipes";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Recipes = () => {
@@ -16,8 +16,12 @@ const Recipes = () => {
   const [searchTerm, setSearchTerm] = useState(search);
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
-  
-  const { data: recipes, isLoading, error } = useRecipes();
+
+  const { data: allRecipes, isLoading: loadingAll, error: errorAll } = useRecipes();
+  const { data: searchRecipes, isLoading: loadingSearch, error: errorSearch } = useSearchRecipes(searchTerm);
+  const recipes = searchTerm.trim() ? searchRecipes : allRecipes;
+  const isLoading = searchTerm.trim() ? loadingSearch : loadingAll;
+  const error = searchTerm.trim() ? errorSearch : errorAll;
 
   if (isLoading) {
     return (
@@ -43,19 +47,11 @@ const Recipes = () => {
     );
   }
 
-  // Filter and sort recipes
-  let filteredRecipes = recipes || [];
-  
-  if (searchTerm) {
-    filteredRecipes = filteredRecipes.filter(recipe =>
-      recipe.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recipe.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recipe.author_name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
+  // Sıralama uygulanacak tarif listesi
+  const filteredRecipes = recipes || [];
 
   // Sort recipes
-  filteredRecipes = filteredRecipes.sort((a, b) => {
+  const sortedRecipes = (filteredRecipes || []).slice().sort((a, b) => {
     switch (sortBy) {
       case "rating":
         return (b.rating || 0) - (a.rating || 0);
@@ -69,11 +65,11 @@ const Recipes = () => {
   });
 
   // Convert to component format
-  const formattedRecipes = filteredRecipes.map(recipe => ({
+  const formattedRecipes = sortedRecipes.map(recipe => ({
     id: recipe.id,
     title: recipe.title || 'Başlıksız Tarif',
     image: recipe.image_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    cookingTime: recipe.cooking_time || "Bilinmiyor",
+    cookingTime: recipe.cooking_time != null ? recipe.cooking_time.toString() : "Bilinmiyor",
     difficulty: (recipe.difficulty as "Kolay" | "Orta" | "Zor") || "Kolay",
     rating: recipe.rating || 0,
     author: recipe.author_name || "Anonim",
@@ -84,7 +80,7 @@ const Recipes = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -108,10 +104,11 @@ const Recipes = () => {
                 className="pl-10"
               />
             </div>
-            
+
             <div className="flex items-center gap-4">
-              <select 
-                value={sortBy} 
+              <select
+                aria-label="Sırala"
+                value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
               >
@@ -119,7 +116,7 @@ const Recipes = () => {
                 <option value="oldest">En Eski</option>
                 <option value="rating">En Yüksek Puan</option>
               </select>
-              
+
               <div className="flex items-center gap-2">
                 <Button
                   variant={viewMode === "grid" ? "default" : "outline"}
@@ -151,11 +148,10 @@ const Recipes = () => {
             </p>
           </div>
         ) : (
-          <div className={`${
-            viewMode === "grid" 
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+          <div className={`${viewMode === "grid"
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               : "space-y-4"
-          }`}>
+            }`}>
             {formattedRecipes.map((recipe) => (
               <RecipeCard key={recipe.id} {...recipe} />
             ))}

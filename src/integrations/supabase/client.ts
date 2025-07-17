@@ -2,10 +2,18 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://vqtyyjhmkvujllsmpemb.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxdHl5amhta3Z1amxsc21wZW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NzMyNTQsImV4cCI6MjA2NTA0OTI1NH0.2WwyPkpyaQ6gd7HlNE3wVhARdP0dYxHwAbffcOHpMoI";
+// Supabase bağlantı bilgilerini .env dosyasından al
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+// Tekrar eden HMR yüklemelerinde birden fazla GoTrueClient oluşmasını önlemek için globalThis'e kaydediyoruz
+declare global {
+  var __supabaseClient: ReturnType<typeof createClient<Database>>;
+}
+const globalRef = globalThis as unknown as { __supabaseClient?: ReturnType<typeof createClient<Database>> };
+export const supabase = globalRef.__supabaseClient
+  ?? createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+if (!globalRef.__supabaseClient) globalRef.__supabaseClient = supabase;

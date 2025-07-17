@@ -1,0 +1,527 @@
+/* RegionalRecipeMap.css */
+.region-map-container {
+    --food-primary: #f97316;
+    --food-primary-light: #fdba74;
+    --food-primary-dark: #c2410c;
+    --food-accent: #fbbf24;
+    --food-accent-light: #fcd34d;
+    --food-accent-dark: #d97706;
+    --food-bg: #fff7ed;
+    --food-text: #7c2d12;
+    --food-text-light: #9a3412;
+}
+
+/* Animasyonlar */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.region-pulse {
+    animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.region-pulse-delay-1 {
+    animation-delay: 1s;
+}
+
+.region-pulse-delay-2 {
+    animation-delay: 2s;
+}
+
+/* Turkey-Map-React Kütüphanesi Stilleri */
+.turkey-map-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background-image: linear-gradient(to bottom right, rgba(255, 247, 237, 0.5), rgba(254, 240, 223, 0.7));
+}
+
+/* Path'leri stillendir */
+.turkey-map-container svg path {
+    transition: all 0.3s ease;
+    stroke: white;
+    stroke-width: 1.2px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.07));
+}
+
+/* SVG'yi responsive yap */
+#svg-turkiye-haritasi-container {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Kütüphanenin tooltip'ini özelleştir */
+#svg-turkiye-haritasi-container-tooltip {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: var(--food-text) !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid var(--food-primary-light) !important;
+    z-index: 100 !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: all 0.2s ease !important;
+    animation: fadeIn 0.2s ease-in !important;
+}
+
+/* Tooltip içeriğini özelleştir */
+#svg-turkiye-haritasi-container-tooltip::before {
+    content: '📍';
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* Diğer SVG animasyonları */
+.turkey-map-container svg {
+    transition: transform 0.3s ease;
+}
+
+.turkey-map-container:hover svg {
+    transform: scale(1.02);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.map-point:hover .map-point-label {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.map-point-label {
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+/* Bölge Kartları Efektleri */
+.region-card {
+    transition: all 0.3s ease;
+}
+
+.region-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1);
+}
+
+.region-card.active {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(251, 146, 60, 0.1) 100%);
+}
+
+/* Premium Badge Stilleri */
+.premium-badge {
+    background: linear-gradient(135deg, var(--food-primary) 0%, var(--food-accent) 100%);
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
+}
+
+/* Premium Buton Stilleri */
+.premium-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.premium-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    transition: all 0.6s ease;
+}
+
+.premium-button:hover::before {
+    left: 100%;
+}
+
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Mobile Scroll Improvements */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Safari and Chrome */
+}
+
+/* Snap Scroll */
+.snap-x {
+    scroll-snap-type: x mandatory;
+}
+
+.snap-mandatory {
+    scroll-snap-type: x mandatory;
+}
+
+.snap-start {
+    scroll-snap-align: start;
+}
+
+/* Bölge Renk Göstericileri */
+.region-color-indicator[data-region-color="#3b82f6"] {
+    background-color: #3b82f6;
+    /* Marmara - Mavi */
+}
+
+.region-color-indicator[data-region-color="#10b981"] {
+    background-color: #10b981;
+    /* Ege - Yeşil */
+}
+
+.region-color-indicator[data-region-color="#f59e0b"] {
+    background-color: #f59e0b;
+    /* Akdeniz - Sarı/Turuncu */
+}
+
+.region-color-indicator[data-region-color="#8b5cf6"] {
+    background-color: #8b5cf6;
+    /* İç Anadolu - Mor */
+}
+
+.region-color-indicator[data-region-color="#06b6d4"] {
+    background-color: #06b6d4;
+    /* Karadeniz - Cyan */
+}
+
+.region-color-indicator[data-region-color="#ef4444"] {
+    background-color: #ef4444;
+    /* Doğu Anadolu - Kırmızı */
+}
+
+.region-color-indicator[data-region-color="#f97316"] {
+    background-color: #f97316;
+    /* Güneydoğu Anadolu - Turuncu */
+}
+
+/* SVG Tooltip Stilleri - İyileştirilmiş */
+.city-tooltip {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.98);
+    color: #7c2d12;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 2px solid #fdba74;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    max-width: 280px;
+    text-align: center;
+    white-space: nowrap;
+    transform: translateY(-5px) scale(0.95);
+}
+
+.city-tooltip.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.city-tooltip::before {
+    content: "📍";
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* SVG Path Etkileşim Stilleri - İyileştirilmiş */
+.turkey-map-container object {
+    pointer-events: all;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.turkey-map-container svg {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.05));
+}
+
+.turkey-map-container svg path {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.turkey-map-container svg path:hover {
+    filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.2));
+    transform: scale(1.03);
+    transform-origin: center;
+}
+
+/* Coğrafi Bölge Kartları */
+.geographic-regions-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1rem;
+}
+
+.geographic-region-card {
+    height: 8rem;
+    /* h-32 - 128px sabit yükseklik */
+    min-height: 8rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.geographic-region-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+/* Mobil için yatay scroll */
+.geographic-regions-mobile {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    /* IE ve Edge */
+    /* scrollbar-width: none; */
+    /* Firefox - Commented out for compatibility */
+}
+
+.geographic-regions-mobile::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari ve Opera */
+}
+
+.geographic-region-mobile-card {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    width: 10rem;
+    /* w-40 - 160px sabit genişlik */
+    height: 8rem;
+    /* h-32 - 128px sabit yükseklik */
+    min-height: 8rem;
+}
+
+/* Responsive iyileştirmeler */
+@media (max-width: 768px) {
+    .turkey-map-container {
+        padding: 0.5rem;
+    }
+
+    .city-tooltip {
+        font-size: 12px;
+        padding: 8px 12px;
+        max-width: 200px;
+    }
+
+    .region-color-indicator {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .geographic-regions-grid {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    .geographic-regions-mobile {
+        display: none;
+    }
+}
+
+/* Genel Animasyon İyileştirmeleri */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.floating-element {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Modern Gradient Borders */
+.gradient-border {
+    position: relative;
+    background: linear-gradient(white, white) padding-box,
+        linear-gradient(135deg, #f97316, #fbbf24) border-box;
+    border: 2px solid transparent;
+    border-radius: 12px;
+}
+
+/* Enhanced Card Hover Effects */
+.enhanced-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    transform-origin: center;
+}
+
+.enhanced-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+    z-index: 1;
+}
+
+.enhanced-card:hover::before {
+    left: 100%;
+}
+
+.enhanced-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Renk göstergesi stilleri */
+.region-color-indicator {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.125rem;
+    border: 1px solid #e5e7eb;
+    background-color: var(--region-color, #f97316);
+}
+
+/* Bölge renk çubukları */
+.region-color-bar {
+    height: 0.25rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.region-color-bar[data-region-color="#3b82f6"] {
+    background-color: #3b82f6;
+}
+
+.region-color-bar[data-region-color="#10b981"] {
+    background-color: #10b981;
+}
+
+.region-color-bar[data-region-color="#f59e0b"] {
+    background-color: #f59e0b;
+}
+
+.region-color-bar[data-region-color="#8b5cf6"] {
+    background-color: #8b5cf6;
+}
+
+.region-color-bar[data-region-color="#06b6d4"] {
+    background-color: #06b6d4;
+}
+
+.region-color-bar[data-region-color="#ef4444"] {
+    background-color: #ef4444;
+}
+
+.region-color-bar[data-region-color="#f97316"] {
+    background-color: #f97316;
+}
+
+/* Her bölge için örnek renk class'ı, ihtiyaca göre çoğaltılabilir */
+.region-color-indicator-ic-anadolu {
+    background-color: #f9c74f;
+}
+
+.region-color-indicator-karadeniz {
+    background-color: #43aa8b;
+}
+
+.region-color-indicator-akdeniz {
+    background-color: #f3722c;
+}
+
+.region-color-indicator-ege {
+    background-color: #577590;
+}
+
+.region-color-indicator-marmara {
+    background-color: #277da1;
+}
+
+.region-color-indicator-dogu-anadolu {
+    background-color: #f94144;
+}
+
+.region-color-indicator-guneydogu-anadolu {
+    background-color: #90be6d;
+}
+
+/* Diğer bölgeler için de aynı şekilde ekleyin */

@@ -1,111 +1,150 @@
-
 import { Button } from "@/components/ui/button";
-import { Search, Sparkles, ChefHat, Clock, Zap, Users, Award } from "lucide-react";
+import { Search, Sparkles, ChefHat, Clock, Zap, Users, Award, ArrowRight, Play } from "lucide-react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import AnimatedCounter from "./AnimatedCounter";
-import TrendingBadge from "./TrendingBadge";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
+  const floatingElements = [
+    { emoji: "🍳", delay: 0, x: "10%", y: "20%" },
+    { emoji: "🥘", delay: 1, x: "85%", y: "15%" },
+    { emoji: "🍕", delay: 2, x: "20%", y: "70%" },
+    { emoji: "🥗", delay: 0.5, x: "75%", y: "65%" },
+    { emoji: "🍰", delay: 1.5, x: "50%", y: "10%" },
+    { emoji: "🥖", delay: 2.5, x: "90%", y: "45%" },
+  ];
+
+  const stats = [
+    { icon: ChefHat, count: "10K+", label: "Tarif", color: "from-orange-500 to-orange-600" },
+    { icon: Users, count: "50K+", label: "Kullanıcı", color: "from-blue-500 to-blue-600" },
+    { icon: Clock, count: "1M+", label: "Dakika", color: "from-green-500 to-green-600" },
+    { icon: Award, count: "95%", label: "Memnuniyet", color: "from-purple-500 to-purple-600" },
+  ];
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 py-20 px-4">
-      {/* Enhanced Background Pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-10 left-10 w-20 h-20 rounded-full bg-food-300 animate-float"></div>
-        <div className="absolute top-32 right-20 w-16 h-16 rounded-full bg-spice-300 animate-float" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-20 left-1/4 w-12 h-12 rounded-full bg-food-400 animate-float" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-1/2 right-1/3 w-8 h-8 rounded-full bg-spice-400 animate-float" style={{animationDelay: '0.5s'}}></div>
-        
-        {/* New floating elements */}
-        <div className="absolute top-1/4 left-1/2 w-6 h-6 rounded-full bg-yellow-400 animate-float" style={{animationDelay: '1.5s'}}></div>
-        <div className="absolute bottom-1/3 right-1/4 w-10 h-10 rounded-full bg-pink-300 animate-float" style={{animationDelay: '2.5s'}}></div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-50">
+      {/* Modern Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Animated Gradient Orbs */}
+        <motion.div
+          className="absolute -top-20 -left-20 w-80 h-80 bg-gradient-to-br from-orange-400/20 to-orange-600/10 rounded-full blur-3xl"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, 50, 0],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <motion.div
+          className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-br from-blue-400/15 to-purple-600/10 rounded-full blur-3xl"
+          animate={{
+            x: [0, -80, 0],
+            y: [0, -60, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        {/* Floating Food Elements */}
+        {floatingElements.map((element, index) => (
+          <motion.div
+            key={index}
+            className="absolute text-4xl opacity-20"
+            style={{ left: element.x, top: element.y }}
+            animate={{
+              y: [-20, 20, -20],
+              rotate: [-10, 10, -10],
+              scale: [0.8, 1.2, 0.8]
+            }}
+            transition={{
+              duration: 6 + element.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: element.delay
+            }}
+          >
+            {element.emoji}
+          </motion.div>
+        ))}
       </div>
 
-      <div className="max-w-7xl mx-auto text-center relative z-10">
-        <div className="animate-fadeIn">
-          <div className="flex justify-center mb-6">
-            <div className="bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:scale-110 transition-transform duration-300">
-              <ChefHat className="h-12 w-12 text-food-600 animate-pulse" />
-            </div>
-          </div>
+      {/* Main Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="space-y-8"
+        >
+          {/* Main Heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="space-y-6"
+          >
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight">
+              <span className="bg-gradient-to-r from-orange-600 via-orange-500 to-orange-400 bg-clip-text text-transparent">
+                Ne Yesek
+              </span>
+            </h1>
 
-          {/* Trending Badge */}
-          <div className="flex justify-center mb-4">
-            <TrendingBadge type="hot" pulse />
-          </div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto font-medium leading-relaxed"
+            >
+              Evinizdeki malzemelerle yapay zeka destekli tarif önerileri alın.
+              <span className="text-orange-600 font-semibold">Dakikalar içinde</span> lezzetli yemekler pişirin!
+            </motion.p>
+          </motion.div>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            <span className="text-gradient flex items-center justify-center gap-2 hover:scale-105 transition-transform duration-300">
-              Evde ne var?
-              <Sparkles className="h-8 w-8 md:h-12 md:w-12 text-yellow-500 animate-pulse" />
-            </span><br />
-            <span className="text-3xl md:text-5xl bg-gradient-to-r from-food-600 to-spice-600 bg-clip-text text-transparent">
-              Yapay zeka söylesin!
-            </span>
-          </h1>
-          
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Evdeki malzemelerinizi yazın, yapay zeka size en lezzetli tarifleri önersin. 
-            <span className="font-semibold text-food-700 hover:text-food-800 transition-colors cursor-pointer">Ne Yesek AI</span> ile yemek yapmak hiç bu kadar kolay olmamıştı!
-          </p>
+          {/* Search Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <SearchBar
+              placeholder="Bugün ne pişirelim? 🍳"
+              onSearch={(query) => {
+                const params = new URLSearchParams({ arama: query });
+                navigate(`/tarifler?${params.toString()}`);
+              }}
+            />
+          </motion.div>
 
-          <div className="max-w-2xl mx-auto mb-8">
-            <SearchBar />
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            <Button size="lg" className="gradient-primary text-white hover:opacity-90 transition-all duration-300 px-8 py-3 hover:scale-105 hover:shadow-xl group">
-              <Search className="mr-2 h-5 w-5 group-hover:animate-pulse" />
-              Tarif Bul
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 group"
+            >
+              <ChefHat className="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform" />
+              Hemen Başla
+              <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button size="lg" variant="outline" className="border-food-300 text-food-700 hover:bg-food-50 px-8 py-3 hover:scale-105 transition-all duration-300 hover:shadow-lg group">
-              <Clock className="mr-2 h-5 w-5 group-hover:animate-spin" />
-              Bugün Ne Yesek?
+
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-2 border-orange-200 hover:border-orange-300 text-orange-600 hover:text-orange-700 px-8 py-4 rounded-2xl font-semibold text-lg bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-300 group"
+            >
+              <Play className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
+              Demo İzle
             </Button>
-          </div>
+          </motion.div>
 
-          {/* Enhanced Trust indicators */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-8">
-            <div className="flex items-center justify-center gap-2 bg-white/50 backdrop-blur-sm rounded-lg p-3 hover:scale-105 transition-transform duration-300">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>🤖 AI Destekli</span>
-            </div>
-            <div className="flex items-center justify-center gap-2 bg-white/50 backdrop-blur-sm rounded-lg p-3 hover:scale-105 transition-transform duration-300">
-              <Zap className="h-4 w-4 text-yellow-500" />
-              <span>⚡ Anında Sonuç</span>
-            </div>
-            <div className="flex items-center justify-center gap-2 bg-white/50 backdrop-blur-sm rounded-lg p-3 hover:scale-105 transition-transform duration-300">
-              <Award className="h-4 w-4 text-purple-500" />
-              <span>🥘 50K+ Tarif</span>
-            </div>
-            <div className="flex items-center justify-center gap-2 bg-white/50 backdrop-blur-sm rounded-lg p-3 hover:scale-105 transition-transform duration-300">
-              <Users className="h-4 w-4 text-blue-500" />
-              <span>👨‍👩‍👧‍👦 Aile Dostu</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Stats with Animated Counters */}
-        <div className="grid grid-cols-3 gap-8 mt-16 pt-8 border-t border-orange-200/50">
-          <div className="text-center group hover:scale-105 transition-transform duration-300 bg-white/30 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-3xl font-bold text-food-600 group-hover:text-food-700">
-              <AnimatedCounter end={10000} suffix="+" />
-            </div>
-            <div className="text-gray-600">Tarif</div>
-          </div>
-          <div className="text-center group hover:scale-105 transition-transform duration-300 bg-white/30 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-3xl font-bold text-food-600 group-hover:text-food-700">
-              <AnimatedCounter end={50000} suffix="+" />
-            </div>
-            <div className="text-gray-600">Kullanıcı</div>
-          </div>
-          <div className="text-center group hover:scale-105 transition-transform duration-300 bg-white/30 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-3xl font-bold text-food-600 group-hover:text-food-700 flex items-center justify-center gap-2">
-              <Sparkles className="h-8 w-8 text-yellow-500 animate-pulse" />
-              AI
-            </div>
-            <div className="text-gray-600">Destekli</div>
-          </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

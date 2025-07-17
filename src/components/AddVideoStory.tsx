@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +21,13 @@ const AddVideoStory = () => {
   const { toast } = useToast();
 
   const categories = [
-    "Ana Yemek", "Tatlı", "Çorba", "Kahvaltı", "Vegan", 
+    "Ana Yemek", "Tatlı", "Çorba", "Kahvaltı", "Vegan",
     "Fit", "İçecek", "Atıştırmalık", "Hamur İşi", "Salata"
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title || !formData.videoUrl || !formData.category) {
       toast({
         title: "❌ Eksik Bilgi",
@@ -38,10 +37,10 @@ const AddVideoStory = () => {
     }
 
     // Video URL validation
-    const isValidUrl = formData.videoUrl.includes('youtube.com/shorts') || 
-                      formData.videoUrl.includes('tiktok.com') || 
-                      formData.videoUrl.includes('instagram.com/reel');
-    
+    const isValidUrl = formData.videoUrl.includes('youtube.com/shorts') ||
+      formData.videoUrl.includes('tiktok.com') ||
+      formData.videoUrl.includes('instagram.com/reel');
+
     if (!isValidUrl) {
       toast({
         title: "❌ Geçersiz Link",
@@ -82,7 +81,7 @@ const AddVideoStory = () => {
           Tarif Hikâyesi Ekle
         </Button>
       </DialogTrigger>
-      
+
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -103,7 +102,7 @@ const AddVideoStory = () => {
                 </label>
                 <Input
                   value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="60 saniyede tavuk sote nasıl yapılır?"
                   required
                 />
@@ -116,7 +115,7 @@ const AddVideoStory = () => {
                 <div className="relative">
                   <Input
                     value={formData.videoUrl}
-                    onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
                     placeholder="YouTube Shorts, TikTok veya Instagram Reels linki..."
                     className="pl-10"
                     required
@@ -132,12 +131,13 @@ const AddVideoStory = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label htmlFor="categorySelect" className="block text-sm font-medium mb-2">
                     Kategori *
                   </label>
-                  <select 
+                  <select
+                    id="categorySelect"
                     value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full p-2 border border-gray-200 rounded-lg"
                     required
                   >
@@ -156,7 +156,7 @@ const AddVideoStory = () => {
                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       value={formData.cookingTime}
-                      onChange={(e) => setFormData({...formData, cookingTime: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, cookingTime: e.target.value })}
                       placeholder="25 dk"
                       className="pl-10"
                     />
@@ -171,7 +171,7 @@ const AddVideoStory = () => {
                     <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       value={formData.servings}
-                      onChange={(e) => setFormData({...formData, servings: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, servings: e.target.value })}
                       placeholder="4 kişi"
                       className="pl-10"
                     />
@@ -185,7 +185,7 @@ const AddVideoStory = () => {
                 </label>
                 <Input
                   value={formData.ingredients}
-                  onChange={(e) => setFormData({...formData, ingredients: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, ingredients: e.target.value })}
                   placeholder="tavuk göğsü, soğan, domates, biber"
                 />
               </div>
@@ -196,7 +196,7 @@ const AddVideoStory = () => {
                 </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full p-3 border border-gray-200 rounded-lg resize-none h-20"
                   placeholder="Videonuzda anlatılan tarif hakkında kısa bilgi..."
                 />
@@ -216,8 +216,8 @@ const AddVideoStory = () => {
                 <Button type="submit" className="gradient-primary text-white flex-1">
                   Hikâyeyi Paylaş
                 </Button>
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   variant="outline"
                   onClick={() => setIsOpen(false)}
                 >

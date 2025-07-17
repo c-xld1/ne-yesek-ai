@@ -2,17 +2,18 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PremiumHeader from "@/components/PremiumHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Calendar, User, Heart, MessageCircle, Eye, TrendingUp } from "lucide-react";
+import { Search, Calendar, User, Heart, MessageCircle, Eye, TrendingUp, BookOpen, PenTool } from "lucide-react";
 
 const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
 
   const categories = [
-    "Tümü", "Mutfak İpuçları", "Beslenme", "Sağlıklı Yaşam", "Mevsimsel", 
+    "Tümü", "Mutfak İpuçları", "Beslenme", "Sağlıklı Yaşam", "Mevsimsel",
     "Dünya Mutfakları", "Trend Tarifler", "Ekipman İncelemeleri"
   ];
 
@@ -72,21 +73,30 @@ const Blog = () => {
 
   const featuredPost = blogPosts.find(post => post.featured);
   const regularPosts = blogPosts.filter(post => !post.featured);
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            📝 Mutfak Blogu
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Mutfak dünyasından en güncel haberler, ipuçları ve uzman görüşleri
-          </p>
-        </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Premium Header */}
+        <PremiumHeader
+          title="Mutfak Blogu"
+          description="Mutfak dünyasından en güncel haberler, ipuçları ve uzman görüşleri"
+          emoji="📝"
+          primaryBadge={{
+            icon: BookOpen,
+            text: "Oku",
+            animate: true
+          }}
+          secondaryBadge={{
+            icon: PenTool,
+            text: "Mutfak Yazıları"
+          }}
+          breadcrumbItems={[
+            { label: "Ana Sayfa", href: "/" },
+            { label: "Blog", isActive: true }
+          ]}
+        />
 
         {/* Search and Categories */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
@@ -126,8 +136,8 @@ const Blog = () => {
           <Card className="mb-8 overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
               <div className="relative h-64 lg:h-auto">
-                <img 
-                  src={featuredPost.image} 
+                <img
+                  src={featuredPost.image}
                   alt={featuredPost.title}
                   className="w-full h-full object-cover"
                 />
@@ -144,7 +154,7 @@ const Blog = () => {
                   {featuredPost.title}
                 </h2>
                 <p className="text-gray-600 mb-6">{featuredPost.excerpt}</p>
-                
+
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={featuredPost.author.avatar} />
@@ -191,8 +201,8 @@ const Blog = () => {
           {regularPosts.map((post) => (
             <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
               <div className="relative">
-                <img 
-                  src={post.image} 
+                <img
+                  src={post.image}
                   alt={post.title}
                   className="w-full h-48 object-cover"
                 />
@@ -200,7 +210,7 @@ const Blog = () => {
                   {post.category}
                 </Badge>
               </div>
-              
+
               <CardContent className="p-6">
                 <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">
                   {post.title}
@@ -208,7 +218,7 @@ const Blog = () => {
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                   {post.excerpt}
                 </p>
-                
+
                 <div className="flex items-center gap-3 mb-4">
                   <Avatar className="w-6 h-6">
                     <AvatarImage src={post.author.avatar} />

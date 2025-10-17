@@ -41,7 +41,7 @@ export const useFeaturedRecipes = () => {
             try {
                 const { data: recipes, error } = await supabase
                     .from('recipes')
-                    .select('id, title, description, content, image_url, prep_time, cooking_time, servings, difficulty, ingredients, instructions, tags, is_featured, views, rating, created_at, updated_at')
+                    .select('id, title, description, content, image_url, prep_time, cook_time, servings, difficulty, ingredients, instructions, is_featured, views, rating, created_at, updated_at')
                     .eq('is_featured', true)
                     .order('created_at', { ascending: false })
                     .limit(6);
@@ -78,7 +78,7 @@ export const useSearchRecipes = (searchTerm: string) => {
             try {
                 const { data: recipes, error } = await supabase
                     .from('recipes')
-                    .select('id, title, description, content, image_url, prep_time, cooking_time, servings, difficulty, ingredients, instructions, tags, is_featured, views, rating, created_at, updated_at')
+                    .select('id, title, description, content, image_url, prep_time, cook_time, servings, difficulty, ingredients, instructions, is_featured, views, rating, created_at, updated_at')
                     .or(
                       `title.ilike.%${searchTerm}%,` +
                       `description.ilike.%${searchTerm}%,` +
@@ -120,7 +120,7 @@ export const useRecipesByCategory = (categoryId: string) => {
             try {
                 const { data: recipes, error } = await supabase
                     .from('recipes')
-                    .select('id, title, description, content, image_url, prep_time, cooking_time, servings, difficulty, ingredients, instructions, tags, is_featured, views, rating, created_at, updated_at')
+                    .select('id, title, description, content, image_url, prep_time, cook_time, servings, difficulty, ingredients, instructions, is_featured, views, rating, created_at, updated_at')
                     .contains('tags', [categoryId])
                     .order('created_at', { ascending: false });
 
@@ -157,7 +157,7 @@ export const useRecipeById = (id: string) => {
             try {
                 const { data: recipe, error } = await supabase
                     .from('recipes')
-                    .select('id, title, description, content, image_url, prep_time, cooking_time, servings, difficulty, ingredients, instructions, tags, is_featured, views, rating, created_at, updated_at')
+                    .select('id, title, description, content, image_url, prep_time, cook_time, servings, difficulty, ingredients, instructions, is_featured, views, rating, created_at, updated_at')
                     .eq('id', id)
                     .single();
 

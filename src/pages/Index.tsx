@@ -22,7 +22,7 @@ const Index = () => {
     id: recipe.id,
     title: recipe.title || 'Başlıksız Tarif',
     image: recipe.image_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    cookingTime: recipe.cooking_time || "Bilinmiyor",
+    cookingTime: String(recipe.cook_time || "Bilinmiyor"),
     difficulty: (recipe.difficulty as "Kolay" | "Orta" | "Zor") || "Kolay",
     rating: recipe.rating || 0,
     author: recipe.author_name || "Ne Yesek AI",

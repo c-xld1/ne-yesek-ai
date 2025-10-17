@@ -118,7 +118,7 @@ const RecipeDetail = () => {
               <div className="text-center bg-orange-50/50 rounded-2xl p-4">
                 <Clock className="h-6 w-6 text-orange-500 mx-auto mb-2" />
                 <div className="text-sm text-gray-500">Pişirme</div>
-                <div className="font-semibold text-gray-800">{recipe.cooking_time || "Bilinmiyor"}</div>
+                <div className="font-semibold text-gray-800">{recipe.cook_time || "Bilinmiyor"}</div>
               </div>
               <div className="text-center bg-orange-50/50 rounded-2xl p-4">
                 <Users className="h-6 w-6 text-orange-500 mx-auto mb-2" />

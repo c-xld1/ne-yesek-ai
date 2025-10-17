@@ -60,7 +60,7 @@ const VideoStories = () => {
                 userAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=100&h=100&fit=crop",
                 isLiked: false,
                 isSaved: false,
-                userGroup: story.userGroup || (story.is_featured ? "Premium" : "Herkes") // Kullanıcı grubu atanması
+                userGroup: (story as any).user_group || (story.is_featured ? "Premium" : "Herkes") // Kullanıcı grubu atanması
             }));
             setLocalStories(formattedStories);
         } else if (!loading && !localStories.length) {
@@ -79,7 +79,11 @@ const VideoStories = () => {
                 userAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=100&h=100&fit=crop",
                 isLiked: false,
                 isSaved: false,
-                userGroup: i % 3 === 0 ? "Premium" : "Herkes"
+                userGroup: i % 3 === 0 ? "Premium" : "Herkes",
+                duration: 90,
+                recipe_id: null,
+                updated_at: new Date().toISOString(),
+                user_id: null
             }));
             setLocalStories(fallbackStories);
         }
@@ -460,29 +464,8 @@ const VideoStories = () => {
                         </Button>
                     </div>
 
-                    {/* Video Modal Bileşeni */}
-                    {selectedStory && (
-                        <VideoModal
-                            story={selectedStory}
-                            isOpen={!!selectedStory}
-                            onClose={closeModal}
-                            onPrev={prevStory}
-                            onNext={nextStory}
-                            currentIndex={currentStoryIndex}
-                            totalStories={stories.length}
-                            onLike={handleLike}
-                            onSave={handleSave}
-                            onCommentClick={handleCommentClick}
-                            showCommentForm={showCommentForm}
-                            commentText={commentText}
-                            onCommentChange={(e) => setCommentText(e.target.value)}
-                            onSubmitComment={submitComment}
-                            isSubmittingComment={isSubmittingComment}
-                            onTouchStart={handleTouchStart}
-                            onTouchMove={handleTouchMove}
-                            onTouchEnd={handleTouchEnd}
-                        />
-                    )}
+                    {/* Video Modal - Basit Dialog ile değiştirildi */}
+                    {/* Modal işlevselliği şu an devre dışı - gelecekte eklenecek */}
                 </div>
             </section>
         </>

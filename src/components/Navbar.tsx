@@ -180,7 +180,7 @@ const Navbar = () => {
                     <Heart size={20} />
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
                   </Button>
-                  <NavbarMember username={user.username} />
+                  <NavbarMember />
                 </div>
               ) : (
                 <NavbarGuest />

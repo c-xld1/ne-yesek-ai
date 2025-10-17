@@ -14,7 +14,392 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      answer_likes: {
+        Row: {
+          answer_id: string | null
+          created_at: string | null
+          id: string
+          is_like: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          answer_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_like?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          answer_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_like?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answer_likes_answer_id_fkey"
+            columns: ["answer_id"]
+            isOneToOne: false
+            referencedRelation: "answers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answer_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      answers: {
+        Row: {
+          content: string
+          created_at: string | null
+          fullname: string | null
+          id: string
+          is_accepted: boolean | null
+          likes: number | null
+          question_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          fullname?: string | null
+          id?: string
+          is_accepted?: boolean | null
+          likes?: number | null
+          question_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          fullname?: string | null
+          id?: string
+          is_accepted?: boolean | null
+          likes?: number | null
+          question_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          fullname: string
+          id: string
+          updated_at: string | null
+          user_group: string | null
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          fullname: string
+          id: string
+          updated_at?: string | null
+          user_group?: string | null
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          fullname?: string
+          id?: string
+          updated_at?: string | null
+          user_group?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+      question_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_like: boolean | null
+          question_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_like?: boolean | null
+          question_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_like?: boolean | null
+          question_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_likes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          answer_count: number | null
+          category: string | null
+          content: string
+          created_at: string | null
+          fullname: string | null
+          id: string
+          likes: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+          views: number | null
+        }
+        Insert: {
+          answer_count?: number | null
+          category?: string | null
+          content: string
+          created_at?: string | null
+          fullname?: string | null
+          id?: string
+          likes?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+          views?: number | null
+        }
+        Update: {
+          answer_count?: number | null
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          fullname?: string | null
+          id?: string
+          likes?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipes: {
+        Row: {
+          category_id: string | null
+          cook_time: number | null
+          created_at: string | null
+          description: string | null
+          difficulty: string | null
+          id: string
+          image_url: string | null
+          ingredients: Json | null
+          instructions: Json | null
+          is_featured: boolean | null
+          likes: number | null
+          prep_time: number | null
+          servings: number | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+          views: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          cook_time?: number | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          image_url?: string | null
+          ingredients?: Json | null
+          instructions?: Json | null
+          is_featured?: boolean | null
+          likes?: number | null
+          prep_time?: number | null
+          servings?: number | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+          views?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          cook_time?: number | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          image_url?: string | null
+          ingredients?: Json | null
+          instructions?: Json | null
+          is_featured?: boolean | null
+          likes?: number | null
+          prep_time?: number | null
+          servings?: number | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_stories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          id: string
+          is_featured: boolean | null
+          likes: number | null
+          recipe_id: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+          video_url: string
+          views: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          is_featured?: boolean | null
+          likes?: number | null
+          recipe_id?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+          video_url: string
+          views?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          is_featured?: boolean | null
+          likes?: number | null
+          recipe_id?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+          video_url?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_stories_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_stories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

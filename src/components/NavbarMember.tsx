@@ -12,7 +12,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Heart, PlusCircle, Bell } from "lucide-react";
+import { LogOut, User, Settings, Heart, PlusCircle, Bell, Star, HelpCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -37,7 +37,7 @@ const NavbarMember: React.FC = () => {
 
     const username = user?.username;
     const email = user?.email;
-    const avatarUrl = user?.avatarUrl;
+    const avatarUrl = (user as any)?.avatar_url; // avatar_url from profiles table
     const firstLetter = username ? username.charAt(0).toUpperCase() : "?";
 
     return (

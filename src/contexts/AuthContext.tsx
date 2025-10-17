@@ -6,7 +6,8 @@ interface User {
     email: string;
     username?: string;
     fullname?: string;
-    // Diğer kullanıcı alanları eklenebilir
+    avatar_url?: string;
+    user_group?: string;
 }
 
 interface AuthContextType {
@@ -69,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (data.user) {
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
-                .select('username, fullname')
+                .select('username, fullname, avatar_url, user_group')
                 .eq('id', data.user.id)
                 .single();
             setUser({
@@ -77,6 +78,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 email: data.user.email!,
                 username: profile?.username,
                 fullname: profile?.fullname,
+                avatar_url: profile?.avatar_url,
+                user_group: profile?.user_group,
             });
         }
         setLoading(false);
@@ -137,7 +140,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 // Profile bilgilerini al
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('username, fullname')
+                    .select('username, fullname, avatar_url, user_group')
                     .eq('id', session.user.id)
                     .single();
 
@@ -146,6 +149,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     email: session.user.email!,
                     username: profile?.username,
                     fullname: profile?.fullname,
+                    avatar_url: profile?.avatar_url,
+                    user_group: profile?.user_group,
                 });
             }
         };
@@ -158,7 +163,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (session?.user) {
                     const { data: profile } = await supabase
                         .from('profiles')
-                        .select('username, fullname')
+                        .select('username, fullname, avatar_url, user_group')
                         .eq('id', session.user.id)
                         .single();
 
@@ -167,6 +172,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         email: session.user.email!,
                         username: profile?.username,
                         fullname: profile?.fullname,
+                        avatar_url: profile?.avatar_url,
+                        user_group: profile?.user_group,
                     });
                 } else {
                     setUser(null);

@@ -55,11 +55,16 @@ export type Database = {
       }
       answers: {
         Row: {
+          author_avatar: string | null
+          author_id: string | null
+          author_name: string | null
           content: string
           created_at: string | null
+          dislikes: number | null
           fullname: string | null
           id: string
           is_accepted: boolean | null
+          is_best_answer: boolean | null
           likes: number | null
           question_id: string | null
           updated_at: string | null
@@ -67,11 +72,16 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          author_avatar?: string | null
+          author_id?: string | null
+          author_name?: string | null
           content: string
           created_at?: string | null
+          dislikes?: number | null
           fullname?: string | null
           id?: string
           is_accepted?: boolean | null
+          is_best_answer?: boolean | null
           likes?: number | null
           question_id?: string | null
           updated_at?: string | null
@@ -79,11 +89,16 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          author_avatar?: string | null
+          author_id?: string | null
+          author_name?: string | null
           content?: string
           created_at?: string | null
+          dislikes?: number | null
           fullname?: string | null
           id?: string
           is_accepted?: boolean | null
+          is_best_answer?: boolean | null
           likes?: number | null
           question_id?: string | null
           updated_at?: string | null
@@ -91,6 +106,13 @@ export type Database = {
           username?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "answers_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "answers_question_id_fkey"
             columns: ["question_id"]
@@ -206,14 +228,49 @@ export type Database = {
           },
         ]
       }
+      question_views: {
+        Row: {
+          created_at: string | null
+          id: string
+          question_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          question_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          question_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_views_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           answer_count: number | null
+          author_avatar: string | null
+          author_id: string | null
+          author_name: string | null
+          author_reputation: number | null
           category: string | null
           content: string
           created_at: string | null
+          dislikes: number | null
           fullname: string | null
           id: string
+          is_solved: boolean | null
           likes: number | null
           tags: string[] | null
           title: string
@@ -224,11 +281,17 @@ export type Database = {
         }
         Insert: {
           answer_count?: number | null
+          author_avatar?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          author_reputation?: number | null
           category?: string | null
           content: string
           created_at?: string | null
+          dislikes?: number | null
           fullname?: string | null
           id?: string
+          is_solved?: boolean | null
           likes?: number | null
           tags?: string[] | null
           title: string
@@ -239,11 +302,17 @@ export type Database = {
         }
         Update: {
           answer_count?: number | null
+          author_avatar?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          author_reputation?: number | null
           category?: string | null
           content?: string
           created_at?: string | null
+          dislikes?: number | null
           fullname?: string | null
           id?: string
+          is_solved?: boolean | null
           likes?: number | null
           tags?: string[] | null
           title?: string
@@ -253,6 +322,13 @@ export type Database = {
           views?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "questions_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "questions_user_id_fkey"
             columns: ["user_id"]

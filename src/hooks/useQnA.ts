@@ -146,7 +146,7 @@ export const useCreateQuestion = () => {
             // User profile'ından bilgileri al
             const { data: profile } = await supabase
                 .from('profiles')
-                .select('full_name, avatar_url')
+                .select('fullname, avatar_url')
                 .eq('id', user.id)
                 .single();
 
@@ -157,7 +157,7 @@ export const useCreateQuestion = () => {
                     content: questionData.content,
                     category: questionData.category,
                     author_id: user.id,
-                    author_name: profile?.full_name || user.email?.split('@')[0] || 'Anonim',
+                    author_name: profile?.fullname || user.email?.split('@')[0] || 'Anonim',
                     author_avatar: profile?.avatar_url,
                 })
                 .select()
@@ -200,7 +200,7 @@ export const useCreateAnswer = () => {
             // User profile'ından bilgileri al
             const { data: profile } = await supabase
                 .from('profiles')
-                .select('full_name, avatar_url')
+                .select('fullname, avatar_url')
                 .eq('id', user.id)
                 .single();
 
@@ -210,7 +210,7 @@ export const useCreateAnswer = () => {
                     question_id: answerData.question_id,
                     content: answerData.content,
                     author_id: user.id,
-                    author_name: profile?.full_name || user.email?.split('@')[0] || 'Anonim',
+                    author_name: profile?.fullname || user.email?.split('@')[0] || 'Anonim',
                     author_avatar: profile?.avatar_url,
                 })
                 .select()

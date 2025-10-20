@@ -2,13 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-    Heart, MessageCircle, Bookmark, ChevronLeft,
-    ChevronRight, X, Users, Eye, ArrowRight
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Sparkles, TrendingUp, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useVideoStories, type VideoStory as DatabaseVideoStory } from "@/hooks/useVideoStories";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import VideoStoryModal from "@/components/VideoStoryModal";
+import { motion } from "framer-motion";
 
 /**
  * VideoStory arayüzü, veritabanı modeli üzerine UI için gerekli özellikleri ekler
@@ -348,126 +347,173 @@ const VideoStories = () => {
 
     return (
         <>
-            <section className="bg-gradient-to-r from-orange-50 via-white to-orange-50 border-b border-orange-100 py-8">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex items-center justify-between mb-8">
+            <section className="relative py-12 overflow-hidden">
+                {/* Background gradients */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-orange-50" />
+                <div className="absolute top-0 left-0 w-96 h-96 bg-orange-200/20 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+                
+                <div className="max-w-7xl mx-auto px-4 relative z-10">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center justify-between mb-8"
+                    >
                         <div className="flex items-center gap-4">
-                            <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                                <span className="bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent">
-                                    Tarif Hikâyeleri
-                                </span>
-                                <Badge className="bg-gradient-to-r from-orange-500 to-orange-400 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md animate-pulse">
-                                    Yeni
-                                </Badge>
-                            </h3>
-                            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-600 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-orange-100 shadow-sm">
-                                <Eye className="h-4 w-4 text-orange-500" />
-                                <span className="font-semibold text-orange-600">
+                            <div className="relative">
+                                <h3 className="text-3xl font-bold flex items-center gap-3">
+                                    <span className="bg-gradient-to-r from-primary via-orange-600 to-orange-500 bg-clip-text text-transparent">
+                                        Tarif Hikâyeleri
+                                    </span>
+                                    <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                                </h3>
+                                <div className="absolute -bottom-2 left-0 w-24 h-1 bg-gradient-to-r from-primary to-orange-400 rounded-full" />
+                            </div>
+                            <Badge className="bg-gradient-to-r from-primary to-orange-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg hover:shadow-xl transition-shadow">
+                                <TrendingUp className="h-3 w-3 mr-1" />
+                                Popüler
+                            </Badge>
+                        </div>
+                        
+                        <div className="hidden sm:flex items-center gap-3">
+                            <div className="flex items-center gap-2 text-sm bg-white/80 backdrop-blur-sm px-4 py-2.5 rounded-full border border-orange-200 shadow-sm">
+                                <Eye className="h-4 w-4 text-primary" />
+                                <span className="font-bold text-primary">
                                     {stories.reduce((acc, story) => acc + (story.views || 0), 0).toLocaleString()}
                                 </span>
-                                <span>görüntüleme</span>
+                                <span className="text-muted-foreground">görüntüleme</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm bg-white/80 backdrop-blur-sm px-4 py-2.5 rounded-full border border-orange-200 shadow-sm">
+                                <Clock className="h-4 w-4 text-primary" />
+                                <span className="text-muted-foreground">{stories.length} hikaye</span>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
-                    {/* Hikayeler Listesi */}
-                    <div className="relative group/arrows">
-                        {/* Sol ok - Modern tasarım */}
+                    {/* Stories Grid */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="relative group/arrows"
+                    >
+                        {/* Navigation Buttons */}
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/95 hover:bg-white shadow-lg rounded-full w-10 h-10 opacity-0 group-hover/arrows:opacity-100 transition-all duration-300 border border-orange-100 hover:border-orange-200 hover:shadow-xl"
+                            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-white shadow-xl rounded-full w-12 h-12 opacity-0 group-hover/arrows:opacity-100 transition-all duration-300 border-2 border-orange-100 hover:border-primary hover:shadow-2xl hover:scale-110"
                             onClick={scrollLeft}
                         >
-                            <ChevronLeft className="h-5 w-5 text-gray-700" />
+                            <ChevronLeft className="h-6 w-6 text-foreground" />
                         </Button>
 
-                        {/* Hikayeler listesi */}
                         <div
                             ref={scrollRef}
-                            className="flex gap-3 overflow-x-auto scrollbar-hide px-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style]:none [scrollbar-width]:none"
+                            className="flex gap-4 overflow-x-auto scrollbar-hide px-8 py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style]:none [scrollbar-width]:none"
                         >
-                            {stories.map((story) => (
-                                <div
+                            {stories.map((story, index) => (
+                                <motion.div
                                     key={story.id}
-                                    className="flex-shrink-0 cursor-pointer group active:scale-95 transition-transform duration-200"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className="flex-shrink-0 cursor-pointer group"
                                     onClick={() => handleStoryClick(story)}
                                 >
                                     <div className="relative">
-                                        {/* Video Thumbnail - Modern tasarım */}
-                                        <div className="w-32 h-44 rounded-2xl overflow-hidden border-2 border-gray-100 group-hover:border-orange-300 group-hover:shadow-xl transition-all duration-300 relative story-pulse bg-gradient-to-br from-orange-50 to-white">
+                                        {/* Story Card */}
+                                        <div className="w-36 h-56 rounded-2xl overflow-hidden border-2 border-border group-hover:border-primary/50 transition-all duration-300 relative bg-gradient-to-br from-background to-muted shadow-lg group-hover:shadow-2xl group-hover:scale-105">
                                             <img
-                                                src={story.thumbnail_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=400&fit=crop"}
+                                                src={story.thumbnail_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=500&fit=crop"}
                                                 alt={story.title}
                                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90 group-hover:opacity-75 transition-opacity"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20 opacity-80 group-hover:opacity-60 transition-opacity"></div>
 
-                                            {/* Video Süresi - Modern tasarım */}
-                                            <div className="absolute bottom-3 right-3 bg-black/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-lg font-semibold shadow-lg border border-white/20">
+                                            {/* Duration Badge */}
+                                            <motion.div
+                                                whileHover={{ scale: 1.1 }}
+                                                className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-lg border border-white/30"
+                                            >
+                                                <Clock className="h-3 w-3 inline mr-1" />
                                                 {story.duration ? `${Math.floor(story.duration / 60)}:${(story.duration % 60).toString().padStart(2, '0')}` : '1:30'}
-                                            </div>
+                                            </motion.div>
 
-                                            {/* Görüntülenme sayacı - Modern tasarım */}
-                                            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-semibold flex items-center gap-1.5 shadow-lg">
-                                                <Eye className="h-3 w-3 text-orange-500" />
-                                                <span>{(story.views || 0) > 1000 ? `${((story.views || 0) / 1000).toFixed(1)}k` : (story.views || 0)}</span>
-                                            </div>
+                                            {/* Views Counter */}
+                                            <motion.div
+                                                whileHover={{ scale: 1.1 }}
+                                                className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/70 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg border border-white/20"
+                                            >
+                                                <Eye className="h-3.5 w-3.5" />
+                                                <span>{(story.views || 0).toLocaleString()}</span>
+                                            </motion.div>
 
-                                            {/* Play Button - Yeni ekleme */}
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                                    <div className="w-0 h-0 border-l-[8px] border-l-orange-500 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+                                            {/* Featured Badge */}
+                                            {story.is_featured && (
+                                                <motion.div
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    className="absolute top-3 right-3"
+                                                >
+                                                    <Badge className="bg-gradient-to-r from-primary to-orange-600 text-primary-foreground text-xs px-2.5 py-0.5 rounded-full shadow-lg border-0 animate-pulse">
+                                                        <Sparkles className="h-3 w-3 inline mr-1" />
+                                                        Öne Çıkan
+                                                    </Badge>
+                                                </motion.div>
+                                            )}
+
+                                            {/* Title & User Info */}
+                                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
+                                                <h4 className="text-white text-sm font-bold line-clamp-2 drop-shadow-lg mb-2">
+                                                    {story.title}
+                                                </h4>
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar className="h-5 w-5 border border-white/50">
+                                                        <AvatarImage src={story.userAvatar} />
+                                                        <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                                                            {story.username?.[0] || "U"}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <span className="text-white/90 text-xs font-medium drop-shadow-md">
+                                                        {story.username || "Chef AI"}
+                                                    </span>
+                                                    {story.userGroup === 'Premium' && (
+                                                        <Badge className="bg-yellow-500/90 text-white text-xs px-1.5 py-0 rounded-full border-0">
+                                                            ⭐
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                             </div>
-
-                                            {/* İçerik başlığı */}
-                                            <div className="absolute bottom-0 left-0 right-0 px-3 py-3 pointer-events-none">
-                                                <p className="text-white text-sm font-semibold truncate leading-tight drop-shadow-lg">
-                                                    {story.title}
-                                                </p>
-                                            </div>
                                         </div>
-
-                                        {/* Kullanıcı Avatarı - Modern tasarım */}
-                                        <Avatar className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-10 h-10 border-3 border-white shadow-lg ring-2 ring-orange-100">
-                                            <AvatarImage src={story.userAvatar} />
-                                            <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-500 text-white text-sm font-bold">
-                                                {(story.username || 'C')[0]}
-                                            </AvatarFallback>
-                                        </Avatar>
-
-                                        {/* Öne çıkan rozeti - Modern tasarım */}
-                                        {story.is_featured && (
-                                            <Badge className="absolute top-3 left-3 text-xs bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-2 py-1 rounded-full shadow-lg border border-yellow-300/50 font-semibold">
-                                                ✨ Öne Çıkan
-                                            </Badge>
-                                        )}
                                     </div>
-
-                                    {/* Kullanıcı adı - Modern stil */}
-                                    <p className="text-sm text-center mt-5 font-semibold text-gray-800 max-w-32 truncate">
-                                        {story.username}
-                                    </p>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
 
-                        {/* Sağ ok - Modern tasarım */}
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/95 hover:bg-white shadow-lg rounded-full w-10 h-10 opacity-0 group-hover/arrows:opacity-100 transition-all duration-300 border border-orange-100 hover:border-orange-200 hover:shadow-xl"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-white shadow-xl rounded-full w-12 h-12 opacity-0 group-hover/arrows:opacity-100 transition-all duration-300 border-2 border-orange-100 hover:border-primary hover:shadow-2xl hover:scale-110"
                             onClick={scrollRight}
                         >
-                            <ChevronRight className="h-5 w-5 text-gray-700" />
+                            <ChevronRight className="h-6 w-6 text-foreground" />
                         </Button>
-                    </div>
-
-                    {/* Video Modal - Basit Dialog ile değiştirildi */}
-                    {/* Modal işlevselliği şu an devre dışı - gelecekte eklenecek */}
+                    </motion.div>
                 </div>
             </section>
+
+            {/* Video Story Modal */}
+            <VideoStoryModal
+                isOpen={!!selectedStory}
+                onClose={closeModal}
+                story={selectedStory || stories[0]}
+                onLike={handleLike}
+                onNext={nextStory}
+                onPrev={prevStory}
+                hasNext={currentStoryIndex < stories.length - 1}
+                hasPrev={currentStoryIndex > 0}
+            />
         </>
     );
 };

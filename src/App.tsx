@@ -25,6 +25,9 @@ import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import Regional from "./pages/Regional";
 import QnANew from "./pages/QnANew";
+import Discover from "./pages/Discover";
+import MapView from "./pages/MapView";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +59,9 @@ const App = () => (
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/bildirimler" element={<Notifications />} />
             <Route path="/favoriler" element={<Favorites />} />
+            <Route path="/kesfet" element={<Discover />} />
+            <Route path="/harita" element={<MapView />} />
+            <Route path="/profil" element={<UserProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

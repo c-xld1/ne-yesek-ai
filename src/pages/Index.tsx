@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import Navbar from "../components/Navbar.tsx";
 import Footer from "@/components/Footer";
+import BottomNav from "@/components/BottomNav";
 import VideoStories from "@/components/VideoStories";
 import RecipeCard from "@/components/RecipeCard";
 import { useFeaturedRecipes } from "@/hooks/useRecipes";
@@ -32,7 +33,7 @@ const Index = () => {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 pb-20">
       <Navbar />
 
       {/* Test Data Status - Development Only */}
@@ -159,6 +160,7 @@ const Index = () => {
       )}
 
       <Footer />
+      <BottomNav />
     </div>
   );
 };

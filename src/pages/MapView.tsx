@@ -15,6 +15,7 @@ const MapView = () => {
   const [selectedChef, setSelectedChef] = useState<any>(null);
   const [chefs, setChefs] = useState<any[]>([]);
   const [mapboxToken, setMapboxToken] = useState("");
+  const [loadingToken, setLoadingToken] = useState(true);
 
   useEffect(() => {
     const fetchChefs = async () => {
@@ -29,7 +30,16 @@ const MapView = () => {
       if (data) setChefs(data);
     };
 
+    const fetchMapboxToken = async () => {
+      const { data } = await supabase.functions.invoke('get-mapbox-token');
+      if (data?.token) {
+        setMapboxToken(data.token);
+      }
+      setLoadingToken(false);
+    };
+
     fetchChefs();
+    fetchMapboxToken();
   }, []);
 
   const initializeMap = () => {
@@ -92,34 +102,17 @@ const MapView = () => {
         <div className="space-y-4">
           <h1 className="text-3xl font-bold">Yakınımdaki Şefler</h1>
           
-          {!mapboxToken && (
+          {loadingToken ? (
+            <Card className="p-4">
+              <p className="text-sm text-muted-foreground">Harita yükleniyor...</p>
+            </Card>
+          ) : !mapboxToken ? (
             <Card className="p-4 space-y-3">
               <p className="text-sm text-muted-foreground">
-                Harita özelliğini kullanmak için Mapbox API anahtarı gereklidir.
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  type="text"
-                  placeholder="Mapbox Public Token"
-                  value={mapboxToken}
-                  onChange={(e) => setMapboxToken(e.target.value)}
-                />
-                <Button onClick={initializeMap}>Haritayı Başlat</Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Token'ınızı{" "}
-                <a
-                  href="https://mapbox.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  mapbox.com
-                </a>{" "}
-                adresinden alabilirsiniz
+                Harita özelliği henüz yapılandırılmamış. Lütfen yöneticiyle iletişime geçin.
               </p>
             </Card>
-          )}
+          ) : null}
 
           <div className="flex gap-3">
             <div className="flex items-center gap-2">
@@ -191,7 +184,12 @@ const MapView = () => {
                   </div>
                 </div>
 
-                <Button className="w-full">Menüyü Gör</Button>
+                <Button 
+                  className="w-full"
+                  onClick={() => window.location.href = `/sef/${selectedChef.id}`}
+                >
+                  Menüyü Gör
+                </Button>
               </Card>
             ) : (
               <Card className="p-6 text-center text-muted-foreground">

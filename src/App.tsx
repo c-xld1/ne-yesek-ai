@@ -28,6 +28,8 @@ import QnANew from "./pages/QnANew";
 import Discover from "./pages/Discover";
 import MapView from "./pages/MapView";
 import UserProfile from "./pages/UserProfile";
+import ChefDashboard from "./pages/ChefDashboard";
+import ChefProfile from "./pages/ChefProfile";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +64,8 @@ const App = () => (
             <Route path="/kesfet" element={<Discover />} />
             <Route path="/harita" element={<MapView />} />
             <Route path="/profil" element={<UserProfile />} />
+            <Route path="/sef-paneli" element={<ChefDashboard />} />
+            <Route path="/sef/:id" element={<ChefProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

@@ -25,8 +25,8 @@ const AISearch = () => {
 
     setIsSearching(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-recipe-search', {
-        body: { ingredients: ingredients }
+      const { data, error } = await supabase.functions.invoke('ai-recipe-suggest', {
+        body: { ingredients: ingredients, preferences: "" }
       });
 
       if (error) throw error;
@@ -145,8 +145,16 @@ const AISearch = () => {
               transition={{ delay: index * 0.1 }}
             >
               <Card className="p-4 hover:shadow-lg transition-shadow">
-                <h3 className="font-semibold text-lg mb-2">{recipe.title}</h3>
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-lg">{recipe.title}</h3>
+                  <span className="text-sm font-bold text-primary">{recipe.compatibility}% uyumlu</span>
+                </div>
                 <p className="text-sm text-muted-foreground mb-3">{recipe.description}</p>
+                {recipe.missing_ingredients && recipe.missing_ingredients.length > 0 && (
+                  <p className="text-xs text-orange-600 mb-2">
+                    Eksik malzeme: {recipe.missing_ingredients.join(", ")}
+                  </p>
+                )}
                 <div className="flex gap-2 text-xs text-muted-foreground">
                   <span>⏱️ {recipe.prep_time + recipe.cook_time} dk</span>
                   <span>🍽️ {recipe.servings} kişilik</span>

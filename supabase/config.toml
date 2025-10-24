@@ -59,3 +59,9 @@ enabled = false
 
 [functions.ai-recipe-search]
 verify_jwt = false
+
+[functions.ai-recipe-suggest]
+verify_jwt = false
+
+[functions.get-mapbox-token]
+verify_jwt = false

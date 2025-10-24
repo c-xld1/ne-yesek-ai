@@ -4,6 +4,7 @@ import { Heart, MessageCircle, Share2, Clock, ChefHat, Star, Eye, Bookmark } fro
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import SocialShare from "./SocialShare";
+import RecipeSocial from "./RecipeSocial";
 
 interface RecipeCardProps {
     id: number | string;
@@ -160,38 +161,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                     </div>
 
                     {/* Social Actions */}
-                    <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                        <div className="flex items-center gap-4">
-                            <motion.button
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleLike}
-                                className={`flex items-center gap-2 transition-all duration-200 ${isLiked
-                                    ? 'text-red-500'
-                                    : 'text-gray-500 hover:text-red-500'
-                                    }`}
-                            >
-                                <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
-                                <span className="text-sm font-medium">{likeCount + (isLiked ? 1 : 0)}</span>
-                            </motion.button>
-
-                            <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-colors duration-200">
-                                <MessageCircle className="h-5 w-5" />
-                                <span className="text-sm font-medium">{commentCount}</span>
-                            </button>
-                        </div>
-
-                        <SocialShare
-                            recipe={{
-                                id: id.toString(),
-                                title,
-                                image: image || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-                                description: description || "Lezzetli tarif",
-                                author,
-                                cookingTime: cookingTime || "30 dk",
-                                difficulty: difficulty || "Kolay",
-                                rating
-                            }}
-                        />
+                    <div className="border-t border-gray-100 pt-3">
+                        <RecipeSocial recipeId={id.toString()} initialLikes={likeCount} showComments={true} />
                     </div>
                 </div>
             </div>

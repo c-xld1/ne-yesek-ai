@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useRecipeById } from "@/hooks/useRecipes";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import RecipeSocial from "@/components/RecipeSocial";
 
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();

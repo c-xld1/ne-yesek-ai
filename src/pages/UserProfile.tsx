@@ -122,7 +122,13 @@ const UserProfile = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
+                {isChef && (
+                  <Button size="sm" onClick={() => navigate("/sef-paneli")}>
+                    <ChefHat className="h-4 w-4 mr-2" />
+                    Şef Paneli
+                  </Button>
+                )}
                 <Button variant="outline" size="sm" onClick={() => navigate("/profil/duzenle")}>
                   <Settings className="h-4 w-4 mr-2" />
                   Profili Düzenle

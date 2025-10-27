@@ -7,6 +7,7 @@ type Recipe = Database['public']['Tables']['recipes']['Row'] & {
     author_name?: string;
     rating?: number;
     category_name?: string;
+    user_id?: string;
 };
 
 export const useRecipes = () => {
@@ -157,7 +158,7 @@ export const useRecipeById = (id: string) => {
             try {
                 const { data: recipe, error } = await supabase
                     .from('recipes')
-                    .select('id, title, description, content, image_url, prep_time, cook_time, servings, difficulty, ingredients, instructions, is_featured, views, rating, created_at, updated_at')
+                    .select('*')
                     .eq('id', id)
                     .single();
 

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,14 +7,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Heart, Share2, BookmarkPlus, Clock, Users,
-  ChefHat, Star, MessageCircle, Eye, ThumbsUp
+  ChefHat, Star, MessageCircle, Eye, ThumbsUp, Edit2, Trash2
 } from "lucide-react";
 import { useRecipeById } from "@/hooks/useRecipes";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import RecipeSocial from "@/components/RecipeSocial";
+import RecipeComments from "@/components/RecipeComments";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { data: recipe, isLoading, error } = useRecipeById(id || "");
 
   if (isLoading) {
@@ -46,6 +53,35 @@ const RecipeDetail = () => {
       </div>
     );
   }
+
+  const handleEdit = () => {
+    navigate(`/tarif-paylas?edit=${id}`);
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Bu tarifi silmek istediğinizden emin misiniz?")) return;
+
+    try {
+      const { error } = await supabase
+        .from('recipes')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Tarif Silindi",
+        description: "Tarif başarıyla silindi.",
+      });
+      navigate("/tarifler");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Hata",
+        description: "Tarif silinirken hata oluştu.",
+      });
+    }
+  };
 
   // Mock data for missing fields
   const recipeIngredients = [
@@ -88,18 +124,27 @@ const RecipeDetail = () => {
 
             {/* Action Buttons */}
             <div className="absolute top-6 right-6 flex gap-3">
-              <Button size="sm" className="bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white border-0 shadow-lg">
-                <Heart className="h-4 w-4 mr-2" />
-                Favorile
-              </Button>
-              <Button size="sm" className="bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white border-0 shadow-lg">
-                <Share2 className="h-4 w-4 mr-2" />
-                Paylaş
-              </Button>
-              <Button size="sm" className="bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white border-0 shadow-lg">
-                <BookmarkPlus className="h-4 w-4 mr-2" />
-                Kaydet
-              </Button>
+              {user?.id === recipe.user_id && (
+                <>
+                  <Button
+                    size="sm"
+                    onClick={handleEdit}
+                    className="bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white border-0 shadow-lg"
+                  >
+                    <Edit2 className="h-4 w-4 mr-2" />
+                    Düzenle
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleDelete}
+                    variant="destructive"
+                    className="shadow-lg"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Sil
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Title Overlay */}
@@ -265,6 +310,13 @@ const RecipeDetail = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Comments Section */}
+            {id && (
+              <div className="mt-6">
+                <RecipeComments recipeId={id} />
+              </div>
             )}
           </div>
         </div>

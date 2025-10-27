@@ -606,6 +606,41 @@ export type Database = {
           },
         ]
       }
+      recipe_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          recipe_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          recipe_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          recipe_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_comments_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recipe_favorites: {
         Row: {
           created_at: string | null
@@ -647,6 +682,7 @@ export type Database = {
           image_url: string | null
           ingredients: Json | null
           instructions: Json | null
+          is_draft: boolean | null
           is_featured: boolean | null
           likes: number | null
           prep_time: number | null
@@ -668,6 +704,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: Json | null
           instructions?: Json | null
+          is_draft?: boolean | null
           is_featured?: boolean | null
           likes?: number | null
           prep_time?: number | null
@@ -689,6 +726,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: Json | null
           instructions?: Json | null
+          is_draft?: boolean | null
           is_featured?: boolean | null
           likes?: number | null
           prep_time?: number | null

@@ -14,6 +14,8 @@ interface AuthContextType {
     user: User | null;
     login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string }>;
     signUp: (email: string, password: string, username: string, fullname: string) => Promise<{ success: boolean; error?: string }>;
+    signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+    signInWithFacebook: () => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
     loading: boolean;
 }
@@ -123,6 +125,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+        setLoading(true);
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/`,
+                    queryParams: {
+                        access_type: 'offline',
+                        prompt: 'consent',
+                    },
+                },
+            });
+
+            if (error) {
+                return { success: false, error: error.message };
+            }
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Google login error:', error);
+            return { success: false, error: 'Google ile giriş yapılamadı' };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const signInWithFacebook = async (): Promise<{ success: boolean; error?: string }> => {
+        setLoading(true);
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'facebook',
+                options: {
+                    redirectTo: `${window.location.origin}/`,
+                },
+            });
+
+            if (error) {
+                return { success: false, error: error.message };
+            }
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Facebook login error:', error);
+            return { success: false, error: 'Facebook ile giriş yapılamadı' };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const logout = async () => {
         try {
             await supabase.auth.signOut();
@@ -184,11 +236,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => subscription.unsubscribe();
     }, []);
 
-    return (
-        <AuthContext.Provider value={{ user, login, signUp, logout, loading }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ user, login, signUp, signInWithGoogle, signInWithFacebook, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

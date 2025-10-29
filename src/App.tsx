@@ -30,6 +30,7 @@ import MapView from "./pages/MapView";
 import UserProfile from "./pages/UserProfile";
 import ChefDashboard from "./pages/ChefDashboard";
 import ChefProfile from "./pages/ChefProfile";
+import Stats from "./pages/Stats";
 
 const queryClient = new QueryClient();
 

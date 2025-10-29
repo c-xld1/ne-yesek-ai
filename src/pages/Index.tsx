@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 import VideoStories from "@/components/VideoStories";
 import RecipeCard from "@/components/RecipeCard";
+import { Newsletter } from "@/components/Newsletter";
 import { useFeaturedRecipes } from "@/hooks/useRecipes";
 import { useCategories } from "@/hooks/useCategories";
 import { useTestData } from "@/hooks/useTestData";
@@ -158,6 +159,11 @@ const Index = () => {
           </div>
         </section>
       )}
+
+      {/* Newsletter - Only on home page */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Newsletter />
+      </section>
 
       <Footer />
       <BottomNav />

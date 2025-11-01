@@ -874,6 +874,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_story_likes: { Args: { story_id: string }; Returns: undefined }
+      increment_story_views: { Args: { story_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "chef" | "user"

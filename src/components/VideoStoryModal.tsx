@@ -17,10 +17,11 @@ interface VideoStoryModalProps {
     thumbnail_url?: string | null;
     views?: number;
     likes?: number;
-    username?: string;
-    userAvatar?: string;
-    userGroup?: string;
-    isLiked?: boolean;
+    profile?: {
+      username?: string;
+      fullname?: string;
+      avatar_url?: string;
+    };
     duration?: number | null;
   };
   onLike: (storyId: string) => void;
@@ -120,18 +121,15 @@ const VideoStoryModal = ({
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10 border-2 border-white shadow-lg">
-                    <AvatarImage src={story.userAvatar} />
+                    <AvatarImage src={story.profile?.avatar_url} />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-orange-600 text-white">
-                      {story.username?.[0] || "U"}
+                      {story.profile?.fullname?.[0] || story.profile?.username?.[0] || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="text-white font-semibold text-sm">{story.username || "Chef AI"}</h3>
-                    {story.userGroup && (
-                      <Badge className="bg-primary/20 text-primary-foreground text-xs border-0 backdrop-blur-sm mt-1">
-                        {story.userGroup}
-                      </Badge>
-                    )}
+                    <h3 className="text-white font-semibold text-sm">
+                      {story.profile?.fullname || story.profile?.username || "Chef AI"}
+                    </h3>
                   </div>
                 </div>
 
@@ -171,13 +169,7 @@ const VideoStoryModal = ({
                       className="flex flex-col items-center gap-1 group"
                     >
                       <div className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all duration-300">
-                        <Heart
-                          className={`h-6 w-6 transition-colors ${
-                            story.isLiked
-                              ? "fill-red-500 text-red-500"
-                              : "text-white group-hover:text-red-500"
-                          }`}
-                        />
+                        <Heart className="h-6 w-6 text-white group-hover:text-red-500" />
                       </div>
                       <span className="text-white text-xs font-semibold">
                         {story.likes?.toLocaleString() || 0}

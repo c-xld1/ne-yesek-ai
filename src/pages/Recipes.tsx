@@ -69,12 +69,13 @@ const Recipes = () => {
     id: recipe.id,
     title: recipe.title || 'Başlıksız Tarif',
     image: recipe.image_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    cookingTime: recipe.cooking_time != null ? recipe.cooking_time.toString() : "Bilinmiyor",
+    cookingTime: `${(recipe.prep_time || 0) + (recipe.cook_time || 0)} dk`,
     difficulty: (recipe.difficulty as "Kolay" | "Orta" | "Zor") || "Kolay",
     rating: recipe.rating || 0,
     author: recipe.author_name || "Anonim",
     dblScore: Math.round((recipe.rating || 0) * 20),
-    description: recipe.description || "Açıklama mevcut değil."
+    description: recipe.description || "Açıklama mevcut değil.",
+    category: recipe.category_name || "Genel"
   }));
 
   return (

@@ -24,10 +24,10 @@ const Index = () => {
     id: recipe.id,
     title: recipe.title || 'Başlıksız Tarif',
     image: recipe.image_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    cookingTime: String(recipe.cook_time || "Bilinmiyor"),
+    cookingTime: `${(recipe.prep_time || 0) + (recipe.cook_time || 0)} dk`,
     difficulty: (recipe.difficulty as "Kolay" | "Orta" | "Zor") || "Kolay",
     rating: recipe.rating || 0,
-    author: recipe.author_name || "Ne Yesek AI",
+    author: recipe.author_name || "Anonim",
     dblScore: Math.round((recipe.rating || 0) * 20),
     description: recipe.description || "Açıklama mevcut değil.",
     category: recipe.category_name || "Genel"
@@ -132,10 +132,10 @@ const Index = () => {
               >
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center shadow-lg border border-orange-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-orange-50 group-hover:to-orange-100">
                   <div className="text-3xl mb-3">
-                    {category.emoji || '🍽️'}
+                    {category.icon || '🍽️'}
                   </div>
                   <h3 className="font-semibold text-gray-800 group-hover:text-orange-700 transition-colors">
-                    {category.name || category.title || 'Kategori'}
+                    {category.name || 'Kategori'}
                   </h3>
                   <p className="text-sm text-gray-500 mt-1">
                     {category.description || 'Lezzetli tarifler'}

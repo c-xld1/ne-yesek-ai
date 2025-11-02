@@ -156,6 +156,152 @@ export type Database = {
         }
         Relationships: []
       }
+      chef_applications: {
+        Row: {
+          address: string
+          admin_notes: string | null
+          business_description: string | null
+          city: string
+          created_at: string | null
+          cuisine_type: string
+          district: string | null
+          experience_years: number | null
+          fullname: string
+          id: string
+          identity_document_url: string | null
+          phone: string
+          residence_document_url: string | null
+          sample_menu: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          address: string
+          admin_notes?: string | null
+          business_description?: string | null
+          city: string
+          created_at?: string | null
+          cuisine_type: string
+          district?: string | null
+          experience_years?: number | null
+          fullname: string
+          id?: string
+          identity_document_url?: string | null
+          phone: string
+          residence_document_url?: string | null
+          sample_menu?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          address?: string
+          admin_notes?: string | null
+          business_description?: string | null
+          city?: string
+          created_at?: string | null
+          cuisine_type?: string
+          district?: string | null
+          experience_years?: number | null
+          fullname?: string
+          id?: string
+          identity_document_url?: string | null
+          phone?: string
+          residence_document_url?: string | null
+          sample_menu?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      chef_availability: {
+        Row: {
+          chef_id: string
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean | null
+          start_time: string
+        }
+        Insert: {
+          chef_id: string
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean | null
+          start_time: string
+        }
+        Update: {
+          chef_id?: string
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean | null
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chef_availability_chef_id_fkey"
+            columns: ["chef_id"]
+            isOneToOne: false
+            referencedRelation: "chef_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chef_earnings: {
+        Row: {
+          amount: number
+          chef_id: string
+          created_at: string | null
+          id: string
+          order_id: string | null
+          payment_date: string | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          chef_id: string
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_date?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          chef_id?: string
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_date?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chef_earnings_chef_id_fkey"
+            columns: ["chef_id"]
+            isOneToOne: false
+            referencedRelation: "chef_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chef_earnings_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chef_profiles: {
         Row: {
           address: string | null
@@ -774,6 +920,51 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          chef_id: string
+          comment: string | null
+          created_at: string | null
+          id: string
+          order_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          chef_id: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          order_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          chef_id?: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          order_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_chef_id_fkey"
+            columns: ["chef_id"]
+            isOneToOne: false
+            referencedRelation: "chef_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]

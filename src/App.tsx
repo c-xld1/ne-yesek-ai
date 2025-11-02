@@ -31,6 +31,8 @@ import UserProfile from "./pages/UserProfile";
 import ChefDashboard from "./pages/ChefDashboard";
 import ChefProfile from "./pages/ChefProfile";
 import Stats from "./pages/Stats";
+import ChefApplication from "./pages/ChefApplication";
+import Marketplace from "./pages/Marketplace";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +69,8 @@ const App = () => (
             <Route path="/profil" element={<UserProfile />} />
             <Route path="/sef-paneli" element={<ChefDashboard />} />
             <Route path="/sef/:id" element={<ChefProfile />} />
+            <Route path="/sef-basvuru" element={<ChefApplication />} />
+            <Route path="/yemek-siparis" element={<Marketplace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

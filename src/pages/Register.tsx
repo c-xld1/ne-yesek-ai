@@ -48,32 +48,32 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      // Kullanıcı adı yoksa fullname'den türetelim
-      const username = formData.username || `${formData.fullname.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
-
-      console.log('Register form data:', {
-        email: formData.email,
-        username: formData.username,
-        generated_username: username,
-        fullname: formData.fullname,
-        fullname_length: formData.fullname?.length,
-        fullname_type: typeof formData.fullname,
-        fullname_trimmed: formData.fullname?.trim(),
-        is_fullname_empty: !formData.fullname || formData.fullname.trim() === ''
-      });
-
-      if (!formData.fullname || formData.fullname.trim() === '') {
+      if (!formData.fullname?.trim()) {
         toast({
           title: "Hata! ❌",
           description: "Ad Soyad alanı boş olamaz.",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
-      const { success, error } = await signUp(formData.email, formData.password, username, formData.fullname);
+      if (!formData.username?.trim()) {
+        toast({
+          title: "Hata! ❌",
+          description: "Kullanıcı adı boş olamaz.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
 
-      console.log('SignUp result:', { success, error });
+      const { success, error } = await signUp(
+        formData.email, 
+        formData.password, 
+        formData.username.trim(), 
+        formData.fullname.trim()
+      );
 
       if (success) {
         toast({
@@ -82,19 +82,14 @@ const Register = () => {
         });
         navigate("/giris-yap");
       } else {
-        // Hata mesajını özelleştir
         let errorMessage = error || "Hesap oluşturulurken bir hata oluştu.";
-        if (
-          errorMessage.includes("User already registered") ||
-          errorMessage.includes("already registered") ||
-          errorMessage.includes("duplicate key value violates unique constraint") ||
-          errorMessage.toLowerCase().includes("email")
-        ) {
-          errorMessage = "Bu e-posta adresiyle zaten bir hesap var. Lütfen giriş yapın veya farklı bir e-posta kullanın.";
+        
+        if (errorMessage.includes("User already registered") || 
+            errorMessage.includes("already registered") ||
+            errorMessage.includes("duplicate")) {
+          errorMessage = "Bu e-posta adresi zaten kullanılıyor.";
         }
-        if (errorMessage.toLowerCase().includes("profil oluşturulamadı") || errorMessage.toLowerCase().includes("profile could not be created")) {
-          errorMessage = "Hesabınız oluşturuldu fakat profiliniz eklenemedi. Lütfen giriş yapıp profil bilgilerinizi tamamlayın.";
-        }
+        
         toast({
           title: "Hata! ❌",
           description: errorMessage,
@@ -102,14 +97,12 @@ const Register = () => {
         });
       }
     } catch (error: any) {
-      console.error('Register catch error:', error);
       toast({
         title: "Hata! ❌",
         description: error?.message || "Beklenmeyen bir hata oluştu.",
         variant: "destructive",
       });
     } finally {
-      console.log('Register finally block - setting loading false');
       setIsLoading(false);
     }
   };

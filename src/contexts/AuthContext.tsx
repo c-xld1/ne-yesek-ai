@@ -7,7 +7,7 @@ interface User {
     username?: string;
     fullname?: string;
     avatar_url?: string;
-    user_group?: string;
+    bio?: string;
 }
 
 interface AuthContextType {
@@ -70,9 +70,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return { success: false, error: message };
         }
         if (data.user) {
-            const { data: profile, error: profileError } = await supabase
+            const { data: profile } = await supabase
                 .from('profiles')
-                .select('username, fullname, avatar_url, user_group')
+                .select('username, fullname, avatar_url, bio')
                 .eq('id', data.user.id)
                 .single();
             setUser({
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 username: profile?.username,
                 fullname: profile?.fullname,
                 avatar_url: profile?.avatar_url,
-                user_group: profile?.user_group,
+                bio: profile?.bio,
             });
         }
         setLoading(false);
@@ -90,36 +90,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const signUp = async (email: string, password: string, username: string, fullname: string): Promise<{ success: boolean; error?: string }> => {
         setLoading(true);
         try {
-            console.log('AuthContext signUp called with:', { email, username, fullname });
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
-                    data: { display_name: fullname, username }
+                    emailRedirectTo: `${window.location.origin}/`,
+                    data: { 
+                        username,
+                        fullname
+                    }
                 }
             });
-            console.log('supabase.auth.signUp response:', { data, error });
+
             if (error) {
-                console.error('SignUp error:', error);
                 return { success: false, error: error.message };
             }
-            // Manuel olarak profile oluştur (session olmasa bile)
-            const profileData = { id: data.user!.id, username, fullname, user_group: 'Herkes' };
-            const { data: insertedProfile, error: profileError } = await supabase
-                .from('profiles')
-                .insert(profileData)
-                .select();
-            console.log('Profile insert (manual):', { insertedProfile, profileError });
-            if (profileError) {
-                console.error('Profile insert error:', profileError);
-                return { success: false, error: profileError.message };
+
+            if (!data.user) {
+                return { success: false, error: 'Kullanıcı oluşturulamadı' };
             }
-            // Set user in context
-            setUser({ id: data.user!.id, email: data.user!.email!, username, fullname });
+
+            // Trigger otomatik profile oluşturacak, bekleyelim
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
             return { success: true };
-        } catch (err) {
-            console.error('SignUp catch error:', err);
-            return { success: false, error: 'Beklenmeyen hata' };
+        } catch (err: any) {
+            console.error('SignUp error:', err);
+            return { success: false, error: err?.message || 'Kayıt sırasında hata oluştu' };
         } finally {
             setLoading(false);
         }
@@ -185,37 +182,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     useEffect(() => {
-        // Mevcut oturumu kontrol et
-        const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                // Profile bilgilerini al
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('username, fullname, avatar_url, user_group')
-                    .eq('id', session.user.id)
-                    .single();
-
-                setUser({
-                    id: session.user.id,
-                    email: session.user.email!,
-                    username: profile?.username,
-                    fullname: profile?.fullname,
-                    avatar_url: profile?.avatar_url,
-                    user_group: profile?.user_group,
-                });
-            }
-        };
-
-        getSession();
-
-        // Auth state değişikliklerini dinle
+        // Auth state listener'ı ÖNCE ayarla
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 if (session?.user) {
                     const { data: profile } = await supabase
                         .from('profiles')
-                        .select('username, fullname, avatar_url, user_group')
+                        .select('username, fullname, avatar_url, bio')
                         .eq('id', session.user.id)
                         .single();
 
@@ -225,13 +198,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         username: profile?.username,
                         fullname: profile?.fullname,
                         avatar_url: profile?.avatar_url,
-                        user_group: profile?.user_group,
+                        bio: profile?.bio,
                     });
                 } else {
                     setUser(null);
                 }
             }
         );
+
+        // SONRA mevcut session'ı kontrol et
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                supabase
+                    .from('profiles')
+                    .select('username, fullname, avatar_url, bio')
+                    .eq('id', session.user.id)
+                    .single()
+                    .then(({ data: profile }) => {
+                        setUser({
+                            id: session.user.id,
+                            email: session.user.email!,
+                            username: profile?.username,
+                            fullname: profile?.fullname,
+                            avatar_url: profile?.avatar_url,
+                            bio: profile?.bio,
+                        });
+                    });
+            }
+        });
 
         return () => subscription.unsubscribe();
     }, []);

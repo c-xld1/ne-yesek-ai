@@ -142,6 +142,13 @@ const Navbar = () => {
               >
                 Soru & Cevap
               </Link>
+              <Link
+                to="/marketplace"
+                className="px-4 py-2 rounded-xl text-gray-700 hover:text-orange-600 font-medium transition-all duration-300 hover:bg-orange-50 flex items-center gap-2"
+              >
+                <ChefHat className="h-4 w-4" />
+                Ev Yemekleri
+              </Link>
             </div>
 
             {/* Desktop Search */}

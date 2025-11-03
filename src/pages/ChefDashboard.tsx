@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash2, DollarSign, Package, TrendingUp } from "lucide-react";
+import { Plus, Edit, Trash2, DollarSign, Package, TrendingUp, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
 
 const ChefDashboard = () => {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ const ChefDashboard = () => {
   const [stats, setStats] = useState({ totalOrders: 0, totalRevenue: 0, avgRating: 0 });
   const [showMealForm, setShowMealForm] = useState(false);
   const [editingMeal, setEditingMeal] = useState<any>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const [mealForm, setMealForm] = useState({
     name: "",
     description: "",
@@ -186,6 +188,46 @@ const ChefDashboard = () => {
     fetchChefData();
   };
 
+  const handleAIAssist = async (type: 'description' | 'pricing') => {
+    if (!mealForm.name || !mealForm.ingredients) {
+      toast({ title: "Eksik Bilgi", description: "Önce yemek adı ve malzemeleri girin", variant: "destructive" });
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const action = type === 'description' ? 'description_writer' : 'pricing_suggestion';
+      const { data, error } = await supabaseClient.functions.invoke('chef-ai-assistant', {
+        body: {
+          action,
+          context: {
+            meal_name: mealForm.name,
+            ingredients: mealForm.ingredients,
+            servings: mealForm.servings,
+            city: chefProfile?.city,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (type === 'description') {
+        setMealForm({ ...mealForm, description: data.response });
+      } else {
+        const priceMatch = data.response.match(/\d+/);
+        if (priceMatch) {
+          setMealForm({ ...mealForm, price: priceMatch[0] });
+        }
+      }
+      
+      toast({ title: "✨ AI Önerisi Eklendi" });
+    } catch (error: any) {
+      toast({ title: "Hata", description: error.message, variant: "destructive" });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
     const { error } = await supabase
       .from("orders")
@@ -280,7 +322,19 @@ const ChefDashboard = () => {
                       />
                     </div>
                     <div>
-                      <Label>Fiyat (₺) *</Label>
+                      <div className="flex justify-between items-center mb-2">
+                        <Label>Fiyat (₺) *</Label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleAIAssist('pricing')}
+                          disabled={aiLoading}
+                        >
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          {aiLoading ? 'AI Çalışıyor...' : 'AI Fiyat'}
+                        </Button>
+                      </div>
                       <Input
                         type="number"
                         step="0.01"
@@ -325,7 +379,19 @@ const ChefDashboard = () => {
                   </div>
 
                   <div>
-                    <Label>Açıklama</Label>
+                    <div className="flex justify-between items-center mb-2">
+                      <Label>Açıklama</Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleAIAssist('description')}
+                        disabled={aiLoading}
+                      >
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        {aiLoading ? 'AI Çalışıyor...' : 'AI Öner'}
+                      </Button>
+                    </div>
                     <Textarea
                       value={mealForm.description}
                       onChange={(e) => setMealForm({ ...mealForm, description: e.target.value })}

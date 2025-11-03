@@ -68,6 +68,15 @@ const Marketplace = () => {
   };
 
   const addToCart = (mealId: string) => {
+    if (!user) {
+      toast({
+        title: "Giriş Gerekli",
+        description: "Sipariş vermek için giriş yapmalısınız.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setCart(prev => ({
       ...prev,
       [mealId]: (prev[mealId] || 0) + 1
@@ -76,6 +85,70 @@ const Marketplace = () => {
       title: "Sepete Eklendi",
       description: "Ürün sepetinize eklendi."
     });
+  };
+
+  const handleCheckout = async () => {
+    if (!user || Object.keys(cart).length === 0) return;
+
+    try {
+      const cartItems = meals.filter(m => cart[m.id]);
+      const totalAmount = cartItems.reduce((sum, meal) => sum + (meal.price * cart[meal.id]), 0);
+
+      // Create order for each chef
+      const chefOrders = cartItems.reduce((acc, meal) => {
+        if (!acc[meal.chef_id]) {
+          acc[meal.chef_id] = [];
+        }
+        acc[meal.chef_id].push(meal);
+        return acc;
+      }, {} as any);
+
+      for (const chefId in chefOrders) {
+        const chefMeals = chefOrders[chefId];
+        const orderTotal = chefMeals.reduce((sum: number, meal: any) => sum + (meal.price * cart[meal.id]), 0);
+
+        const { data: order, error: orderError } = await supabase
+          .from('orders')
+          .insert([{
+            customer_id: user.id,
+            chef_id: chefId,
+            total_amount: orderTotal,
+            delivery_type: 'pickup',
+            status: 'pending'
+          }])
+          .select()
+          .single();
+
+        if (orderError) throw orderError;
+
+        // Create order items
+        const orderItems = chefMeals.map((meal: any) => ({
+          order_id: order.id,
+          meal_id: meal.id,
+          quantity: cart[meal.id],
+          price: meal.price
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .insert(orderItems);
+
+        if (itemsError) throw itemsError;
+      }
+
+      toast({
+        title: "Sipariş Oluşturuldu! 🎉",
+        description: "Siparişiniz başarıyla alındı."
+      });
+      
+      setCart({});
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Hata",
+        description: error.message
+      });
+    }
   };
 
   const filteredMeals = meals.filter(meal =>
@@ -100,9 +173,13 @@ const Marketplace = () => {
               Yerel şeflerimizden taze, evde hazırlanmış yemekler sipariş edin
             </p>
           </div>
-          <Button className="bg-gradient-to-r from-orange-500 to-rose-500">
+          <Button 
+            className="bg-gradient-to-r from-orange-500 to-rose-500"
+            onClick={handleCheckout}
+            disabled={cartCount === 0}
+          >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            Sepet ({cartCount})
+            Sepeti Onayla ({cartCount})
           </Button>
         </div>
 
@@ -175,13 +252,19 @@ const Marketplace = () => {
                     <Badge variant="secondary">{meal.category}</Badge>
                   )}
 
-                  <Button
-                    onClick={() => addToCart(meal.id)}
-                    className="w-full bg-gradient-to-r from-orange-500 to-rose-500"
-                    disabled={!user}
-                  >
-                    {user ? "Sepete Ekle" : "Giriş Yapın"}
-                  </Button>
+                  <div className="flex gap-2 items-center">
+                    {cart[meal.id] > 0 && (
+                      <div className="flex items-center gap-2 px-3 py-1 bg-orange-100 rounded-lg">
+                        <span className="font-semibold">{cart[meal.id]}x</span>
+                      </div>
+                    )}
+                    <Button
+                      onClick={() => addToCart(meal.id)}
+                      className="flex-1 bg-gradient-to-r from-orange-500 to-rose-500"
+                    >
+                      Sepete Ekle
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

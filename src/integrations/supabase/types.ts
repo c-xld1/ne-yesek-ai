@@ -399,6 +399,8 @@ export type Database = {
           name: string
           preparation_time: number | null
           price: number
+          ready_now: boolean | null
+          ready_until: string | null
           servings: number | null
           stock_quantity: number | null
           updated_at: string | null
@@ -418,6 +420,8 @@ export type Database = {
           name: string
           preparation_time?: number | null
           price: number
+          ready_now?: boolean | null
+          ready_until?: string | null
           servings?: number | null
           stock_quantity?: number | null
           updated_at?: string | null
@@ -437,6 +441,8 @@ export type Database = {
           name?: string
           preparation_time?: number | null
           price?: number
+          ready_now?: boolean | null
+          ready_until?: string | null
           servings?: number | null
           stock_quantity?: number | null
           updated_at?: string | null
@@ -965,6 +971,62 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_orders: {
+        Row: {
+          chef_id: string
+          created_at: string | null
+          customer_id: string
+          delivery_address: string | null
+          id: string
+          meal_description: string
+          scheduled_date: string
+          scheduled_time: string
+          servings: number
+          special_requests: string | null
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          chef_id: string
+          created_at?: string | null
+          customer_id: string
+          delivery_address?: string | null
+          id?: string
+          meal_description: string
+          scheduled_date: string
+          scheduled_time: string
+          servings?: number
+          special_requests?: string | null
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          chef_id?: string
+          created_at?: string | null
+          customer_id?: string
+          delivery_address?: string | null
+          id?: string
+          meal_description?: string
+          scheduled_date?: string
+          scheduled_time?: string
+          servings?: number
+          special_requests?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_orders_chef_id_fkey"
+            columns: ["chef_id"]
+            isOneToOne: false
+            referencedRelation: "chef_profiles"
             referencedColumns: ["id"]
           },
         ]

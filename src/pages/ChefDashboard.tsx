@@ -295,9 +295,11 @@ const ChefDashboard = () => {
         </div>
 
         <Tabs defaultValue="meals">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="meals">Menülerim</TabsTrigger>
             <TabsTrigger value="orders">Siparişler</TabsTrigger>
+            <TabsTrigger value="calendar">Takvim</TabsTrigger>
+            <TabsTrigger value="scheduled">Randevular</TabsTrigger>
           </TabsList>
 
           <TabsContent value="meals" className="space-y-4">
@@ -475,10 +477,22 @@ const ChefDashboard = () => {
                       </div>
                     </div>
                     <p className="text-lg font-bold text-primary">{meal.price} ₺</p>
-                    <div className="flex gap-2 text-xs">
+                    <div className="flex gap-2 text-xs flex-wrap">
                       {meal.is_vegetarian && <span className="px-2 py-1 bg-green-100 text-green-700 rounded">Vejetaryen</span>}
                       {meal.is_vegan && <span className="px-2 py-1 bg-green-100 text-green-700 rounded">Vegan</span>}
                       {!meal.is_available && <span className="px-2 py-1 bg-red-100 text-red-700 rounded">Stokta Yok</span>}
+                      {meal.ready_now && <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded">🔥 Hazır</span>}
+                    </div>
+                    <div className="flex items-center gap-2 pt-2 border-t">
+                      <Switch
+                        checked={meal.ready_now || false}
+                        onCheckedChange={async (checked) => {
+                          const ready_until = checked ? new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString() : null;
+                          await supabase.from("meals").update({ ready_now: checked, ready_until }).eq("id", meal.id);
+                          fetchChefData();
+                        }}
+                      />
+                      <span className="text-sm">Hemen teslimat için hazır</span>
                     </div>
                   </div>
                 </Card>
@@ -521,7 +535,7 @@ const ChefDashboard = () => {
                       <div className="flex gap-2">
                         {order.status === 'pending' && (
                           <Button size="sm" onClick={() => handleUpdateOrderStatus(order.id, 'preparing')}>
-                            Hazırlanıyor
+                            Kabul Et
                           </Button>
                         )}
                         {order.status === 'preparing' && (
@@ -540,6 +554,31 @@ const ChefDashboard = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-4">
+            <h2 className="text-xl font-semibold">Çalışma Takvimim</h2>
+            <Card className="p-6">
+              <p className="text-muted-foreground">Çalışma saatlerinizi ayarlayın. Müşteriler sadece aktif olduğunuz günlerde randevu alabilir.</p>
+              <div className="mt-6 space-y-4">
+                {['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'].map((day, index) => (
+                  <div key={index} className="flex items-center gap-4 p-3 border rounded-lg">
+                    <Switch />
+                    <span className="font-medium w-24">{day}</span>
+                    <Input type="time" className="w-32" placeholder="09:00" />
+                    <span>-</span>
+                    <Input type="time" className="w-32" placeholder="18:00" />
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="scheduled" className="space-y-4">
+            <h2 className="text-xl font-semibold">Randevulu Siparişler</h2>
+            <Card className="p-6">
+              <p className="text-muted-foreground text-center py-8">Yakında aktif olacak</p>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

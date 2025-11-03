@@ -33,6 +33,8 @@ import ChefProfile from "./pages/ChefProfile";
 import Stats from "./pages/Stats";
 import ChefApplication from "./pages/ChefApplication";
 import Marketplace from "./pages/Marketplace";
+import InstantDelivery from "./pages/InstantDelivery";
+import ScheduledOrder from "./pages/ScheduledOrder";
 
 const queryClient = new QueryClient();
 
@@ -70,7 +72,10 @@ const App = () => (
             <Route path="/sef-paneli" element={<ChefDashboard />} />
             <Route path="/sef/:id" element={<ChefProfile />} />
             <Route path="/sef-basvuru" element={<ChefApplication />} />
-            <Route path="/yemek-siparis" element={<Marketplace />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/hemen-teslimat" element={<InstantDelivery />} />
+            <Route path="/randevulu-siparis" element={<ScheduledOrder />} />
+            <Route path="/istatistikler" element={<Stats />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

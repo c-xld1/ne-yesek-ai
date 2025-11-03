@@ -142,13 +142,27 @@ const Navbar = () => {
               >
                 Soru & Cevap
               </Link>
-              <Link
-                to="/marketplace"
-                className="px-4 py-2 rounded-xl text-gray-700 hover:text-orange-600 font-medium transition-all duration-300 hover:bg-orange-50 flex items-center gap-2"
-              >
-                <ChefHat className="h-4 w-4" />
-                Ev Yemekleri
-              </Link>
+              <div className="relative group">
+                <button className="px-4 py-2 rounded-xl text-gray-700 hover:text-orange-600 font-medium transition-all duration-300 hover:bg-orange-50 flex items-center gap-2">
+                  <ChefHat className="h-4 w-4" />
+                  Ev Yemekleri
+                  <ChevronDown className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
+                </button>
+                <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 p-4 z-50 border border-gray-100">
+                  <Link to="/hemen-teslimat" className="block py-2 px-3 hover:bg-orange-50 rounded-lg transition-colors">
+                    <span className="font-semibold">🔥 Hemen Teslimat</span>
+                    <p className="text-xs text-muted-foreground">Hazır yemekler</p>
+                  </Link>
+                  <Link to="/randevulu-siparis" className="block py-2 px-3 hover:bg-orange-50 rounded-lg transition-colors">
+                    <span className="font-semibold">📅 Randevulu Sipariş</span>
+                    <p className="text-xs text-muted-foreground">Önceden planlayın</p>
+                  </Link>
+                  <Link to="/marketplace" className="block py-2 px-3 hover:bg-orange-50 rounded-lg transition-colors">
+                    <span className="font-semibold">🛍️ Market</span>
+                    <p className="text-xs text-muted-foreground">Tüm menüler</p>
+                  </Link>
+                </div>
+              </div>
             </div>
 
             {/* Desktop Search */}

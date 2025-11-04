@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar.tsx";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 import VideoStories from "@/components/VideoStories";
+import CategoryShowcase from "@/components/CategoryShowcase";
 import RecipeCard from "@/components/RecipeCard";
 import { Newsletter } from "@/components/Newsletter";
 import { useFeaturedRecipes } from "@/hooks/useRecipes";
@@ -98,6 +99,9 @@ const Index = () => {
       
       <VideoStories />
 
+      {/* Category Showcase with Recipe Sliders */}
+      <CategoryShowcase />
+
       {/* Featured Recipes Section */}
       {formattedRecipes.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -137,45 +141,6 @@ const Index = () => {
       )}
 
 
-      {/* Categories Preview */}
-      {categories && categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-white/30 backdrop-blur-sm">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-2 rounded-full mb-4 text-sm font-semibold">
-              <TrendingUp className="h-4 w-4" />
-              Kategoriler
-            </div>
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent mb-4">
-              Lezzet Kategorileri
-            </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Farklı kategorilerdeki tarifleri keşfedin
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {categories.slice(0, 6).map((category: any) => (
-              <Link
-                key={category.id}
-                to={`/recipes?category=${category.slug || category.id}`}
-                className="group"
-              >
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center shadow-lg border border-orange-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-orange-50 group-hover:to-orange-100">
-                  <div className="text-3xl mb-3">
-                    {category.icon || '🍽️'}
-                  </div>
-                  <h3 className="font-semibold text-gray-800 group-hover:text-orange-700 transition-colors">
-                    {category.name || 'Kategori'}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {category.description || 'Lezzetli tarifler'}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Error State for Recipes */}
       {recipesError && (

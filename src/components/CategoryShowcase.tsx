@@ -14,8 +14,20 @@ import { Badge } from "@/components/ui/badge";
 const CategoryShowcase = () => {
   const { data: categories, isLoading } = useCategories();
 
-  if (isLoading) return null;
-  if (!categories || categories.length === 0) return null;
+  if (isLoading) {
+    return (
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center">Kategoriler yükleniyor...</div>
+      </section>
+    );
+  }
+  
+  if (!categories || categories.length === 0) {
+    console.log("Kategori bulunamadı");
+    return null;
+  }
+
+  console.log("Kategoriler yüklendi:", categories.length);
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
@@ -29,7 +41,26 @@ const CategoryShowcase = () => {
 const CategoryRow = ({ category }: { category: any }) => {
   const { data: recipes, isLoading } = useRecipesByCategory(category.id);
 
-  if (isLoading || !recipes || recipes.length === 0) return null;
+  console.log(`Kategori ${category.name}:`, { isLoading, recipeCount: recipes?.length });
+
+  // Tarifler yüklenirken veya yoksa kategoriyi yine de göster
+  if (!recipes || recipes.length === 0) {
+    if (isLoading) {
+      // Loading durumunda skeleton göster
+      return (
+        <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+          <div className="lg:w-80 flex-shrink-0">
+            <div className="h-full bg-gradient-to-br from-purple-500 via-purple-600 to-pink-500 rounded-3xl p-8 text-white min-h-[280px] animate-pulse" />
+          </div>
+          <div className="flex-1 min-w-0 flex gap-4">
+            <div className="w-full h-[280px] bg-gray-200 rounded-2xl animate-pulse" />
+          </div>
+        </div>
+      );
+    }
+    // Tarif yoksa kategoriyi gösterme
+    return null;
+  }
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-stretch">

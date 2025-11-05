@@ -12,22 +12,35 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 const CategoryShowcase = () => {
-  const { data: categories, isLoading } = useCategories();
+  const { data: categories, isLoading, error } = useCategories();
 
   if (isLoading) {
     return (
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center">Kategoriler yükleniyor...</div>
+        <div className="space-y-12">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex flex-col lg:flex-row gap-6 items-stretch">
+              <div className="lg:w-80 flex-shrink-0">
+                <div className="h-full bg-gradient-to-br from-purple-500 via-purple-600 to-pink-500 rounded-3xl p-8 min-h-[280px] animate-pulse" />
+              </div>
+              <div className="flex-1 min-w-0 flex gap-4">
+                <div className="w-full h-[280px] bg-gray-200 rounded-2xl animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
     );
   }
-  
-  if (!categories || categories.length === 0) {
-    console.log("Kategori bulunamadı");
+
+  if (error) {
+    console.error("Kategori yükleme hatası:", error);
     return null;
   }
-
-  console.log("Kategoriler yüklendi:", categories.length);
+  
+  if (!categories || categories.length === 0) {
+    return null;
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
@@ -39,26 +52,29 @@ const CategoryShowcase = () => {
 };
 
 const CategoryRow = ({ category }: { category: any }) => {
-  const { data: recipes, isLoading } = useRecipesByCategory(category.id);
+  const { data: recipes, isLoading, error } = useRecipesByCategory(category.id);
 
-  console.log(`Kategori ${category.name}:`, { isLoading, recipeCount: recipes?.length });
+  if (error) {
+    console.error(`Kategori ${category.name} tarifleri yüklenemedi:`, error);
+    return null;
+  }
 
-  // Tarifler yüklenirken veya yoksa kategoriyi yine de göster
-  if (!recipes || recipes.length === 0) {
-    if (isLoading) {
-      // Loading durumunda skeleton göster
-      return (
-        <div className="flex flex-col lg:flex-row gap-6 items-stretch">
-          <div className="lg:w-80 flex-shrink-0">
-            <div className="h-full bg-gradient-to-br from-purple-500 via-purple-600 to-pink-500 rounded-3xl p-8 text-white min-h-[280px] animate-pulse" />
-          </div>
-          <div className="flex-1 min-w-0 flex gap-4">
-            <div className="w-full h-[280px] bg-gray-200 rounded-2xl animate-pulse" />
-          </div>
+  // Tarifler yüklenirken skeleton göster
+  if (isLoading) {
+    return (
+      <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+        <div className="lg:w-80 flex-shrink-0">
+          <div className="h-full bg-gradient-to-br from-purple-500 via-purple-600 to-pink-500 rounded-3xl p-8 text-white min-h-[280px] animate-pulse" />
         </div>
-      );
-    }
-    // Tarif yoksa kategoriyi gösterme
+        <div className="flex-1 min-w-0 flex gap-4">
+          <div className="w-full h-[280px] bg-gray-200 rounded-2xl animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
+  // Tarif yoksa kategoriyi gösterme
+  if (!recipes || recipes.length === 0) {
     return null;
   }
 

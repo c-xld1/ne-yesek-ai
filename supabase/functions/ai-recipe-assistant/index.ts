@@ -1,9 +1,32 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// Input validation
+const validateAction = (action: string): boolean => {
+  const validActions = ['improve_recipe', 'suggest_ingredients', 'generate_instructions', 'estimate_times', 'suggest_difficulty'];
+  return validActions.includes(action);
+};
+
+const validateData = (data: any): { valid: boolean; error?: string } => {
+  if (!data || typeof data !== 'object') {
+    return { valid: false, error: 'Invalid data format' };
+  }
+  if (data.title && (typeof data.title !== 'string' || data.title.length > 200)) {
+    return { valid: false, error: 'Title must be a string with max 200 characters' };
+  }
+  if (data.ingredients && (typeof data.ingredients !== 'string' || data.ingredients.length > 1000)) {
+    return { valid: false, error: 'Ingredients must be a string with max 1000 characters' };
+  }
+  if (data.instructions && (typeof data.instructions !== 'string' || data.instructions.length > 2000)) {
+    return { valid: false, error: 'Instructions must be a string with max 2000 characters' };
+  }
+  return { valid: true };
 };
 
 serve(async (req) => {
@@ -12,7 +35,47 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
     const { action, data } = await req.json();
+
+    // Validate action
+    if (!validateAction(action)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid action' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    // Validate data
+    const validation = validateData(data);
+    if (!validation.valid) {
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {

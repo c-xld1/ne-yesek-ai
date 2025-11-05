@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DOMPurify from "dompurify";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PremiumHeader from "@/components/PremiumHeader";
@@ -315,24 +316,27 @@ const QnANew = () => {
                                     </div>
 
                                     {/* Metin Alanı veya Önizleme */}
-                                    {editorToolbar.showPreview ? (
-                                        <div className="border border-t-0 border-gray-200 rounded-b-lg p-4 min-h-32 sm:min-h-40 bg-white">
-                                            <div
-                                                className="prose prose-sm max-w-none"
-                                                dangerouslySetInnerHTML={{
-                                                    __html: formData.content
-                                                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                                                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                                                        .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold mt-4 mb-2">$1</h2>')
-                                                        .replace(/^• (.*$)/gm, '<li class="ml-4">$1</li>')
-                                                        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-500 underline">$1</a>')
-                                                        .replace(/\n/g, '<br>')
-                                                }}
-                                            />
-                                            {!formData.content && (
-                                                <p className="text-gray-400 italic">Önizleme buraya gelecek...</p>
-                                            )}
-                                        </div>
+                    {editorToolbar.showPreview ? (
+                        <div className="border border-t-0 border-gray-200 rounded-b-lg p-4 min-h-32 sm:min-h-40 bg-white">
+                            <div
+                                className="prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(
+                                        formData.content
+                                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                                            .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold mt-4 mb-2">$1</h2>')
+                                            .replace(/^• (.*$)/gm, '<li class="ml-4">$1</li>')
+                                            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-500 underline">$1</a>')
+                                            .replace(/\n/g, '<br>'),
+                                        { ALLOWED_TAGS: ['strong', 'em', 'h2', 'li', 'a', 'br'], ALLOWED_ATTR: ['href', 'class'] }
+                                    )
+                                }}
+                            />
+                            {!formData.content && (
+                                <p className="text-gray-400 italic">Önizleme buraya gelecek...</p>
+                            )}
+                        </div>
                                     ) : (
                                         <Textarea
                                             id="content"
@@ -376,13 +380,16 @@ const QnANew = () => {
                                                 <div
                                                     className="text-gray-700 text-sm leading-relaxed break-words"
                                                     dangerouslySetInnerHTML={{
-                                                        __html: formData.content
-                                                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                                                            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                                                            .replace(/^## (.*$)/gm, '<h2 class="text-base font-semibold mt-3 mb-1">$1</h2>')
-                                                            .replace(/^• (.*$)/gm, '<li class="ml-4 list-disc">$1</li>')
-                                                            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-500 underline">$1</a>')
-                                                            .replace(/\n/g, '<br>')
+                                                        __html: DOMPurify.sanitize(
+                                                            formData.content
+                                                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                                                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                                                                .replace(/^## (.*$)/gm, '<h2 class="text-base font-semibold mt-3 mb-1">$1</h2>')
+                                                                .replace(/^• (.*$)/gm, '<li class="ml-4 list-disc">$1</li>')
+                                                                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-500 underline">$1</a>')
+                                                                .replace(/\n/g, '<br>'),
+                                                            { ALLOWED_TAGS: ['strong', 'em', 'h2', 'li', 'a', 'br'], ALLOWED_ATTR: ['href', 'class'] }
+                                                        )
                                                     }}
                                                 />
                                             )}

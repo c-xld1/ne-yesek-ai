@@ -58,13 +58,13 @@ port = 54321
 enabled = false
 
 [functions.ai-recipe-search]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ai-recipe-suggest]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-mapbox-token]
 verify_jwt = false
 
 [functions.ai-recipe-assistant]
-verify_jwt = false
+verify_jwt = true

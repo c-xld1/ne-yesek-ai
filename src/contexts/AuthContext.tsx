@@ -182,52 +182,76 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     useEffect(() => {
+        let mounted = true;
+
         // Auth state listener'ı ÖNCE ayarla
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
-                if (session?.user) {
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('username, fullname, avatar_url, bio')
-                        .eq('id', session.user.id)
-                        .single();
+            (event, session) => {
+                if (!mounted) return;
 
-                    setUser({
-                        id: session.user.id,
-                        email: session.user.email!,
-                        username: profile?.username,
-                        fullname: profile?.fullname,
-                        avatar_url: profile?.avatar_url,
-                        bio: profile?.bio,
-                    });
+                if (session?.user) {
+                    // Defer profile fetch to avoid blocking auth state change
+                    setTimeout(() => {
+                        supabase
+                            .from('profiles')
+                            .select('username, fullname, avatar_url, bio')
+                            .eq('id', session.user.id)
+                            .single()
+                            .then(({ data: profile }) => {
+                                if (!mounted) return;
+
+                                setUser({
+                                    id: session.user.id,
+                                    email: session.user.email!,
+                                    username: profile?.username,
+                                    fullname: profile?.fullname,
+                                    avatar_url: profile?.avatar_url,
+                                    bio: profile?.bio
+                                });
+                                setLoading(false);
+                            });
+                    }, 0);
                 } else {
                     setUser(null);
+                    setLoading(false);
                 }
             }
         );
 
         // SONRA mevcut session'ı kontrol et
         supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!mounted) return;
+
             if (session?.user) {
-                supabase
-                    .from('profiles')
-                    .select('username, fullname, avatar_url, bio')
-                    .eq('id', session.user.id)
-                    .single()
-                    .then(({ data: profile }) => {
-                        setUser({
-                            id: session.user.id,
-                            email: session.user.email!,
-                            username: profile?.username,
-                            fullname: profile?.fullname,
-                            avatar_url: profile?.avatar_url,
-                            bio: profile?.bio,
+                setTimeout(() => {
+                    supabase
+                        .from('profiles')
+                        .select('username, fullname, avatar_url, bio')
+                        .eq('id', session.user.id)
+                        .single()
+                        .then(({ data: profile }) => {
+                            if (!mounted) return;
+
+                            setUser({
+                                id: session.user.id,
+                                email: session.user.email!,
+                                username: profile?.username,
+                                fullname: profile?.fullname,
+                                avatar_url: profile?.avatar_url,
+                                bio: profile?.bio
+                            });
+                            setLoading(false);
                         });
-                    });
+                }, 0);
+            } else {
+                setLoading(false);
             }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
     }, []);
 
   return (

@@ -1,11 +1,14 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Sparkles, Heart, ChefHat } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const Footer = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
+  
   const socialLinks = [
     { icon: Facebook, href: "#", label: "Facebook", color: "hover:text-blue-400" },
     { icon: Instagram, href: "#", label: "Instagram", color: "hover:text-pink-400" },
@@ -38,7 +41,8 @@ const Footer = () => {
         <div className="h-full w-full bg-[radial-gradient(circle_at_1px_1px,rgb(249_115_22)_1px,transparent_0)] bg-[length:32px_32px]"></div>
       </div>
 
-      {/* Newsletter Section */}
+      {/* Newsletter Section - Only on homepage */}
+      {isHomePage && (
       <div className="relative bg-gradient-to-r from-orange-500 to-red-500 py-16">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 text-center">
@@ -86,6 +90,7 @@ const Footer = () => {
           </motion.div>
         </div>
       </div>
+      )}
 
       {/* Main Footer Content */}
       <div className="relative max-w-7xl mx-auto px-4 py-16">

@@ -40,7 +40,11 @@ const NavbarMember: React.FC = () => {
     };
 
     const handleProfile = () => {
-        navigate("/profil");
+        if (username) {
+            navigate(`/profil/${username}`);
+        } else {
+            navigate("/profil");
+        }
     };
     const handleSettings = () => {
         navigate("/ayarlar");

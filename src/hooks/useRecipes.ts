@@ -31,6 +31,8 @@ export const useRecipes = () => {
       return (recipes || []).map((recipe: any) => ({
         ...recipe,
         author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
+        author_username: recipe.profile?.username,
+        author_avatar: recipe.profile?.avatar_url,
         category_name: recipe.category?.name || 'Genel',
       }));
     },
@@ -61,6 +63,8 @@ export const useFeaturedRecipes = () => {
       return (data || []).map((recipe: any) => ({
         ...recipe,
         author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
+        author_username: recipe.profile?.username,
+        author_avatar: recipe.profile?.avatar_url,
         category_name: recipe.category?.name || 'Genel',
       }));
     },
@@ -89,6 +93,8 @@ export const useSearchRecipes = (searchTerm: string) => {
       return (data || []).map((recipe: any) => ({
         ...recipe,
         author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
+        author_username: recipe.profile?.username,
+        author_avatar: recipe.profile?.avatar_url,
         category_name: recipe.category?.name || 'Genel',
       }));
     },
@@ -119,6 +125,8 @@ export const useRecipesByCategory = (categoryId: string) => {
       return (data || []).map((recipe: any) => ({
         ...recipe,
         author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
+        author_username: recipe.profile?.username,
+        author_avatar: recipe.profile?.avatar_url,
         category_name: recipe.category?.name || 'Genel',
       }));
     },
@@ -152,6 +160,8 @@ export const useRecipeById = (id: string) => {
       return {
         ...data,
         author_name: data.profile?.fullname || data.profile?.username || 'Anonim',
+        author_username: data.profile?.username,
+        author_avatar: data.profile?.avatar_url,
         category_name: data.category?.name || 'Genel',
       };
     },

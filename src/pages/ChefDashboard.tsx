@@ -253,7 +253,9 @@ const ChefDashboard = () => {
             <h1 className="text-3xl font-bold">Şef Paneli</h1>
             <p className="text-muted-foreground">Hoş geldiniz, {chefProfile?.business_name}</p>
           </div>
-          <Button onClick={() => navigate("/profil")}>Profili Görüntüle</Button>
+          <Button onClick={() => user?.username ? navigate(`/profil/${user.username}`) : navigate("/profil")}>
+            Profili Görüntüle
+          </Button>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">

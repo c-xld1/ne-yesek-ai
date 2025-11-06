@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ interface RecipeCommentsProps {
 export const RecipeComments = ({ recipeId }: RecipeCommentsProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -224,7 +226,10 @@ export const RecipeComments = ({ recipeId }: RecipeCommentsProps) => {
                 className="p-4 bg-gradient-to-r from-orange-50/50 to-orange-100/30 rounded-2xl border border-orange-100"
               >
                 <div className="flex items-start gap-3">
-                  <Avatar>
+                  <Avatar 
+                    className="cursor-pointer hover:ring-2 hover:ring-orange-400 transition-all"
+                    onClick={() => comment.profiles?.username && navigate(`/profil/${comment.profiles.username}`)}
+                  >
                     <AvatarImage src={comment.profiles?.avatar_url} />
                     <AvatarFallback>
                       {comment.profiles?.fullname?.[0] || 'U'}
@@ -233,7 +238,10 @@ export const RecipeComments = ({ recipeId }: RecipeCommentsProps) => {
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <div>
-                        <p className="font-semibold text-gray-800">
+                        <p 
+                          className="font-semibold text-gray-800 cursor-pointer hover:text-orange-600 transition-colors"
+                          onClick={() => comment.profiles?.username && navigate(`/profil/${comment.profiles.username}`)}
+                        >
                           {comment.profiles?.fullname || 'Kullanıcı'}
                         </p>
                         <p className="text-sm text-gray-500">

@@ -1,16 +1,28 @@
 import { Home, Search, Plus, Map, User } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BottomNav = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (user?.username) {
+      navigate(`/profil/${user.username}`);
+    } else {
+      navigate("/profil");
+    }
+  };
 
   const navItems = [
     { icon: Home, label: "Ana Sayfa", path: "/" },
     { icon: Search, label: "Keşfet", path: "/kesfet" },
     { icon: Plus, label: "Paylaş", path: "/tarif-paylas" },
     { icon: Map, label: "Harita", path: "/harita" },
-    { icon: User, label: "Profil", path: "/profil" },
+    { icon: User, label: "Profil", path: "/profil", onClick: handleProfileClick },
   ];
 
   return (
@@ -19,12 +31,14 @@ const BottomNav = () => {
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || 
+                           (item.path === "/profil" && location.pathname.startsWith("/profil/"));
             
             return (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={item.onClick}
                 className={cn(
                   "flex flex-col items-center justify-center gap-1 px-3 py-2 transition-colors",
                   isActive

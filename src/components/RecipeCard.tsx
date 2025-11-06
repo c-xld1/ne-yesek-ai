@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, MessageCircle, Share2, Clock, ChefHat, Star, Eye, Bookmark } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,6 +16,7 @@ interface RecipeCardProps {
     rating?: number;
     author?: string;
     authorAvatar?: string;
+    authorUsername?: string;
     description?: string;
     viewCount?: number;
     likeCount?: number;
@@ -33,6 +35,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     rating = 4.5,
     author = "Chef Ahmet",
     authorAvatar,
+    authorUsername,
     description,
     viewCount = 1250,
     likeCount = 89,
@@ -40,6 +43,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     isPopular = false,
     tags = ["Kolay", "Hızlı"]
 }) => {
+    const navigate = useNavigate();
     const [isLiked, setIsLiked] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
 
@@ -55,6 +59,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
         setIsSaved(!isSaved);
     };
 
+    const handleAuthorClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (authorUsername) {
+            navigate(`/profil/${authorUsername}`);
+        }
+    };
+
     return (
         <motion.div
             className="group cursor-pointer"
@@ -66,14 +78,22 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                 <div className="p-4 pb-2">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10 ring-2 ring-orange-100">
+                            <Avatar 
+                                className="h-10 w-10 ring-2 ring-orange-100 cursor-pointer hover:ring-orange-400 transition-all"
+                                onClick={handleAuthorClick}
+                            >
                                 <AvatarImage src={authorAvatar} />
                                 <AvatarFallback className="bg-gradient-to-r from-orange-400 to-orange-500 text-white text-sm font-semibold">
                                     {author?.charAt(0) || 'C'}
                                 </AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="font-semibold text-gray-900 text-sm">{author}</p>
+                                <p 
+                                    className="font-semibold text-gray-900 text-sm cursor-pointer hover:text-orange-600 transition-colors"
+                                    onClick={handleAuthorClick}
+                                >
+                                    {author}
+                                </p>
                                 <p className="text-xs text-gray-500">{cookingTime}</p>
                             </div>
                         </div>

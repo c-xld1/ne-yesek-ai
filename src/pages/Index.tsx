@@ -29,6 +29,8 @@ const Index = () => {
     difficulty: (recipe.difficulty as "Kolay" | "Orta" | "Zor") || "Kolay",
     rating: recipe.rating || 0,
     author: recipe.author_name || "Anonim",
+    authorUsername: recipe.author_username,
+    authorAvatar: recipe.author_avatar,
     dblScore: Math.round((recipe.rating || 0) * 20),
     description: recipe.description || "Açıklama mevcut değil.",
     category: recipe.category_name || "Genel"

@@ -128,7 +128,11 @@ const ChefProfile = () => {
 
     toast({ title: "Sipariş Alındı!", description: "Siparişiniz başarıyla oluşturuldu" });
     setCart([]);
-    navigate("/profil");
+    if (user?.username) {
+      navigate(`/profil/${user.username}`);
+    } else {
+      navigate("/profil");
+    }
   };
 
   if (loading) {

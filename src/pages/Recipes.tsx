@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Filter, Grid, List } from "lucide-react";
 import { useRecipes, useSearchRecipes } from "@/hooks/useRecipes";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import PremiumHeader from "@/components/PremiumHeader";
 
 const Recipes = () => {
   const [searchParams] = useSearchParams();
@@ -27,6 +28,11 @@ const Recipes = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
+        <PageHeader 
+          title="Lezzetli Tarifler"
+          description="Tarifler yükleniyor..."
+          emoji="📖"
+        />
         <div className="flex items-center justify-center h-64">
           <LoadingSpinner />
         </div>
@@ -39,6 +45,7 @@ const Recipes = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
+        <PremiumHeader />
         <div className="flex items-center justify-center h-64">
           <p className="text-red-500">Tarifler yüklenirken hata oluştu: {error.message}</p>
         </div>
@@ -67,6 +74,7 @@ const Recipes = () => {
   // Convert to component format
   const formattedRecipes = sortedRecipes.map(recipe => ({
     id: recipe.id,
+    slug: recipe.slug,
     title: recipe.title || 'Başlıksız Tarif',
     image: recipe.image_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
     cookingTime: `${(recipe.prep_time || 0) + (recipe.cook_time || 0)} dk`,
@@ -81,6 +89,7 @@ const Recipes = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      <PremiumHeader />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center mb-8">
@@ -150,8 +159,8 @@ const Recipes = () => {
           </div>
         ) : (
           <div className={`${viewMode === "grid"
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-              : "space-y-4"
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            : "space-y-4"
             }`}>
             {formattedRecipes.map((recipe) => (
               <RecipeCard key={recipe.id} {...recipe} />

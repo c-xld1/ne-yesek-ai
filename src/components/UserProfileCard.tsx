@@ -10,14 +10,23 @@ import {
     Instagram, Twitter, Youtube, Globe, Plus
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useCombinedAchievements, useUserStats } from "@/hooks/useAchievements";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface UserStats {
     recipes: number;
     followers: number;
     following: number;
-    likes: number;
-    views: number;
-    rating: number;
+    likes?: number;
+    totalLikes?: number;
+    views?: number;
+    totalViews?: number;
+    rating?: number;
+}
+
+// Type guard to check if stats has likes/views
+function hasLikesViews(stats: UserStats): stats is UserStats & { likes: number; views: number } {
+    return 'likes' in stats || 'views' in stats;
 }
 
 interface Achievement {
@@ -68,75 +77,32 @@ const UserProfileCard = ({
             twitter: '@chefayse'
         }
     },
-    stats = {
-        recipes: 127,
-        followers: 15420,
-        following: 892,
-        likes: 45300,
-        views: 128500,
-        rating: 4.8
-    },
+    stats,
     isOwnProfile = true
 }: UserProfileProps) => {
 
     const [isFollowing, setIsFollowing] = useState(false);
     const [activeTab, setActiveTab] = useState("overview");
 
-    const achievements: Achievement[] = [
-        {
-            id: '1',
-            title: 'Yeni Şef',
-            description: 'İlk tarifini paylaştı',
-            icon: '👨‍🍳',
-            color: 'bg-blue-500',
-            earned: true,
-            earnedDate: 'Ocak 2023'
-        },
-        {
-            id: '2',
-            title: 'Popüler Chef',
-            description: '1000+ takipçiye ulaştı',
-            icon: '⭐',
-            color: 'bg-yellow-500',
-            earned: true,
-            earnedDate: 'Mart 2023'
-        },
-        {
-            id: '3',
-            title: 'Tarif Ustası',
-            description: '100+ tarif paylaştı',
-            icon: '📚',
-            color: 'bg-green-500',
-            earned: true,
-            earnedDate: 'Temmuz 2023'
-        },
-        {
-            id: '4',
-            title: 'Süper Chef',
-            description: '10K+ takipçiye ulaştı',
-            icon: '🏆',
-            color: 'bg-purple-500',
-            earned: true,
-            earnedDate: 'Aralık 2023'
-        },
-        {
-            id: '5',
-            title: 'Efsane Chef',
-            description: '50K+ takipçiye ulaş',
-            icon: '👑',
-            color: 'bg-orange-500',
-            earned: false
-        }
-    ];
+    // Gerçek veritabanından başarıları ve istatistikleri çek
+    const { achievements, earnedAchievements, nextAchievement, totalPoints, isLoading: achievementsLoading } = useCombinedAchievements(user.id);
+    const { data: userStats, isLoading: statsLoading } = useUserStats(user.id);
+
+    // Stats prop'u varsa onu kullan, yoksa veritabanından çekilen verileri kullan
+    const displayStats = stats || userStats || {
+        recipes: 0,
+        followers: 0,
+        following: 0,
+        likes: 0,
+        views: 0,
+        rating: 0
+    };
 
     const formatNumber = (num: number) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
         return num.toString();
     };
-
-    const earnedAchievements = achievements.filter(a => a.earned);
-    const nextAchievement = achievements.find(a => !a.earned);
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -211,11 +177,11 @@ const UserProfileCard = ({
                         {/* Stats Grid */}
                         <div className="flex-1 grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 md:mt-0">
                             {[
-                                { label: 'Tarif', value: stats.recipes, icon: ChefHat, color: 'text-orange-500' },
-                                { label: 'Takipçi', value: stats.followers, icon: Users, color: 'text-blue-500' },
-                                { label: 'Takip', value: stats.following, icon: Heart, color: 'text-red-500' },
-                                { label: 'Beğeni', value: stats.likes, icon: Heart, color: 'text-pink-500' },
-                                { label: 'Görüntüleme', value: stats.views, icon: Clock, color: 'text-purple-500' }
+                                { label: 'Tarif', value: displayStats.recipes, icon: ChefHat, color: 'text-orange-500' },
+                                { label: 'Takipçi', value: displayStats.followers, icon: Users, color: 'text-blue-500' },
+                                { label: 'Takip', value: displayStats.following, icon: Heart, color: 'text-red-500' },
+                                { label: 'Beğeni', value: displayStats.totalLikes || (hasLikesViews(displayStats) ? displayStats.likes : 0) || 0, icon: Heart, color: 'text-pink-500' },
+                                { label: 'Görüntüleme', value: displayStats.totalViews || (hasLikesViews(displayStats) ? displayStats.views : 0) || 0, icon: Clock, color: 'text-purple-500' }
                             ].map((stat, index) => (
                                 <motion.div
                                     key={stat.label}
@@ -287,35 +253,65 @@ const UserProfileCard = ({
                         <div className="flex items-center gap-2 mb-4">
                             <Trophy className="h-5 w-5 text-yellow-500" />
                             <h3 className="text-lg font-bold text-gray-800">Başarılar</h3>
-                            <Badge className="bg-yellow-100 text-yellow-800 ml-auto">
-                                {earnedAchievements.length}/{achievements.length}
-                            </Badge>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {earnedAchievements.slice(0, 8).map((achievement) => (
-                                <motion.div
-                                    key={achievement.id}
-                                    whileHover={{ scale: 1.05 }}
-                                    className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-3 rounded-xl text-center border border-yellow-200"
-                                >
-                                    <div className="text-2xl mb-1">{achievement.icon}</div>
-                                    <div className="text-sm font-semibold text-gray-800">{achievement.title}</div>
-                                    <div className="text-xs text-gray-600">{achievement.earnedDate}</div>
-                                </motion.div>
-                            ))}
-
-                            {nextAchievement && (
-                                <motion.div
-                                    whileHover={{ scale: 1.05 }}
-                                    className="bg-gray-100 p-3 rounded-xl text-center border-2 border-dashed border-gray-300"
-                                >
-                                    <div className="text-2xl mb-1 opacity-50">{nextAchievement.icon}</div>
-                                    <div className="text-sm font-semibold text-gray-600">{nextAchievement.title}</div>
-                                    <div className="text-xs text-gray-500">Yakında</div>
-                                </motion.div>
+                            {achievementsLoading ? (
+                                <Badge className="bg-gray-100 text-gray-500 ml-auto">Yükleniyor...</Badge>
+                            ) : (
+                                <>
+                                    <Badge className="bg-yellow-100 text-yellow-800 ml-auto">
+                                        {earnedAchievements.length}/{achievements.length}
+                                    </Badge>
+                                    {totalPoints > 0 && (
+                                        <Badge className="bg-orange-100 text-orange-800">
+                                            {totalPoints} Puan
+                                        </Badge>
+                                    )}
+                                </>
                             )}
                         </div>
+
+                        {achievementsLoading ? (
+                            <div className="flex justify-center py-8">
+                                <LoadingSpinner />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {earnedAchievements.slice(0, 8).map((achievement) => (
+                                    <motion.div
+                                        key={achievement.id}
+                                        whileHover={{ scale: 1.05 }}
+                                        className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-3 rounded-xl text-center border border-yellow-200 cursor-pointer"
+                                        title={achievement.description}
+                                    >
+                                        <div className="text-2xl mb-1">{achievement.icon}</div>
+                                        <div className="text-sm font-semibold text-gray-800">{achievement.title}</div>
+                                        <div className="text-xs text-gray-600">
+                                            {achievement.earnedDate ? new Date(achievement.earnedDate).toLocaleDateString('tr-TR', { 
+                                                month: 'short', 
+                                                year: 'numeric' 
+                                            }) : ''}
+                                        </div>
+                                    </motion.div>
+                                ))}
+
+                                {nextAchievement && (
+                                    <motion.div
+                                        whileHover={{ scale: 1.05 }}
+                                        className="bg-gray-100 p-3 rounded-xl text-center border-2 border-dashed border-gray-300 cursor-pointer"
+                                        title={nextAchievement.description}
+                                    >
+                                        <div className="text-2xl mb-1 opacity-50">{nextAchievement.icon}</div>
+                                        <div className="text-sm font-semibold text-gray-600">{nextAchievement.title}</div>
+                                        <div className="text-xs text-gray-500">Yakında</div>
+                                    </motion.div>
+                                )}
+
+                                {achievements.length === 0 && !achievementsLoading && (
+                                    <div className="col-span-full text-center py-8 text-gray-500">
+                                        Henüz başarı yok. Tarif paylaşmaya başla!
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>

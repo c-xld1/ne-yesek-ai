@@ -1,9 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecipeCard from "@/components/RecipeCard";
 import UserProfileCard from "@/components/UserProfileCard";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,15 +12,30 @@ import { MapPin, Calendar, Star, Award, Users, Heart, Settings, Share2, MessageC
 
 const Profile = () => {
   const { username } = useParams();
+  const { user: currentUser } = useAuth();
 
-  // Örnek kullanıcı verisi
+  // Eğer /profil route'u kullanılmışsa ve kullanıcı giriş yapmışsa, kendi profil sayfasına yönlendir
+  if (!username && currentUser?.username) {
+    return <Navigate to={`/profil/${currentUser.username}`} replace />;
+  }
+
+  // Eğer username yoksa ve kullanıcı giriş yapmamışsa, login sayfasına yönlendir
+  if (!username && !currentUser) {
+    return <Navigate to="/giris-yap" replace />;
+  }
+
+  // Kullanıcının kendi profilini mi görüntülüyor
+  const isOwnProfile = username === currentUser?.username;
+
+  // TODO: Gerçek kullanıcı verisini Supabase'den çek
+  // Şimdilik örnek veri kullanıyoruz
   const user = {
     username: username || 'chef',
-    name: "Chef Ayşe Demir",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616c4f23456?w=150&h=150&fit=crop&crop=face",
-    location: "İstanbul, Türkiye",
+    name: currentUser?.fullname || "Chef Ayşe Demir",
+    avatar: currentUser?.avatar_url || "https://images.unsplash.com/photo-1494790108755-2616c4f23456?w=150&h=150&fit=crop&crop=face",
+    location: currentUser?.location || "İstanbul, Türkiye",
     joinDate: "Mart 2023",
-    bio: "Yemek yapmayı seviyorum ve tarifleri paylaşmaktan mutluluk duyuyorum. Geleneksel Türk mutfağı uzmanıyım.",
+    bio: currentUser?.bio || "Yemek yapmayı seviyorum ve tarifleri paylaşmaktan mutluluk duyuyorum. Geleneksel Türk mutfağı uzmanıyım.",
     stats: {
       recipes: 24,
       followers: 1250,
@@ -101,7 +117,7 @@ const Profile = () => {
         >
           <UserProfileCard
             user={{
-              id: '1',
+              id: currentUser?.id || '1',
               name: user.name,
               username: user.username,
               bio: user.bio,
@@ -109,11 +125,11 @@ const Profile = () => {
               coverImage: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=300&fit=crop',
               location: user.location,
               joinDate: user.joinDate,
-              website: 'https://neyesek.ai',
+              website: currentUser?.website || currentUser?.website_url || 'https://neyesek.ai',
               socialLinks: {
-                instagram: '@' + user.username,
-                youtube: user.name,
-                twitter: '@' + user.username
+                instagram: currentUser?.instagram || '@' + user.username,
+                youtube: currentUser?.youtube || user.name,
+                twitter: currentUser?.twitter || '@' + user.username
               }
             }}
             stats={{
@@ -124,7 +140,7 @@ const Profile = () => {
               views: 45800,
               rating: 4.8
             }}
-            isOwnProfile={true}
+            isOwnProfile={isOwnProfile}
           />
         </motion.div>
 

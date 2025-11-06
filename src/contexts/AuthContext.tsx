@@ -17,6 +17,7 @@ interface AuthContextType {
     signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
     signInWithFacebook: () => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
+    refreshUser: () => Promise<void>;
     loading: boolean;
 }
 
@@ -181,6 +182,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const refreshUser = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('username, fullname, avatar_url, bio')
+                .eq('id', session.user.id)
+                .maybeSingle();
+
+            // Eğer profil yoksa ve hata PGRST116 ise (no rows), profil oluştur
+            if (!profile && (!error || error.code === 'PGRST116')) {
+                console.log('Creating missing profile for user:', session.user.id);
+                const { data: newProfile } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: session.user.id,
+                        username: session.user.email?.split('@')[0] || `user_${session.user.id.substring(0, 8)}`,
+                        fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
+                        bio: "",
+                        avatar_url: "",
+                    })
+                    .select('username, fullname, avatar_url, bio')
+                    .single();
+
+                setUser({
+                    id: session.user.id,
+                    email: session.user.email!,
+                    username: newProfile?.username,
+                    fullname: newProfile?.fullname,
+                    avatar_url: newProfile?.avatar_url,
+                    bio: newProfile?.bio
+                });
+                return;
+            }
+
+            setUser({
+                id: session.user.id,
+                email: session.user.email!,
+                username: profile?.username,
+                fullname: profile?.fullname,
+                avatar_url: profile?.avatar_url,
+                bio: profile?.bio
+            });
+        }
+    };
+
     useEffect(() => {
         let mounted = true;
 
@@ -196,18 +244,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                             .from('profiles')
                             .select('username, fullname, avatar_url, bio')
                             .eq('id', session.user.id)
-                            .single()
-                            .then(({ data: profile }) => {
+                            .maybeSingle()
+                            .then(async ({ data: profile, error }) => {
                                 if (!mounted) return;
 
-                                setUser({
-                                    id: session.user.id,
-                                    email: session.user.email!,
-                                    username: profile?.username,
-                                    fullname: profile?.fullname,
-                                    avatar_url: profile?.avatar_url,
-                                    bio: profile?.bio
-                                });
+                                // Eğer profil yoksa oluştur
+                                if (!profile && (!error || error.code === 'PGRST116')) {
+                                    const { data: newProfile } = await supabase
+                                        .from('profiles')
+                                        .insert({
+                                            id: session.user.id,
+                                            username: session.user.email?.split('@')[0] || `user_${session.user.id.substring(0, 8)}`,
+                                            fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
+                                            bio: "",
+                                            avatar_url: "",
+                                        })
+                                        .select('username, fullname, avatar_url, bio')
+                                        .single();
+
+                                    setUser({
+                                        id: session.user.id,
+                                        email: session.user.email!,
+                                        username: newProfile?.username,
+                                        fullname: newProfile?.fullname,
+                                        avatar_url: newProfile?.avatar_url,
+                                        bio: newProfile?.bio
+                                    });
+                                } else {
+                                    setUser({
+                                        id: session.user.id,
+                                        email: session.user.email!,
+                                        username: profile?.username,
+                                        fullname: profile?.fullname,
+                                        avatar_url: profile?.avatar_url,
+                                        bio: profile?.bio
+                                    });
+                                }
                                 setLoading(false);
                             });
                     }, 0);
@@ -228,18 +300,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         .from('profiles')
                         .select('username, fullname, avatar_url, bio')
                         .eq('id', session.user.id)
-                        .single()
-                        .then(({ data: profile }) => {
+                        .maybeSingle()
+                        .then(async ({ data: profile, error }) => {
                             if (!mounted) return;
 
-                            setUser({
-                                id: session.user.id,
-                                email: session.user.email!,
-                                username: profile?.username,
-                                fullname: profile?.fullname,
-                                avatar_url: profile?.avatar_url,
-                                bio: profile?.bio
-                            });
+                            // Eğer profil yoksa oluştur
+                            if (!profile && (!error || error.code === 'PGRST116')) {
+                                const { data: newProfile } = await supabase
+                                    .from('profiles')
+                                    .insert({
+                                        id: session.user.id,
+                                        username: session.user.email?.split('@')[0] || `user_${session.user.id.substring(0, 8)}`,
+                                        fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
+                                        bio: "",
+                                        avatar_url: "",
+                                    })
+                                    .select('username, fullname, avatar_url, bio')
+                                    .single();
+
+                                setUser({
+                                    id: session.user.id,
+                                    email: session.user.email!,
+                                    username: newProfile?.username,
+                                    fullname: newProfile?.fullname,
+                                    avatar_url: newProfile?.avatar_url,
+                                    bio: newProfile?.bio
+                                });
+                            } else {
+                                setUser({
+                                    id: session.user.id,
+                                    email: session.user.email!,
+                                    username: profile?.username,
+                                    fullname: profile?.fullname,
+                                    avatar_url: profile?.avatar_url,
+                                    bio: profile?.bio
+                                });
+                            }
                             setLoading(false);
                         });
                 }, 0);
@@ -255,7 +351,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, signUp, signInWithGoogle, signInWithFacebook, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, signUp, signInWithGoogle, signInWithFacebook, logout, refreshUser, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -27,7 +27,6 @@ import Regional from "./pages/Regional";
 import QnANew from "./pages/QnANew";
 import Discover from "./pages/Discover";
 import MapView from "./pages/MapView";
-import UserProfile from "./pages/UserProfile";
 import ChefDashboard from "./pages/ChefDashboard";
 import ChefProfile from "./pages/ChefProfile";
 import Stats from "./pages/Stats";
@@ -54,6 +53,7 @@ const App = () => (
             <Route path="/yoresel" element={<Regional />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/profil/:username" element={<Profile />} />
+            <Route path="/profil" element={<Profile />} />
             <Route path="/giris-yap" element={<Login />} />
             <Route path="/kayit-ol" element={<Register />} />
             <Route path="/hakkimizda" element={<About />} />
@@ -69,7 +69,6 @@ const App = () => (
             <Route path="/favoriler" element={<Favorites />} />
             <Route path="/kesfet" element={<Discover />} />
             <Route path="/harita" element={<MapView />} />
-            <Route path="/profil" element={<UserProfile />} />
             <Route path="/sef-paneli" element={<ChefDashboard />} />
             <Route path="/sef/:id" element={<ChefProfile />} />
             <Route path="/sef-basvuru" element={<ChefApplication />} />

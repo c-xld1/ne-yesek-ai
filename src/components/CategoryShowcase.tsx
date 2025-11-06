@@ -20,7 +20,7 @@ const CategoryShowcase = () => {
         <div className="space-y-8">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-              <div className="w-full lg:w-72 xl:w-80 flex-shrink-0">
+              <div className="w-full lg:w-56 xl:w-64 flex-shrink-0">
                 <div className="h-64 lg:h-72 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl animate-pulse" />
               </div>
               <div className="flex-1 min-w-0">
@@ -63,7 +63,7 @@ const CategoryRow = ({ category }: { category: any }) => {
   if (isLoading) {
     return (
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-        <div className="w-full lg:w-72 xl:w-80 flex-shrink-0">
+        <div className="w-full lg:w-56 xl:w-64 flex-shrink-0">
           <div className="h-64 lg:h-72 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl animate-pulse" />
         </div>
         <div className="flex-1 min-w-0">
@@ -81,7 +81,7 @@ const CategoryRow = ({ category }: { category: any }) => {
   return (
     <div className="group flex flex-col lg:flex-row gap-4 lg:gap-6">
       {/* Left: Category Card */}
-      <div className="w-full lg:w-72 xl:w-80 flex-shrink-0">
+      <div className="w-full lg:w-56 xl:w-64 flex-shrink-0">
         <Link to={`/recipes?category=${category.slug || category.id}`}>
           <div className="relative h-64 lg:h-72 bg-gradient-to-br from-primary via-primary-600 to-primary-700 rounded-2xl p-6 lg:p-8 text-primary-foreground overflow-hidden transition-all duration-300 hover:shadow-glow hover:-translate-y-1">
             {/* Background Pattern */}

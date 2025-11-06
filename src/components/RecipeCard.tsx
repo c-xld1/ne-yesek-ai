@@ -69,13 +69,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 
     return (
         <motion.div
-            className="group cursor-pointer"
+            className="group cursor-pointer h-full flex flex-col"
             whileHover={{ y: -4 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-            <div className="bg-white rounded-2xl shadow-card border border-gray-100/50 overflow-hidden transition-all duration-300 hover:shadow-card-hover hover:border-orange-200/50">
+            <div className="bg-white rounded-2xl shadow-card border border-gray-100/50 overflow-hidden transition-all duration-300 hover:shadow-card-hover hover:border-orange-200/50 h-full flex flex-col">
                 {/* Header with Author Info */}
-                <div className="p-4 pb-2">
+                <div className="p-4 pb-2 flex-shrink-0">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <Avatar 
@@ -146,19 +146,19 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                 )}
 
                 {/* Content */}
-                <div className="p-4 pt-3">
+                <div className="p-4 pt-3 flex-grow flex flex-col">
                     <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors duration-200">
                         {title}
                     </h3>
 
                     {description && (
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2 flex-grow">
                             {description}
                         </p>
                     )}
 
                     {/* Stats */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-3 mt-auto">
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1">
                                 <Clock className="h-4 w-4" />
@@ -181,7 +181,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                     </div>
 
                     {/* Social Actions */}
-                    <div className="border-t border-gray-100 pt-3">
+                    <div className="border-t border-gray-100 pt-3 mt-auto flex-shrink-0">
                         <RecipeSocial recipeId={id.toString()} initialLikes={likeCount} showComments={true} />
                     </div>
                 </div>

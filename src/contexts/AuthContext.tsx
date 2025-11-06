@@ -7,7 +7,14 @@ interface User {
     username?: string;
     fullname?: string;
     avatar_url?: string;
+    cover_image?: string;
     bio?: string;
+    location?: string;
+    website?: string;
+    website_url?: string;
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
 }
 
 interface AuthContextType {

@@ -26,6 +26,7 @@ const Settings = () => {
     username: "",
     bio: "",
     avatar_url: "",
+    cover_image: "",
     website: "",
     location: "",
     instagram: "",
@@ -78,6 +79,7 @@ const Settings = () => {
           fullname: user.email?.split('@')[0] || "Yeni Kullanıcı",
           bio: "",
           avatar_url: "",
+          cover_image: "",
           website: "",
           location: "",
           instagram: "",
@@ -194,6 +196,7 @@ const Settings = () => {
       fullname: profile.fullname,
       username: profile.username,
       bio: profile.bio,
+      cover_image: profile.cover_image,
       website: profile.website,
       location: profile.location,
       instagram: profile.instagram,
@@ -254,6 +257,29 @@ const Settings = () => {
     toast({
       title: "✅ Başarılı",
       description: "Avatar güncellendi (geçici)",
+    });
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${user?.id}-cover-${Math.random()}.${fileExt}`;
+    const filePath = `covers/${fileName}`;
+
+    toast({
+      title: "Yükleniyor...",
+      description: "Kapak fotoğrafı yükleniyor",
+    });
+
+    // Storage bucket oluşturulmadığı için şimdilik sadece URL olarak tutuyoruz
+    // Gelecekte storage bucket eklendiğinde aktif edilecek
+    setProfile({ ...profile, cover_image: URL.createObjectURL(file) });
+    
+    toast({
+      title: "✅ Başarılı",
+      description: "Kapak fotoğrafı güncellendi (geçici)",
     });
   };
 
@@ -338,6 +364,44 @@ const Settings = () => {
                       JPG, PNG veya GIF. Max 2MB
                     </p>
                   </div>
+                </div>
+
+                {/* Cover Image */}
+                <div className="space-y-2">
+                  <Label>Kapak Fotoğrafı</Label>
+                  <div className="relative w-full h-32 bg-gradient-to-r from-orange-100 to-orange-200 rounded-lg overflow-hidden">
+                    {profile.cover_image ? (
+                      <img 
+                        src={profile.cover_image} 
+                        alt="Cover" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400">
+                        <span className="text-sm">Kapak fotoğrafı yok</span>
+                      </div>
+                    )}
+                    <div className="absolute bottom-2 right-2">
+                      <Label htmlFor="cover" className="cursor-pointer">
+                        <Button variant="secondary" size="sm" asChild>
+                          <span>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Kapak Yükle
+                          </span>
+                        </Button>
+                      </Label>
+                      <Input
+                        id="cover"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleCoverUpload}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Önerilen boyut: 1500x500 piksel. JPG, PNG veya GIF. Max 5MB
+                  </p>
                 </div>
 
                 {/* İsim */}

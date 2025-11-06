@@ -35,6 +35,7 @@ import Marketplace from "./pages/Marketplace";
 import InstantDelivery from "./pages/InstantDelivery";
 import ScheduledOrder from "./pages/ScheduledOrder";
 import Settings from "./pages/Settings";
+import DebugUser from "./pages/DebugUser";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,7 @@ const App = () => (
             <Route path="/randevulu-siparis" element={<ScheduledOrder />} />
             <Route path="/istatistikler" element={<Stats />} />
             <Route path="/ayarlar" element={<Settings />} />
+            <Route path="/debug-user" element={<DebugUser />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

@@ -12,14 +12,32 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Heart, PlusCircle, Bell, Star, HelpCircle } from "lucide-react";
+import { LogOut, User, Settings, Heart, PlusCircle, Bell, Star, HelpCircle, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 
 // Giriş yapmış kullanıcılar için navbar sağ kısmı
 const NavbarMember: React.FC = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        checkAdminRole();
+    }, [user]);
+
+    const checkAdminRole = async () => {
+        if (!user) return;
+        const { data } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", user.id)
+            .eq("role", "admin")
+            .single();
+        setIsAdmin(!!data);
+    };
 
     const handleProfile = () => {
         navigate("/profil");
@@ -80,6 +98,10 @@ const NavbarMember: React.FC = () => {
                             <Heart className="mr-2 h-4 w-4" />
                             <span>Favorilerim</span>
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/tarif-paylas")}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            <span>Tarif Paylaş</span>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleSettings}>
                             <Settings className="mr-2 h-4 w-4" />
                             <span>Ayarlar</span>
@@ -87,19 +109,30 @@ const NavbarMember: React.FC = () => {
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                        <DropdownMenuItem onClick={() => navigate("/bildirimler")}> {/* Bildirimler */}
+                        <DropdownMenuItem onClick={() => navigate("/bildirimler")}>
                             <Bell className="mr-2 h-4 w-4" />
                             <span>Bildirimler</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/premium")}> {/* Premium */}
+                        <DropdownMenuItem onClick={() => navigate("/premium")}>
                             <Star className="mr-2 h-4 w-4 text-yellow-500" />
                             <span>Premium</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/yardim")}> {/* Yardım */}
+                        <DropdownMenuItem onClick={() => navigate("/yardim")}>
                             <HelpCircle className="mr-2 h-4 w-4" />
                             <span>Yardım & Destek</span>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
+                    {isAdmin && (
+                        <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem onClick={() => navigate("/admin")} className="text-purple-600 focus:text-purple-600 focus:bg-purple-50">
+                                    <Shield className="mr-2 h-4 w-4" />
+                                    <span>Admin Panel</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                        </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50">
                         <LogOut className="mr-2 h-4 w-4" />

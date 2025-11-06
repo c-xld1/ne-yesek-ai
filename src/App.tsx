@@ -35,6 +35,7 @@ import ChefApplication from "./pages/ChefApplication";
 import Marketplace from "./pages/Marketplace";
 import InstantDelivery from "./pages/InstantDelivery";
 import ScheduledOrder from "./pages/ScheduledOrder";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
             <Route path="/hemen-teslimat" element={<InstantDelivery />} />
             <Route path="/randevulu-siparis" element={<ScheduledOrder />} />
             <Route path="/istatistikler" element={<Stats />} />
+            <Route path="/ayarlar" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

@@ -38,7 +38,7 @@ interface SEOSetting {
 }
 
 const SEOAdmin = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -46,6 +46,9 @@ const SEOAdmin = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
+    // Auth state yüklenirken bekle
+    if (loading) return;
+    
     if (!user) {
       toast({
         title: "Giriş Gerekli",
@@ -55,7 +58,7 @@ const SEOAdmin = () => {
       return;
     }
     console.log("🔐 SEO Admin - User ID:", user?.id);
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   // Fetch SEO settings
   const { data: seoSettings, isLoading } = useQuery({

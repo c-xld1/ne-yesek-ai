@@ -11,7 +11,7 @@ import { Users, ChefHat, FileText, TrendingUp, CheckCircle, XCircle, BookOpen, P
 import { useToast } from "@/hooks/use-toast";
 
 const AdminPanel = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [stats, setStats] = useState({ totalUsers: 0, totalChefs: 0, totalRecipes: 0, totalOrders: 0 });
@@ -20,6 +20,9 @@ const AdminPanel = () => {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
   useEffect(() => {
+    // Auth state yüklenirken bekle
+    if (loading) return;
+    
     if (!user) { 
       toast({
         title: "Giriş Gerekli",
@@ -29,7 +32,7 @@ const AdminPanel = () => {
       return; 
     }
     checkAdminRole();
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   const checkAdminRole = async () => {
     console.log("=".repeat(60));

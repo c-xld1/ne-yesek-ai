@@ -25,7 +25,10 @@ import Authors from "./pages/Authors";
 import AdminPanel from "./pages/AdminPanel";
 import SEOAdmin from "./pages/SEOAdmin";
 import AdminLayout from "./components/admin/AdminLayout";
+import AdminGuard from "./components/admin/AdminGuard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminChefs from "./pages/admin/AdminChefs";
 import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import Regional from "./pages/Regional";
@@ -73,11 +76,16 @@ const App = () => (
             <Route path="/kontrol-paneli" element={<UserDashboard />} />
             <Route path="/yazarlar" element={<Authors />} />
             
-            {/* Admin Routes with separate layout */}
-            <Route path="/admin" element={<AdminLayout />}>
+            {/* Admin Routes with separate layout and guard */}
+            <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
               <Route index element={<AdminDashboard />} />
-              <Route path="users" element={<AdminPanel />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="chefs" element={<AdminChefs />} />
+              <Route path="recipes" element={<AdminPanel />} />
+              <Route path="orders" element={<AdminPanel />} />
+              <Route path="blog" element={<AdminPanel />} />
               <Route path="seo" element={<SEOAdmin />} />
+              <Route path="settings" element={<AdminPanel />} />
             </Route>
             
             <Route path="/bildirimler" element={<Notifications />} />

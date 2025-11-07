@@ -29,6 +29,9 @@ import AdminGuard from "./components/admin/AdminGuard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminChefs from "./pages/admin/AdminChefs";
+import AdminRecipes from "./pages/admin/AdminRecipes";
+import AdminBlog from "./pages/admin/AdminBlog";
+import AdminOrders from "./pages/admin/AdminOrders";
 import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import Regional from "./pages/Regional";
@@ -81,9 +84,9 @@ const App = () => (
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="chefs" element={<AdminChefs />} />
-              <Route path="recipes" element={<AdminPanel />} />
-              <Route path="orders" element={<AdminPanel />} />
-              <Route path="blog" element={<AdminPanel />} />
+              <Route path="recipes" element={<AdminRecipes />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="blog" element={<AdminBlog />} />
               <Route path="seo" element={<SEOAdmin />} />
               <Route path="settings" element={<AdminPanel />} />
             </Route>

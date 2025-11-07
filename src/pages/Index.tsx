@@ -70,35 +70,6 @@ const Index = () => {
 
       <Hero />
       
-      {/* Ev Yemekleri Hızlı Erişim */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid md:grid-cols-2 gap-6">
-          <Link to="/hemen-teslimat">
-            <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-2xl p-8 text-white hover:shadow-2xl transition-all duration-300 hover:scale-105">
-              <div className="flex items-center gap-4">
-                <div className="text-5xl">🔥</div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">Hemen Teslimat</h3>
-                  <p className="text-white/90">Sana en yakın hazır ev yemekleri - 15-30 dk içinde!</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-          
-          <Link to="/randevulu-siparis">
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-8 text-white hover:shadow-2xl transition-all duration-300 hover:scale-105">
-              <div className="flex items-center gap-4">
-                <div className="text-5xl">📅</div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">Randevulu Sipariş</h3>
-                  <p className="text-white/90">Etkinlikleriniz için önceden planlayın</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </section>
-      
       <VideoStories />
 
       {/* Category Showcase with Recipe Sliders */}

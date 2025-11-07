@@ -14,6 +14,8 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import CookingTips from "./pages/CookingTips";
 import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
+import CreateBlogPost from "./pages/CreateBlogPost";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import QnA from "./pages/QnA";
@@ -53,6 +55,8 @@ const App = () => (
             <Route path="/tarifler" element={<Recipes />} />
             <Route path="/yoresel" element={<Regional />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogDetail />} />
+            <Route path="/blog/yeni" element={<CreateBlogPost />} />
             <Route path="/profil/:username" element={<Profile />} />
             <Route path="/profil" element={<Profile />} />
             <Route path="/giris-yap" element={<Login />} />

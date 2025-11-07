@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, MessageCircle, Share2, Clock, ChefHat, Star, Eye, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Share2, Clock, ChefHat, Star, Eye, Bookmark, ArrowRight, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import SocialShare from "./SocialShare";
 import RecipeSocial from "./RecipeSocial";
+import ImageWithFallback from "./ImageWithFallback";
+import TrendingBadge from "./TrendingBadge";
 
 interface RecipeCardProps {
     id: number | string;
@@ -69,78 +72,84 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 
     return (
         <motion.div
-            className="group cursor-pointer h-full flex flex-col"
-            whileHover={{ y: -4 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="group cursor-pointer h-full"
+            whileHover={{ y: -8 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            onClick={() => navigate(`/recipe/${id}`)}
         >
-            <div className="bg-white rounded-2xl shadow-card border border-gray-100/50 overflow-hidden transition-all duration-300 hover:shadow-card-hover hover:border-orange-200/50 h-full flex flex-col">
-                {/* Header with Author Info */}
-                <div className="p-4 pb-2 flex-shrink-0">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <Avatar 
-                                className="h-10 w-10 ring-2 ring-orange-100 cursor-pointer hover:ring-orange-400 transition-all"
-                                onClick={handleAuthorClick}
-                            >
-                                <AvatarImage src={authorAvatar} />
-                                <AvatarFallback className="bg-gradient-to-r from-orange-400 to-orange-500 text-white text-sm font-semibold">
-                                    {author?.charAt(0) || 'C'}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p 
-                                    className="font-semibold text-gray-900 text-sm cursor-pointer hover:text-orange-600 transition-colors"
-                                    onClick={handleAuthorClick}
-                                >
-                                    {author}
-                                </p>
-                                <p className="text-xs text-gray-500">{cookingTime}</p>
-                            </div>
-                        </div>
-
-                        {isPopular && (
-                            <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                                <Star className="h-3 w-3 fill-current" />
-                                Popüler
-                            </div>
-                        )}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-orange-200 h-full flex flex-col relative">
+                {/* Trending Badge */}
+                {isPopular && (
+                    <div className="absolute top-4 left-4 z-20">
+                        <TrendingBadge />
                     </div>
-                </div>
+                )}
 
-                {/* Image */}
+                {/* Image Section */}
                 {image && (
-                    <div className="relative overflow-hidden mx-4 rounded-xl">
-                        <motion.img
+                    <div className="relative overflow-hidden aspect-video">
+                        <ImageWithFallback
                             src={image}
                             alt={title}
-                            className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
-                            whileHover={{ scale: 1.05 }}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
 
-                        {/* Overlay Actions */}
-                        <div className="absolute top-3 right-3 flex gap-2">
+                        {/* Gradient Overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-orange-500/90 via-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                        {/* Top Right Actions */}
+                        <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
                             <motion.button
                                 whileTap={{ scale: 0.9 }}
                                 onClick={handleSave}
-                                className={`p-2 rounded-full backdrop-blur-md transition-all duration-200 ${isSaved
-                                    ? 'bg-orange-500 text-white shadow-glow'
-                                    : 'bg-white/80 text-gray-700 hover:bg-white'
-                                    }`}
+                                className={`p-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-lg ${
+                                    isSaved
+                                        ? 'bg-orange-500 text-white ring-2 ring-white/50'
+                                        : 'bg-white/90 text-gray-700 hover:bg-white hover:scale-110'
+                                }`}
                             >
                                 <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
                             </motion.button>
+
+                            {/* Stats on Hover */}
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 0, y: -10 }}
+                                whileHover={{ opacity: 1, y: 0 }}
+                                className="opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col gap-2"
+                            >
+                                <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md rounded-lg px-2.5 py-1.5 text-white">
+                                    <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
+                                    <span className="text-xs font-semibold">{likeCount}</span>
+                                </div>
+                                <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md rounded-lg px-2.5 py-1.5 text-white">
+                                    <Eye className="h-3.5 w-3.5" />
+                                    <span className="text-xs font-semibold">{viewCount}</span>
+                                </div>
+                            </motion.div>
                         </div>
 
-                        {/* Tags */}
-                        <div className="absolute bottom-3 left-3 flex gap-2">
+                        {/* Bottom Tags */}
+                        <div className="absolute bottom-3 left-3 flex gap-2 z-10">
                             {tags.slice(0, 2).map((tag, index) => (
-                                <span
+                                <Badge
                                     key={index}
-                                    className="bg-white/90 backdrop-blur-sm text-gray-700 px-2 py-1 rounded-full text-xs font-medium"
+                                    className="bg-white/20 backdrop-blur-md text-white border-white/30 text-xs font-semibold shadow-lg"
                                 >
                                     {tag}
-                                </span>
+                                </Badge>
                             ))}
+                        </div>
+
+                        {/* Time Badge */}
+                        <div className="absolute top-3 left-3 z-10">
+                            {!isPopular && (
+                                <Badge className="bg-black/60 backdrop-blur-md text-white border-white/20 text-xs shadow-lg">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    {cookingTime}
+                                </Badge>
+                            )}
                         </div>
                     </div>
                 )}

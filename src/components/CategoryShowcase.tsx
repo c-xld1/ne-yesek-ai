@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, Eye, ArrowRight } from "lucide-react";
+import { Heart, Eye, ArrowRight, Clock, Star, ChefHat, Sparkles } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useRecipesByCategory } from "@/hooks/useRecipes";
 import {
@@ -10,6 +10,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
+import ImageWithFallback from "@/components/ImageWithFallback";
+import TrendingBadge from "@/components/TrendingBadge";
 
 const CategoryShowcase = () => {
   const { data: categories, isLoading, error } = useCategories();
@@ -43,16 +45,41 @@ const CategoryShowcase = () => {
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      {categories.slice(0, 6).map((category) => (
-        <CategoryRow key={category.id} category={category} />
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+      {/* Section Header */}
+      <div className="text-center max-w-3xl mx-auto mb-8">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-primary/5 rounded-full px-4 py-2 mb-4">
+          <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+          <span className="text-sm font-semibold text-primary">Kategorilere Göre Keşfet</span>
+        </div>
+        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
+          Lezzet Dünyasına Hoş Geldiniz
+        </h2>
+        <p className="text-gray-600 text-lg">
+          Her kategoriden özenle seçilmiş tariflerle mutfağınızı renklendirin
+        </p>
+      </div>
+
+      {categories.slice(0, 6).map((category, index) => (
+        <CategoryRow key={category.id} category={category} index={index} />
       ))}
     </section>
   );
 };
 
-const CategoryRow = ({ category }: { category: any }) => {
+const CategoryRow = ({ category, index }: { category: any; index: number }) => {
   const { data: recipes, isLoading, error } = useRecipesByCategory(category.id);
+  
+  const gradients = [
+    "from-orange-500 via-orange-600 to-red-600",
+    "from-purple-500 via-purple-600 to-pink-600",
+    "from-blue-500 via-blue-600 to-cyan-600",
+    "from-green-500 via-green-600 to-emerald-600",
+    "from-yellow-500 via-amber-600 to-orange-600",
+    "from-pink-500 via-rose-600 to-red-600",
+  ];
+  
+  const gradient = gradients[index % gradients.length];
 
   if (error) {
     console.error(`Kategori ${category.name} tarifleri yüklenemedi:`, error);
@@ -81,41 +108,51 @@ const CategoryRow = ({ category }: { category: any }) => {
   return (
     <div className="group flex flex-col lg:flex-row gap-4 lg:gap-6">
       {/* Left: Category Card */}
-      <div className="w-full lg:w-56 xl:w-64 flex-shrink-0">
-        <Link to={`/recipes?category=${category.slug || category.id}`}>
-          <div className="relative h-64 lg:h-72 bg-gradient-to-br from-primary via-primary-600 to-primary-700 rounded-2xl p-6 lg:p-8 text-primary-foreground overflow-hidden transition-all duration-300 hover:shadow-glow hover:-translate-y-1">
-            {/* Background Pattern */}
+      <div className="w-full lg:w-48 xl:w-56 flex-shrink-0">
+        <Link to="/tarifler">
+          <div className={`relative h-80 bg-gradient-to-br ${gradient} rounded-2xl p-5 text-white overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group/card`}>
+            {/* Simple Background Pattern */}
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-background rounded-full -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-background rounded-full translate-y-1/2 -translate-x-1/2" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
             </div>
 
             <div className="relative h-full flex flex-col justify-between">
               <div>
-                <div className="w-12 h-12 lg:w-14 lg:h-14 bg-background/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4 lg:mb-6 transition-transform duration-300 group-hover:scale-110">
-                  <Heart className="h-6 w-6 lg:h-7 lg:w-7" />
+                {/* Icon */}
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover/card:scale-110 shadow-lg">
+                  <ChefHat className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl lg:text-2xl font-bold mb-2 lg:mb-3">{category.name}</h3>
-                <p className="text-primary-foreground/90 text-xs lg:text-sm leading-relaxed line-clamp-2">
-                  {category.description || "Lezzetli tarifler keşfedin"}
+                
+                {/* Title */}
+                <h3 className="text-lg font-bold mb-2 leading-tight">
+                  {category.name}
+                </h3>
+                
+                {/* Description - Hidden on small cards */}
+                <p className="text-white/80 text-xs leading-snug line-clamp-2 mb-3">
+                  {category.description || "Tarifler keşfedin"}
                 </p>
               </div>
               
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <div className="inline-flex items-center gap-1.5 bg-background/20 backdrop-blur-sm rounded-lg px-3 py-1.5">
-                    <span className="text-sm lg:text-base font-semibold">{recipes.length}+</span>
-                    <span className="text-xs lg:text-sm opacity-90">Tarif</span>
+              {/* Stats & CTA */}
+              <div className="space-y-2.5">
+                {/* Compact Stats */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    <span className="text-sm font-bold">{recipes.length} Tarif</span>
                   </div>
-                  <div className="inline-flex items-center gap-1 text-xs lg:text-sm opacity-80">
-                    <Eye className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
-                    <span>1.2k</span>
+                  <div className="flex items-center gap-1.5">
+                    <Eye className="h-3.5 w-3.5" />
+                    <span className="text-xs">1.2k+</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 text-sm lg:text-base font-semibold group/link">
-                  <span>Tümünü Gör</span>
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
+                {/* Minimal CTA */}
+                <div className="flex items-center justify-center gap-1.5 bg-white/15 backdrop-blur-sm rounded-lg px-3 py-2.5 border border-white/20 transition-all duration-300 hover:bg-white/25 group/link">
+                  <span className="font-semibold text-xs">Tümünü Gör</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/link:translate-x-0.5" />
                 </div>
               </div>
             </div>
@@ -133,40 +170,93 @@ const CategoryRow = ({ category }: { category: any }) => {
           className="w-full"
         >
           <CarouselContent className="-ml-3 lg:-ml-4">
-            {recipes.slice(0, 10).map((recipe) => (
-              <CarouselItem key={recipe.id} className="pl-3 lg:pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/3">
-                <Link to={`/recipe/${recipe.id}`}>
-                  <div className="group/card relative rounded-xl lg:rounded-2xl overflow-hidden h-64 lg:h-72 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
-                    <img
+            {recipes.slice(0, 15).map((recipe, idx) => (
+              <CarouselItem key={recipe.id} className="pl-3 lg:pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                <Link to={`/tarif/${recipe.id}`}>
+                  <div className="group/card relative rounded-2xl overflow-hidden h-80 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border border-gray-100">
+                    <ImageWithFallback
                       src={recipe.image_url || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop"}
                       alt={recipe.title || "Tarif"}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10" />
                     
-                    <div className="absolute inset-0 p-4 lg:p-6 flex flex-col justify-end">
-                      <h4 className="font-bold text-lg lg:text-xl mb-2 lg:mb-3 line-clamp-2 text-white drop-shadow-lg">
-                        {recipe.title || "Başlıksız Tarif"}
-                      </h4>
-                      
-                      <div className="flex items-center gap-2 lg:gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 lg:w-8 lg:h-8 bg-background/30 backdrop-blur-sm rounded-full flex items-center justify-center ring-2 ring-background/20">
-                            <span className="text-xs font-semibold text-white">
-                              {(recipe.author_name || "AN").charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <span className="text-xs lg:text-sm text-white/95 font-medium">
-                            {recipe.author_name || "Anonim"}
-                          </span>
+                    {/* Base Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
+                    
+                    {/* Hover Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/50 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+                    
+                    {/* Top Section - Badges */}
+                    <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
+                      <div className="flex flex-col gap-2">
+                        {idx === 0 && <TrendingBadge />}
+                        <Badge className="bg-black/60 backdrop-blur-md text-white border-white/20 text-xs font-semibold shadow-lg w-fit">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {recipe.prep_time || "30"} dk
+                        </Badge>
+                      </div>
+
+                      {/* Hover Stats */}
+                      <div className="flex flex-col gap-2 opacity-0 group-hover/card:opacity-100 transition-all duration-500 translate-x-2 group-hover/card:translate-x-0">
+                        <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-md rounded-full px-3 py-1.5 text-white shadow-lg">
+                          <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
+                          <span className="text-xs font-bold">{recipe.likes || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-md rounded-full px-3 py-1.5 text-white shadow-lg">
+                          <Eye className="h-3.5 w-3.5" />
+                          <span className="text-xs font-bold">{recipe.views || 0}</span>
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Bottom Content */}
+                    <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col z-10">
+                      {/* Rating - Shows on Hover */}
+                      <div className="flex items-center gap-1 mb-3 opacity-0 group-hover/card:opacity-100 transition-all duration-500 transform translate-y-2 group-hover/card:translate-y-0">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 transition-transform duration-300 ${
+                              i < Math.floor(recipe.rating || 4.5)
+                                ? "fill-yellow-400 text-yellow-400 scale-100"
+                                : "text-white/30 scale-90"
+                            }`}
+                          />
+                        ))}
+                        <span className="text-sm text-white font-bold ml-1.5 drop-shadow-lg">
+                          {recipe.rating || "4.5"}
+                        </span>
+                      </div>
 
-                    <div className="absolute top-3 right-3 lg:top-4 lg:right-4">
-                      <Badge className="bg-black/40 backdrop-blur-md text-white border-0 text-xs">
-                        iStock
-                      </Badge>
+                      {/* Title */}
+                      <h4 className="font-bold text-xl mb-3 line-clamp-2 text-white drop-shadow-2xl group-hover/card:text-yellow-300 transition-colors duration-300 leading-tight">
+                        {recipe.title || "Başlıksız Tarif"}
+                      </h4>
+                      
+                      {/* Author & Difficulty */}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                          <div className="w-9 h-9 bg-white/25 backdrop-blur-md rounded-full flex items-center justify-center ring-2 ring-white/40 shadow-xl flex-shrink-0">
+                            <span className="text-sm font-bold text-white">
+                              {(recipe.author_name || "AN").charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="text-sm text-white/95 font-semibold drop-shadow truncate">
+                            {recipe.author_name || "Anonim"}
+                          </span>
+                        </div>
+
+                        <Badge className="bg-white/25 backdrop-blur-md text-white border-white/40 text-xs font-semibold shadow-lg flex-shrink-0">
+                          {recipe.difficulty || "Kolay"}
+                        </Badge>
+                      </div>
+
+                      {/* Arrow Icon - Bottom Right */}
+                      <div className="absolute bottom-5 right-5 opacity-0 group-hover/card:opacity-100 transition-all duration-300 transform translate-x-2 group-hover/card:translate-x-0">
+                        <div className="bg-white/30 backdrop-blur-md rounded-full p-2.5 shadow-xl border border-white/40">
+                          <ArrowRight className="h-5 w-5 text-white" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </Link>

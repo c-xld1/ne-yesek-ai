@@ -1,80 +1,64 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PremiumHeader from "@/components/PremiumHeader";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Calendar, User, Heart, MessageCircle, Eye, TrendingUp, BookOpen, PenTool } from "lucide-react";
+import { useBlogPosts } from "@/hooks/useBlogPosts";
 
 const Blog = () => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: blogPosts, isLoading, error } = useBlogPosts(selectedCategory === "Tümü" ? undefined : selectedCategory);
+
+  const handlePostClick = (postId: string) => {
+    navigate(`/blog/${postId}`);
+  };
 
   const categories = [
     "Tümü", "Mutfak İpuçları", "Beslenme", "Sağlıklı Yaşam", "Mevsimsel",
     "Dünya Mutfakları", "Trend Tarifler", "Ekipman İncelemeleri"
   ];
 
-  const blogPosts = [
-    {
-      id: 1,
-      title: "2024'ün En Trend Yemek Akımları",
-      excerpt: "Bu yıl mutfaklarda hangi trendler öne çıkıyor? Fermente gıdalardan sürdürülebilir beslenmeye kadar...",
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop",
-      author: {
-        name: "Chef Ayşe Demir",
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616c4f23456?w=50&h=50&fit=crop"
-      },
-      category: "Trend Tarifler",
-      date: "15 Şubat 2024",
-      readTime: "5 dk",
-      views: 2340,
-      likes: 156,
-      comments: 23,
-      featured: true
-    },
-    {
-      id: 2,
-      title: "Evde Fermente Gıda Yapımı: Başlangıç Rehberi",
-      excerpt: "Sağlığınıza faydalı fermente gıdaları evde nasıl yaparsınız? Kombucha'dan kimchiye pratik tarifler...",
-      image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=250&fit=crop",
-      author: {
-        name: "Dr. Mehmet Özkan",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop"
-      },
-      category: "Sağlıklı Yaşam",
-      date: "12 Şubat 2024",
-      readTime: "8 dk",
-      views: 1890,
-      likes: 98,
-      comments: 45,
-      featured: false
-    },
-    {
-      id: 3,
-      title: "Mutfak Ekipmanları: 2024'te Neye Yatırım Yapmalı?",
-      excerpt: "Mutfağınızı yenilemek mi istiyorsunuz? İşte bu yıl öne çıkan mutfak aletleri ve tavsiyeleri...",
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop",
-      author: {
-        name: "Zeynep Çelik",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop"
-      },
-      category: "Ekipman İncelemeleri",
-      date: "10 Şubat 2024",
-      readTime: "6 dk",
-      views: 1567,
-      likes: 89,
-      comments: 12,
-      featured: false
-    }
-  ];
+  // Filter posts by search query
+  const filteredPosts = blogPosts?.filter(post => 
+    searchQuery === "" || 
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
 
-  const featuredPost = blogPosts.find(post => post.featured);
-  const regularPosts = blogPosts.filter(post => !post.featured);
+  const featuredPost = filteredPosts.find(post => post.featured);
+  const regularPosts = filteredPosts.filter(post => !post.featured);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-96">
+          <LoadingSpinner text="Blog yazıları yükleniyor..." />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+      <SEOHead 
+        title="Mutfak Blogu - Ne Yesek AI"
+        description="Mutfak dünyasından en güncel haberler, ipuçları ve uzman görüşleri. Sağlıklı yaşam, beslenme ve yemek trendlerini keşfedin."
+        keywords="mutfak blogu, yemek yazıları, mutfak ipuçları, beslenme, sağlıklı yaşam, yemek trendleri"
+        url="/blog"
+        type="website"
+      />
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -107,11 +91,16 @@ const Blog = () => {
                 <input
                   type="text"
                   placeholder="Blog yazılarında ara..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-food-500 focus:border-transparent"
                 />
               </div>
             </div>
-            <Button className="gradient-primary text-white">
+            <Button 
+              className="gradient-primary text-white"
+              onClick={() => navigate("/blog/yeni")}
+            >
               + Yazı Yaz
             </Button>
           </div>
@@ -133,13 +122,13 @@ const Blog = () => {
 
         {/* Featured Post */}
         {featuredPost && (
-          <Card className="mb-8 overflow-hidden">
+          <Card className="mb-8 overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300" onClick={() => handlePostClick(featuredPost.id)}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-              <div className="relative h-64 lg:h-auto">
+              <div className="relative h-64 lg:h-auto overflow-hidden group">
                 <img
-                  src={featuredPost.image}
+                  src={featuredPost.image || "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop"}
                   alt={featuredPost.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <Badge className="absolute top-4 left-4 bg-red-500 text-white">
                   <TrendingUp className="h-3 w-3 mr-1" />
@@ -165,7 +154,11 @@ const Blog = () => {
                     <div className="flex items-center gap-4 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {featuredPost.date}
+                        {new Date(featuredPost.date).toLocaleDateString('tr-TR', { 
+                          day: 'numeric', 
+                          month: 'long', 
+                          year: 'numeric' 
+                        })}
                       </span>
                       <span>{featuredPost.readTime} okuma</span>
                     </div>
@@ -187,7 +180,13 @@ const Blog = () => {
                       {featuredPost.comments}
                     </span>
                   </div>
-                  <Button className="gradient-primary text-white">
+                  <Button 
+                    className="gradient-primary text-white hover:shadow-lg transition-shadow"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePostClick(featuredPost.id);
+                    }}
+                  >
                     Devamını Oku
                   </Button>
                 </div>
@@ -197,70 +196,95 @@ const Blog = () => {
         )}
 
         {/* Regular Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {regularPosts.map((post) => (
-            <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="relative">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-48 object-cover"
-                />
-                <Badge className="absolute top-3 left-3 bg-food-500 text-white text-xs">
-                  {post.category}
-                </Badge>
-              </div>
+        {regularPosts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {regularPosts.map((post) => (
+              <Card 
+                key={post.id} 
+                className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group" 
+                onClick={() => handlePostClick(post.id)}
+              >
+                <div className="relative overflow-hidden">
+                  <img
+                    src={post.image || "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop"}
+                    alt={post.title}
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <Badge className="absolute top-3 left-3 bg-food-500 text-white text-xs">
+                    {post.category}
+                  </Badge>
+                </div>
 
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">
-                  {post.title}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {post.excerpt}
-                </p>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors">
+                    {post.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                    {post.excerpt}
+                  </p>
 
-                <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage src={post.author.avatar} />
-                    <AvatarFallback>{post.author.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-medium text-xs">{post.author.name}</p>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <span>{post.date}</span>
-                      <span>•</span>
-                      <span>{post.readTime}</span>
+                  <div className="flex items-center gap-3 mb-4">
+                    <Avatar className="w-6 h-6">
+                      <AvatarImage src={post.author.avatar} />
+                      <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-medium text-xs">{post.author.name}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <span>{new Date(post.date).toLocaleDateString('tr-TR', { 
+                          day: 'numeric', 
+                          month: 'short' 
+                        })}</span>
+                        <span>•</span>
+                        <span>{post.readTime}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <Eye className="h-3 w-3" />
-                      {post.views}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Heart className="h-3 w-3" />
-                      {post.likes}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MessageCircle className="h-3 w-3" />
-                      {post.comments}
-                    </span>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        {post.views}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Heart className="h-3 w-3" />
+                        {post.likes}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MessageCircle className="h-3 w-3" />
+                        {post.comments}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="bg-white rounded-2xl p-8 shadow-lg inline-block">
+              <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                {searchQuery ? "Arama sonucu bulunamadı" : "Henüz blog yazısı yok"}
+              </h3>
+              <p className="text-gray-500">
+                {searchQuery 
+                  ? "Farklı bir arama terimi deneyin" 
+                  : "İlk blog yazısını siz yazın!"}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Load More */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            Daha Fazla Yazı Yükle
-          </Button>
-        </div>
+        {regularPosts.length > 0 && (
+          <div className="text-center mt-12">
+            <Button variant="outline" size="lg">
+              Daha Fazla Yazı Yükle
+            </Button>
+          </div>
+        )}
       </div>
 
       <Footer />

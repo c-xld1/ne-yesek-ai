@@ -23,6 +23,7 @@ import QnADetail from "./pages/QnADetail";
 import UserDashboard from "./pages/UserDashboard";
 import Authors from "./pages/Authors";
 import AdminPanel from "./pages/AdminPanel";
+import SEOAdmin from "./pages/SEOAdmin";
 import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import Regional from "./pages/Regional";
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/kontrol-paneli" element={<UserDashboard />} />
             <Route path="/yazarlar" element={<Authors />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/admin/seo" element={<SEOAdmin />} />
             <Route path="/bildirimler" element={<Notifications />} />
             <Route path="/favoriler" element={<Favorites />} />
             <Route path="/kesfet" element={<Discover />} />

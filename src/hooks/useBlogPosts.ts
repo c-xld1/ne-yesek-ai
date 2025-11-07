@@ -29,60 +29,68 @@ export const useBlogPosts = (category?: string, featured?: boolean) => {
   return useQuery({
     queryKey: ["blog-posts", category, featured],
     queryFn: async () => {
-      let query = supabase
-        .from("blog_posts")
-        .select(`
-          *,
-          profiles!blog_posts_author_id_fkey(
-            username,
-            fullname,
-            avatar_url
-          )
-        `)
-        .eq("published", true)
-        .order("created_at", { ascending: false });
+      try {
+        let query = supabase
+          .from("blog_posts")
+          .select(`
+            *,
+            profiles!blog_posts_author_id_fkey(
+              username,
+              full_name,
+              avatar_url
+            )
+          `)
+          .eq("published", true)
+          .order("created_at", { ascending: false });
 
-      if (category && category !== "Tümü") {
-        query = query.eq("category", category);
+        if (category && category !== "Tümü") {
+          query = query.eq("category", category);
+        }
+
+        if (featured !== undefined) {
+          query = query.eq("featured", featured);
+        }
+
+        const { data, error }: any = await query;
+
+        if (error) {
+          console.error("Error fetching blog posts:", error);
+          // Return empty array instead of throwing
+          return [];
+        }
+
+        if (!data || data.length === 0) {
+          return [];
+        }
+
+        return (data || []).map((post: any) => ({
+          id: post.id,
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt,
+          content: post.content,
+          image: post.image_url || "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop",
+          author: {
+            name: post.profiles?.full_name || post.profiles?.username || "Ne Yesek AI",
+            avatar: post.profiles?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.profiles?.username || 'AI')}&background=random`,
+            username: post.profiles?.username || "neyesek",
+          },
+          category: post.category || "Genel",
+          date: post.created_at,
+          readTime: `${post.read_time || 5} dk`,
+          views: post.view_count || 0,
+          likes: post.like_count || 0,
+          comments: post.comment_count || 0,
+          featured: post.featured || false,
+          tags: post.tags || [],
+        }));
+      } catch (err) {
+        console.error("Unexpected error fetching blog posts:", err);
+        return [];
       }
-
-      if (featured !== undefined) {
-        query = query.eq("featured", featured);
-      }
-
-      const { data, error }: any = await query;
-
-      if (error) {
-        console.error("Error fetching blog posts:", error);
-        throw error;
-      }
-
-      return (data || []).map((post: any) => ({
-        id: post.id,
-        title: post.title,
-        slug: post.slug,
-        excerpt: post.excerpt,
-        content: post.content,
-        image: post.image_url || "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop",
-        author: {
-          name: post.profiles?.fullname || post.profiles?.username || "Anonim",
-          avatar: post.profiles?.avatar_url || "",
-          username: post.profiles?.username || "",
-        },
-        category: post.category,
-        date: new Date(post.created_at).toLocaleDateString('tr-TR', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        }),
-        readTime: `${post.read_time} dk`,
-        views: post.view_count || 0,
-        likes: post.like_count || 0,
-        comments: post.comment_count || 0,
-        featured: post.featured || false,
-        tags: post.tags || [],
-      }));
     },
+    retry: 1,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 

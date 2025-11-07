@@ -10,6 +10,7 @@ import { useFeaturedRecipes } from "@/hooks/useRecipes";
 import { useCategories } from "@/hooks/useCategories";
 import { useTestData } from "@/hooks/useTestData";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, Star, TrendingUp, Database, CheckCircle, XCircle } from "lucide-react";
@@ -38,6 +39,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 pb-20">
+      <SEOHead 
+        title="Ne Yesek AI - Yapay Zeka Destekli Tarif Platformu"
+        description="Milyonlarca tarif, AI destekli kişisel öneriler ve mutfak deneyiminizi kolaylaştıran teknoloji. Ne Yesek AI ile lezzetli tarifler keşfedin!"
+        keywords="tarif, yemek tarifi, mutfak, ai tarif, yapay zeka, ne yesek, yemek önerisi, kolay tarifler, Türk mutfağı"
+        url="/"
+        type="website"
+      />
       <Navbar />
 
       {/* Test Data Status - Development Only */}

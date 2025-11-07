@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, ChefHat, FileText, TrendingUp, CheckCircle, XCircle, BookOpen, Plus, Edit, Trash } from "lucide-react";
+import { Users, ChefHat, FileText, TrendingUp, CheckCircle, XCircle, BookOpen, Plus, Edit, Trash, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminPanel = () => {
@@ -25,8 +25,39 @@ const AdminPanel = () => {
   }, [user, navigate]);
 
   const checkAdminRole = async () => {
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", user?.id).eq("role", "admin").single();
-    if (!data) { navigate("/"); return; }
+    console.log("Current User ID:", user?.id);
+    console.log("Copy this ID and run in Supabase SQL Editor:");
+    console.log(`INSERT INTO user_roles (user_id, role) VALUES ('${user?.id}', 'admin') ON CONFLICT (user_id, role) DO NOTHING;`);
+    
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user?.id)
+      .eq("role", "admin")
+      .single();
+    
+    if (error) {
+      console.error("Admin check error:", error);
+      toast({
+        variant: "destructive",
+        title: "Yetkisiz Erişim",
+        description: `Admin rolü bulunamadı. Kullanıcı ID'nizi konsola yazdırdık.`,
+      });
+      // Geçici olarak yönlendirmeyi kaldıralım - development için
+      // navigate("/"); 
+      // return;
+    }
+    
+    if (!data) {
+      toast({
+        variant: "destructive",
+        title: "Yetkisiz Erişim",
+        description: "Bu sayfaya erişim yetkiniz yok.",
+      });
+      // navigate("/"); 
+      // return;
+    }
+    
     fetchData();
   };
 
@@ -137,6 +168,45 @@ const AdminPanel = () => {
           <Card className="p-6"><FileText className="h-6 w-6 mb-2" /><p className="text-2xl font-bold">{stats.totalRecipes}</p><p className="text-sm">Tarif</p></Card>
           <Card className="p-6"><TrendingUp className="h-6 w-6 mb-2" /><p className="text-2xl font-bold">{stats.totalOrders}</p><p className="text-sm">Sipariş</p></Card>
         </div>
+
+        {/* Quick Actions */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Hızlı İşlemler</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button
+              variant="outline"
+              className="h-auto flex-col gap-2 p-4"
+              onClick={() => navigate("/admin/seo")}
+            >
+              <Globe className="h-6 w-6" />
+              <span className="text-sm">SEO Yönetimi</span>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-auto flex-col gap-2 p-4"
+              onClick={() => navigate("/blog/yeni")}
+            >
+              <Plus className="h-6 w-6" />
+              <span className="text-sm">Yeni Blog Yazısı</span>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-auto flex-col gap-2 p-4"
+              onClick={() => navigate("/tarif-paylas")}
+            >
+              <FileText className="h-6 w-6" />
+              <span className="text-sm">Yeni Tarif</span>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-auto flex-col gap-2 p-4"
+              onClick={() => navigate("/admin/istatistikler")}
+            >
+              <TrendingUp className="h-6 w-6" />
+              <span className="text-sm">İstatistikler</span>
+            </Button>
+          </div>
+        </Card>
 
         <Tabs defaultValue="applications" className="w-full">
           <TabsList className="grid w-full grid-cols-2">

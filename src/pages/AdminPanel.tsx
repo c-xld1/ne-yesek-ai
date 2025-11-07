@@ -20,10 +20,16 @@ const AdminPanel = () => {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
   useEffect(() => {
+    console.log("🔍 AdminPanel useEffect - loading:", loading, "user:", user?.id);
+    
     // Auth state yüklenirken bekle
-    if (loading) return;
+    if (loading) {
+      console.log("⏳ Auth yükleniyor, bekleniyor...");
+      return;
+    }
     
     if (!user) { 
+      console.log("❌ User yok, login'e yönlendiriliyor");
       toast({
         title: "Giriş Gerekli",
         description: "Admin paneline erişmek için lütfen giriş yapın.",
@@ -31,6 +37,8 @@ const AdminPanel = () => {
       navigate("/giris-yap"); 
       return; 
     }
+    
+    console.log("✅ User var, admin kontrolü yapılıyor");
     checkAdminRole();
   }, [user, loading, navigate]);
 

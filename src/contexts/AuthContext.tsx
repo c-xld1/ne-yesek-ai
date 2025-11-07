@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
 
     // Login fonksiyonu - Kullanıcı adı veya e-posta ile giriş destekler
     const login = async (identifier: string, password: string): Promise<{ success: boolean; error?: string }> => {

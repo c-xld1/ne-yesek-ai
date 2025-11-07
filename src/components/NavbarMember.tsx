@@ -12,7 +12,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Heart, PlusCircle, Bell, Star, HelpCircle, Shield } from "lucide-react";
+import { LogOut, User, Settings, Heart, PlusCircle, Bell, Star, HelpCircle, Shield, ChefHat } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
@@ -23,20 +23,32 @@ const NavbarMember: React.FC = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isChef, setIsChef] = useState(false);
 
     useEffect(() => {
-        checkAdminRole();
+        checkUserRoles();
     }, [user]);
 
-    const checkAdminRole = async () => {
+    const checkUserRoles = async () => {
         if (!user) return;
-        const { data } = await supabase
+        
+        // Admin kontrolü
+        const { data: adminData } = await supabase
             .from("user_roles")
             .select("role")
             .eq("user_id", user.id)
             .eq("role", "admin")
             .single();
-        setIsAdmin(!!data);
+        setIsAdmin(!!adminData);
+
+        // Chef kontrolü
+        const { data: chefData } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", user.id)
+            .eq("role", "chef")
+            .single();
+        setIsChef(!!chefData);
     };
 
     const handleProfile = () => {
@@ -126,14 +138,22 @@ const NavbarMember: React.FC = () => {
                             <span>Yardım & Destek</span>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
-                    {isAdmin && (
+                    {(isAdmin || isChef) && (
                         <>
                             <DropdownMenuSeparator />
                             <DropdownMenuGroup>
-                                <DropdownMenuItem onClick={() => navigate("/admin")} className="text-purple-600 focus:text-purple-600 focus:bg-purple-50">
-                                    <Shield className="mr-2 h-4 w-4" />
-                                    <span>Admin Panel</span>
-                                </DropdownMenuItem>
+                                {isAdmin && (
+                                    <DropdownMenuItem onClick={() => navigate("/admin")} className="text-purple-600 focus:text-purple-600 focus:bg-purple-50">
+                                        <Shield className="mr-2 h-4 w-4" />
+                                        <span>Admin Panel</span>
+                                    </DropdownMenuItem>
+                                )}
+                                {isChef && (
+                                    <DropdownMenuItem onClick={() => navigate("/chef-panel")} className="text-orange-600 focus:text-orange-600 focus:bg-orange-50">
+                                        <ChefHat className="mr-2 h-4 w-4" />
+                                        <span>Şef Paneli</span>
+                                    </DropdownMenuItem>
+                                )}
                             </DropdownMenuGroup>
                         </>
                     )}

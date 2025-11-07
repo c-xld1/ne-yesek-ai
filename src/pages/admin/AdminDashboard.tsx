@@ -2,12 +2,35 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, ChefHat, FileText, ShoppingBag, TrendingUp, DollarSign } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 interface Stats {
   totalUsers: number;
   totalChefs: number;
   totalRecipes: number;
   totalOrders: number;
+}
+
+interface ChartData {
+  name: string;
+  value?: number;
+  users?: number;
+  orders?: number;
+  revenue?: number;
 }
 
 const AdminDashboard = () => {
@@ -18,9 +41,13 @@ const AdminDashboard = () => {
     totalOrders: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [userGrowthData, setUserGrowthData] = useState<ChartData[]>([]);
+  const [orderTrendData, setOrderTrendData] = useState<ChartData[]>([]);
+  const [categoryData, setCategoryData] = useState<ChartData[]>([]);
 
   useEffect(() => {
     fetchStats();
+    generateChartData();
   }, []);
 
   const fetchStats = async () => {
@@ -43,6 +70,41 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateChartData = () => {
+    // Son 7 günlük kullanıcı artışı (örnek veri)
+    const userGrowth: ChartData[] = [
+      { name: "Pzt", users: 45, orders: 12 },
+      { name: "Sal", users: 52, orders: 19 },
+      { name: "Çar", users: 48, orders: 15 },
+      { name: "Per", users: 61, orders: 22 },
+      { name: "Cum", users: 55, orders: 18 },
+      { name: "Cmt", users: 67, orders: 28 },
+      { name: "Paz", users: 58, orders: 21 },
+    ];
+    setUserGrowthData(userGrowth);
+
+    // Aylık sipariş trendi
+    const orderTrend: ChartData[] = [
+      { name: "Oca", orders: 65, revenue: 12500 },
+      { name: "Şub", orders: 78, revenue: 15200 },
+      { name: "Mar", orders: 90, revenue: 18900 },
+      { name: "Nis", orders: 81, revenue: 16100 },
+      { name: "May", orders: 95, revenue: 21300 },
+      { name: "Haz", orders: 112, revenue: 24500 },
+    ];
+    setOrderTrendData(orderTrend);
+
+    // Kategori dağılımı
+    const categories: ChartData[] = [
+      { name: "Türk Mutfağı", value: 45 },
+      { name: "İtalyan", value: 25 },
+      { name: "Uzak Doğu", value: 15 },
+      { name: "Tatlılar", value: 10 },
+      { name: "Diğer", value: 5 },
+    ];
+    setCategoryData(categories);
   };
 
   const statCards = [
@@ -115,6 +177,88 @@ const AdminDashboard = () => {
           );
         })}
       </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* User Growth Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              Haftalık Kullanıcı & Sipariş Trendi
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={userGrowthData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={2} name="Kullanıcılar" />
+                <Line type="monotone" dataKey="orders" stroke="#10b981" strokeWidth={2} name="Siparişler" />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Category Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-purple-600" />
+              Kategori Dağılımı
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {categoryData.map((entry, index) => {
+                    const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+                    return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                  })}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Revenue Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-green-600" />
+            Aylık Sipariş & Gelir Trendi
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={orderTrendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis yAxisId="left" />
+              <YAxis yAxisId="right" orientation="right" />
+              <Tooltip />
+              <Legend />
+              <Bar yAxisId="left" dataKey="orders" fill="#8b5cf6" name="Siparişler" />
+              <Bar yAxisId="right" dataKey="revenue" fill="#10b981" name="Gelir (₺)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

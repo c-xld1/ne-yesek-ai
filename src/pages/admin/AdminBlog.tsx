@@ -33,8 +33,9 @@ interface BlogPost {
   comment_count: number;
   created_at: string;
   profiles?: {
-    username: string;
-    full_name: string;
+    username?: string;
+    full_name?: string;
+    fullname?: string;
   };
 }
 
@@ -53,14 +54,28 @@ const AdminBlog = () => {
     try {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select(`
-          *,
-          profiles!blog_posts_author_id_fkey(username, full_name)
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+
+      // Fetch profiles separately
+      const authorIds = [...new Set(data?.map((p) => p.author_id).filter(Boolean))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username, fullname")
+        .in("id", authorIds);
+
+      // Merge data
+      const postsWithProfiles = data?.map((post: any) => {
+        const profile = profiles?.find((p) => p.id === post.author_id);
+        return {
+          ...post,
+          profiles: profile ? { username: profile.username, fullname: profile.fullname } : undefined,
+        };
+      });
+
+      setPosts(postsWithProfiles || []);
     } catch (error) {
       console.error("Error fetching posts:", error);
       toast({
@@ -218,9 +233,9 @@ const AdminBlog = () => {
                     <TableCell>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {post.profiles?.full_name || "İsimsiz"}
+                          {post.profiles?.full_name || post.profiles?.fullname || "İsimsiz"}
                         </p>
-                        <p className="text-sm text-gray-500">@{post.profiles?.username}</p>
+                        <p className="text-sm text-gray-500">@{post.profiles?.username || "anonim"}</p>
                       </div>
                     </TableCell>
                     <TableCell>

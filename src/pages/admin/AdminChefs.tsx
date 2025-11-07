@@ -29,14 +29,23 @@ interface ChefApplication {
   id: string;
   user_id: string;
   fullname: string;
-  specialty: string;
-  experience_years: number;
-  bio: string;
+  phone: string;
+  address: string;
+  city: string;
+  district?: string;
+  cuisine_type: string;
+  experience_years?: number;
+  business_description?: string;
+  sample_menu?: any;
+  identity_document_url?: string;
+  residence_document_url?: string;
+  video_url?: string;
   status: string;
+  admin_notes?: string;
   created_at: string;
   profiles?: {
     username: string;
-    email: string;
+    email?: string;
   };
 }
 
@@ -54,14 +63,28 @@ const AdminChefs = () => {
     try {
       const { data, error } = await supabase
         .from("chef_applications")
-        .select(`
-          *,
-          profiles!chef_applications_user_id_fkey(username, email)
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setApplications(data || []);
+
+      // Fetch profiles separately
+      const userIds = [...new Set(data?.map((a) => a.user_id).filter(Boolean))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .in("id", userIds);
+
+      // Merge data
+      const applicationsWithProfiles = data?.map((app: any) => {
+        const profile = profiles?.find((p) => p.id === app.user_id);
+        return {
+          ...app,
+          profiles: profile ? { username: profile.username } : undefined,
+        };
+      });
+
+      setApplications(applicationsWithProfiles || []);
     } catch (error) {
       console.error("Error fetching applications:", error);
       toast({
@@ -159,8 +182,8 @@ const AdminChefs = () => {
                   <p className="text-sm text-gray-500">@{app.profiles?.username}</p>
                 </div>
               </TableCell>
-              <TableCell>{app.specialty}</TableCell>
-              <TableCell>{app.experience_years} yıl</TableCell>
+              <TableCell>{app.cuisine_type}</TableCell>
+              <TableCell>{app.experience_years || 0} yıl</TableCell>
               <TableCell>
                 <div className="flex items-center gap-2 text-gray-600">
                   <Calendar className="h-4 w-4" />
@@ -215,16 +238,16 @@ const AdminChefs = () => {
                           <p className="text-gray-900">@{app.profiles?.username}</p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-500">Email</p>
-                          <p className="text-gray-900">{app.profiles?.email}</p>
+                          <p className="text-sm font-medium text-gray-500">Telefon</p>
+                          <p className="text-gray-900">{app.phone}</p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-500">Uzmanlık</p>
-                          <p className="text-gray-900">{app.specialty}</p>
+                          <p className="text-sm font-medium text-gray-500">Mutfak Türü</p>
+                          <p className="text-gray-900">{app.cuisine_type}</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-500">Deneyim</p>
-                          <p className="text-gray-900">{app.experience_years} yıl</p>
+                          <p className="text-gray-900">{app.experience_years || 0} yıl</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-500">Başvuru Tarihi</p>
@@ -234,9 +257,17 @@ const AdminChefs = () => {
                         </div>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500 mb-2">Biyografi</p>
-                        <p className="text-gray-900 bg-gray-50 p-4 rounded-lg">{app.bio}</p>
+                        <p className="text-sm font-medium text-gray-500 mb-2">Adres</p>
+                        <p className="text-gray-900 bg-gray-50 p-4 rounded-lg">
+                          {app.address}, {app.district && `${app.district}, `}{app.city}
+                        </p>
                       </div>
+                      {app.business_description && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-500 mb-2">İşletme Açıklaması</p>
+                          <p className="text-gray-900 bg-gray-50 p-4 rounded-lg">{app.business_description}</p>
+                        </div>
+                      )}
                     </div>
                     {app.status === "pending" && (
                       <DialogFooter className="gap-2">

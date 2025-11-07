@@ -61,9 +61,10 @@ const AdminUsers = () => {
 
       if (rolesError) throw rolesError;
 
-      // Merge data
-      const usersWithRoles = profiles?.map((profile) => ({
+      // Merge data - profiles table should have email field
+      const usersWithRoles = profiles?.map((profile: any) => ({
         ...profile,
+        email: profile.email || "N/A",
         roles: roles?.filter((r) => r.user_id === profile.id).map((r) => r.role) || [],
       }));
 
@@ -80,7 +81,7 @@ const AdminUsers = () => {
     }
   };
 
-  const handleRoleToggle = async (userId: string, role: string, currentlyHas: boolean) => {
+  const handleRoleToggle = async (userId: string, role: "admin" | "chef", currentlyHas: boolean) => {
     try {
       if (currentlyHas) {
         // Remove role

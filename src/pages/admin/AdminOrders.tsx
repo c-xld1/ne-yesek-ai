@@ -31,8 +31,8 @@ interface Order {
   delivery_type: string;
   created_at: string;
   profiles?: {
-    username: string;
-    fullname: string;
+    username?: string;
+    fullname?: string;
   };
 }
 
@@ -49,15 +49,29 @@ const AdminOrders = () => {
     try {
       const { data, error } = await supabase
         .from("orders")
-        .select(`
-          *,
-          profiles!orders_customer_id_fkey(username, fullname)
-        `)
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
 
       if (error) throw error;
-      setOrders(data || []);
+
+      // Fetch customer profiles separately
+      const customerIds = [...new Set(data?.map((o) => o.customer_id).filter(Boolean))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username, fullname")
+        .in("id", customerIds);
+
+      // Merge data
+      const ordersWithProfiles = data?.map((order: any) => {
+        const profile = profiles?.find((p) => p.id === order.customer_id);
+        return {
+          ...order,
+          profiles: profile ? { username: profile.username, fullname: profile.fullname } : undefined,
+        };
+      });
+
+      setOrders(ordersWithProfiles || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast({

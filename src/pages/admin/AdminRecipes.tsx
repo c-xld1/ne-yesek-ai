@@ -35,7 +35,8 @@ interface Recipe {
   cook_time: number;
   servings: number;
   difficulty: string;
-  category: string;
+  category?: string;
+  category_id?: string;
   rating: number;
   created_at: string;
   user_id: string;
@@ -63,12 +64,20 @@ const AdminRecipes = () => {
         .from("recipes")
         .select(`
           *,
-          profiles!recipes_user_id_fkey(username, fullname)
+          profiles!recipes_user_id_fkey(username, fullname),
+          categories!recipes_category_id_fkey(name)
         `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setRecipes(data || []);
+      
+      // Map category name to category field
+      const recipesWithCategory = data?.map((recipe: any) => ({
+        ...recipe,
+        category: recipe.categories?.name || "Kategori Yok",
+      }));
+      
+      setRecipes(recipesWithCategory || []);
     } catch (error) {
       console.error("Error fetching recipes:", error);
       toast({

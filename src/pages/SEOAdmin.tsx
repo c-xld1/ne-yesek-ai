@@ -47,8 +47,14 @@ const SEOAdmin = () => {
 
   useEffect(() => {
     if (!user) {
+      toast({
+        title: "Giriş Gerekli",
+        description: "SEO yönetim paneline erişmek için lütfen giriş yapın.",
+      });
       navigate("/giris-yap");
+      return;
     }
+    console.log("🔐 SEO Admin - User ID:", user?.id);
   }, [user, navigate]);
 
   // Fetch SEO settings

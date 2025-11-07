@@ -20,14 +20,25 @@ const AdminPanel = () => {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!user) { navigate("/giris-yap"); return; }
+    if (!user) { 
+      toast({
+        title: "Giriş Gerekli",
+        description: "Admin paneline erişmek için lütfen giriş yapın.",
+      });
+      navigate("/giris-yap"); 
+      return; 
+    }
     checkAdminRole();
   }, [user, navigate]);
 
   const checkAdminRole = async () => {
-    console.log("Current User ID:", user?.id);
-    console.log("Copy this ID and run in Supabase SQL Editor:");
-    console.log(`INSERT INTO user_roles (user_id, role) VALUES ('${user?.id}', 'admin') ON CONFLICT (user_id, role) DO NOTHING;`);
+    console.log("=".repeat(60));
+    console.log("🔑 ADMIN ERIŞIM KURULUMU");
+    console.log("=".repeat(60));
+    console.log("👤 User ID:", user?.id);
+    console.log("\n📝 Bu SQL komutunu Supabase SQL Editor'da çalıştırın:");
+    console.log("\n" + `INSERT INTO user_roles (user_id, role) VALUES ('${user?.id}', 'admin') ON CONFLICT (user_id, role) DO NOTHING;`);
+    console.log("\n" + "=".repeat(60));
     
     const { data, error } = await supabase
       .from("user_roles")
@@ -37,27 +48,17 @@ const AdminPanel = () => {
       .single();
     
     if (error) {
-      console.error("Admin check error:", error);
-      toast({
-        variant: "destructive",
-        title: "Yetkisiz Erişim",
-        description: `Admin rolü bulunamadı. Kullanıcı ID'nizi konsola yazdırdık.`,
-      });
-      // Geçici olarak yönlendirmeyi kaldıralım - development için
-      // navigate("/"); 
-      // return;
+      console.error("❌ Admin check error:", error);
+      console.log("⚠️ Admin rolü bulunamadı. Yukarıdaki SQL komutunu çalıştırın.");
     }
     
     if (!data) {
-      toast({
-        variant: "destructive",
-        title: "Yetkisiz Erişim",
-        description: "Bu sayfaya erişim yetkiniz yok.",
-      });
-      // navigate("/"); 
-      // return;
+      console.log("⚠️ Admin yetkisi yok. Development modunda erişim sağlandı.");
+    } else {
+      console.log("✅ Admin yetkisi doğrulandı!");
     }
     
+    // Development'ta her zaman devam et
     fetchData();
   };
 

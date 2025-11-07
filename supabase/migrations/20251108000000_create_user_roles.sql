@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS user_roles (
 -- Enable RLS
 ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can read their own roles" ON user_roles;
+DROP POLICY IF EXISTS "Admins can manage all roles" ON user_roles;
+
 -- Allow users to read their own roles
 CREATE POLICY "Users can read their own roles"
   ON user_roles FOR SELECT

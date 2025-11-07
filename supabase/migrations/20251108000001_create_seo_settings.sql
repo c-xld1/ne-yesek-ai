@@ -27,6 +27,10 @@ CREATE TABLE IF NOT EXISTS seo_settings (
 -- Add RLS policies
 ALTER TABLE seo_settings ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Allow public read access to seo_settings" ON seo_settings;
+DROP POLICY IF EXISTS "Allow admin users to manage seo_settings" ON seo_settings;
+
 -- Allow public read access
 CREATE POLICY "Allow public read access to seo_settings"
   ON seo_settings FOR SELECT

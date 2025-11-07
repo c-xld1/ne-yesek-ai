@@ -32,6 +32,7 @@ import AdminChefs from "./pages/admin/AdminChefs";
 import AdminRecipes from "./pages/admin/AdminRecipes";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminOrders from "./pages/admin/AdminOrders";
+import AdminSettings from "./pages/admin/AdminSettings";
 import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import Regional from "./pages/Regional";
@@ -88,7 +89,7 @@ const App = () => (
               <Route path="orders" element={<AdminOrders />} />
               <Route path="blog" element={<AdminBlog />} />
               <Route path="seo" element={<SEOAdmin />} />
-              <Route path="settings" element={<AdminPanel />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
             
             <Route path="/bildirimler" element={<Notifications />} />

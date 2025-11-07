@@ -50,7 +50,7 @@ CREATE POLICY "Allow admin users to manage seo_settings"
   );
 
 -- Create index for faster lookups
-CREATE INDEX idx_seo_settings_page_key ON seo_settings(page_key);
+CREATE INDEX IF NOT EXISTS idx_seo_settings_page_key ON seo_settings(page_key);
 
 -- Insert default SEO settings
 INSERT INTO seo_settings (page_key, page_title, meta_title, meta_description, meta_keywords, priority, changefreq) VALUES
@@ -72,6 +72,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create trigger
+DROP TRIGGER IF EXISTS update_seo_settings_updated_at ON seo_settings;
 CREATE TRIGGER update_seo_settings_updated_at
   BEFORE UPDATE ON seo_settings
   FOR EACH ROW

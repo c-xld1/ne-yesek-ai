@@ -24,6 +24,8 @@ import UserDashboard from "./pages/UserDashboard";
 import Authors from "./pages/Authors";
 import AdminPanel from "./pages/AdminPanel";
 import SEOAdmin from "./pages/SEOAdmin";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import Regional from "./pages/Regional";
@@ -70,8 +72,14 @@ const App = () => (
             <Route path="/soru-cevap/yeni" element={<QnANew />} />
             <Route path="/kontrol-paneli" element={<UserDashboard />} />
             <Route path="/yazarlar" element={<Authors />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/admin/seo" element={<SEOAdmin />} />
+            
+            {/* Admin Routes with separate layout */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminPanel />} />
+              <Route path="seo" element={<SEOAdmin />} />
+            </Route>
+            
             <Route path="/bildirimler" element={<Notifications />} />
             <Route path="/favoriler" element={<Favorites />} />
             <Route path="/kesfet" element={<Discover />} />

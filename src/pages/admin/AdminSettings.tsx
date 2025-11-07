@@ -50,10 +50,6 @@ const AdminSettings = () => {
     icon: "",
   });
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   const fetchCategories = async () => {
     setLoading(true);
     try {
@@ -76,12 +72,15 @@ const AdminSettings = () => {
     }
   };
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     try {
       if (editingCategory) {
-        // Update
         const { error } = await supabase
           .from("categories")
           .update(categoryForm)
@@ -94,7 +93,6 @@ const AdminSettings = () => {
           description: "Kategori güncellendi.",
         });
       } else {
-        // Create
         const { error } = await supabase
           .from("categories")
           .insert([categoryForm]);
@@ -110,11 +108,11 @@ const AdminSettings = () => {
       setDialogOpen(false);
       resetCategoryForm();
       fetchCategories();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving category:", error);
       toast({
         title: "Hata",
-        description: error.message || "Kategori kaydedilirken bir hata oluştu.",
+        description: "Kategori kaydedilirken bir hata oluştu.",
         variant: "destructive",
       });
     }
@@ -148,11 +146,11 @@ const AdminSettings = () => {
       });
 
       fetchCategories();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error deleting category:", error);
       toast({
         title: "Hata",
-        description: error.message || "Kategori silinirken bir hata oluştu.",
+        description: "Kategori silinirken bir hata oluştu.",
         variant: "destructive",
       });
     }
@@ -183,13 +181,11 @@ const AdminSettings = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Genel Ayarlar</h2>
         <p className="text-gray-600">Site genelindeki ayarları yönetin</p>
       </div>
 
-      {/* Settings Tabs */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -216,7 +212,7 @@ const AdminSettings = () => {
                   Site adı, açıklaması, logo ve genel yapılandırma ayarları buradan yönetilecek.
                 </p>
                 <p className="text-sm text-gray-500">
-                  Yakında eklene Cek: Site başlığı, meta açıklama, iletişim bilgileri, sosyal medya linkleri
+                  Yakında eklenecek: Site başlığı, meta açıklama, iletişim bilgileri, sosyal medya linkleri
                 </p>
               </div>
             </TabsContent>

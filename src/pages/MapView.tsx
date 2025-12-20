@@ -12,14 +12,17 @@ import { MapPin, Search, Star, Navigation, Filter } from "lucide-react";
 interface Chef {
   id: string;
   business_name: string;
-  city: string;
-  district: string;
-  average_rating: number;
-  total_reviews: number;
-  minimum_order_amount: number;
-  delivery_radius: number;
+  city: string | null;
+  district?: string;
+  average_rating?: number;
+  total_reviews?: number;
+  minimum_order_amount?: number;
+  delivery_radius: number | null;
   avatar_url?: string;
-  is_available: boolean;
+  is_available: boolean | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 const MapView = () => {
@@ -56,10 +59,26 @@ const MapView = () => {
       const { data } = await supabase
         .from("chef_profiles")
         .select("*")
-        .eq("is_verified", true)
-        .eq("is_available", true);
+        .eq("is_active", true);
 
-      setChefs(data || []);
+      // Map data to Chef interface with defaults
+      const mappedChefs: Chef[] = (data || []).map((chef: any) => ({
+        id: chef.id,
+        business_name: chef.business_name,
+        city: chef.city,
+        district: chef.district || "",
+        average_rating: chef.rating || 0,
+        total_reviews: chef.total_orders || 0,
+        minimum_order_amount: chef.min_order_amount || 0,
+        delivery_radius: chef.delivery_radius,
+        avatar_url: chef.avatar_url,
+        is_available: chef.is_available,
+        address: chef.address,
+        latitude: chef.latitude,
+        longitude: chef.longitude,
+      }));
+
+      setChefs(mappedChefs);
     } catch (error) {
       console.error("Error fetching chefs:", error);
     } finally {
@@ -69,8 +88,8 @@ const MapView = () => {
 
   const filteredChefs = chefs.filter(chef =>
     chef.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chef.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chef.district.toLowerCase().includes(searchQuery.toLowerCase())
+    (chef.city || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (chef.district || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (

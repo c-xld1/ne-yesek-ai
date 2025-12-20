@@ -17,10 +17,11 @@ interface BadgeType {
     description: string;
     icon: string;
     color: string;
-    category: string;
-    rarity: string;
+    requirement_type: string;
+    requirement_value: number;
+    points: number;
     is_active: boolean;
-    user_badge_count?: number;
+    order_index: number;
 }
 
 const BadgesManager = () => {
@@ -33,11 +34,13 @@ const BadgesManager = () => {
         key: "",
         title: "",
         description: "",
-        category: "specialty",
+        requirement_type: "recipe_count",
+        requirement_value: 1,
         icon: "⭐",
         color: "#F59E0B",
-        rarity: "common",
+        points: 10,
         is_active: true,
+        order_index: 0,
     });
 
     useEffect(() => {
@@ -47,17 +50,13 @@ const BadgesManager = () => {
     const fetchBadges = async () => {
         try {
             const { data, error } = await supabase
-                .from("badges")
-                .select(`
-                    *,
-                    user_badges(count)
-                `)
-                .order("badge_type", { ascending: true })
-                .order("points_required", { ascending: true });
+                .from("achievement_definitions")
+                .select("*")
+                .order("order_index", { ascending: true });
 
             if (error) throw error;
 
-            setBadges(data || []);
+            setBadges((data || []) as BadgeType[]);
         } catch (error) {
             console.error("Error fetching badges:", error);
             toast({
@@ -78,16 +77,18 @@ const BadgesManager = () => {
                 key: formData.key,
                 title: formData.title,
                 description: formData.description,
-                category: formData.category,
+                requirement_type: formData.requirement_type,
+                requirement_value: formData.requirement_value,
                 icon: formData.icon,
                 color: formData.color,
-                rarity: formData.rarity,
+                points: formData.points,
                 is_active: formData.is_active,
+                order_index: formData.order_index,
             };
 
             if (editingId) {
                 const { error } = await supabase
-                    .from("badges")
+                    .from("achievement_definitions")
                     .update(badgeData)
                     .eq("id", editingId);
 
@@ -99,7 +100,7 @@ const BadgesManager = () => {
                 });
             } else {
                 const { error } = await supabase
-                    .from("badges")
+                    .from("achievement_definitions")
                     .insert([badgeData]);
 
                 if (error) throw error;
@@ -125,13 +126,16 @@ const BadgesManager = () => {
     const handleEdit = (badge: BadgeType) => {
         setEditingId(badge.id);
         setFormData({
-            name: badge.name,
+            key: badge.key,
+            title: badge.title,
             description: badge.description,
-            badge_type: badge.badge_type,
+            requirement_type: badge.requirement_type,
+            requirement_value: badge.requirement_value,
             icon: badge.icon,
             color: badge.color,
-            requirement: JSON.stringify(badge.requirement, null, 2),
-            points_required: badge.points_required,
+            points: badge.points || 10,
+            is_active: badge.is_active,
+            order_index: badge.order_index || 0,
         });
     };
 
@@ -140,7 +144,7 @@ const BadgesManager = () => {
 
         try {
             const { error } = await supabase
-                .from("badges")
+                .from("achievement_definitions")
                 .delete()
                 .eq("id", id);
 
@@ -165,24 +169,27 @@ const BadgesManager = () => {
     const resetForm = () => {
         setEditingId(null);
         setFormData({
-            name: "",
+            key: "",
+            title: "",
             description: "",
-            badge_type: "specialty",
+            requirement_type: "recipe_count",
+            requirement_value: 1,
             icon: "⭐",
             color: "#F59E0B",
-            requirement: "",
-            points_required: 0,
+            points: 10,
+            is_active: true,
+            order_index: 0,
         });
     };
 
-    const getBadgeTypeLabel = (type: string) => {
-        const types = {
-            specialty: "Uzmanlık",
-            competition: "Yarışma",
-            seasonal: "Mevsimsel",
-            milestone: "Kilometre Taşı",
+    const getRequirementTypeLabel = (type: string) => {
+        const types: Record<string, string> = {
+            recipe_count: "Tarif Sayısı",
+            follower_count: "Takipçi Sayısı",
+            total_likes: "Toplam Beğeni",
+            total_views: "Toplam Görüntülenme",
         };
-        return types[type as keyof typeof types] || type;
+        return types[type] || type;
     };
 
     if (loading) {
@@ -203,32 +210,55 @@ const BadgesManager = () => {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Rozet Adı</Label>
+                                <Label htmlFor="key">Rozet Anahtarı</Label>
                                 <Input
-                                    id="name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    placeholder="Örn: Tatlı Uzmanı"
+                                    id="key"
+                                    value={formData.key}
+                                    onChange={(e) => setFormData({ ...formData, key: e.target.value })}
+                                    placeholder="Örn: first_recipe"
                                     required
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="badge_type">Rozet Tipi</Label>
+                                <Label htmlFor="title">Rozet Başlığı</Label>
+                                <Input
+                                    id="title"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    placeholder="Örn: İlk Tarif"
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="requirement_type">Gereksinim Tipi</Label>
                                 <Select
-                                    value={formData.badge_type}
-                                    onValueChange={(value) => setFormData({ ...formData, badge_type: value })}
+                                    value={formData.requirement_type}
+                                    onValueChange={(value) => setFormData({ ...formData, requirement_type: value })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="specialty">Uzmanlık</SelectItem>
-                                        <SelectItem value="competition">Yarışma</SelectItem>
-                                        <SelectItem value="seasonal">Mevsimsel</SelectItem>
-                                        <SelectItem value="milestone">Kilometre Taşı</SelectItem>
+                                        <SelectItem value="recipe_count">Tarif Sayısı</SelectItem>
+                                        <SelectItem value="follower_count">Takipçi Sayısı</SelectItem>
+                                        <SelectItem value="total_likes">Toplam Beğeni</SelectItem>
+                                        <SelectItem value="total_views">Toplam Görüntülenme</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="requirement_value">Gereksinim Değeri</Label>
+                                <Input
+                                    id="requirement_value"
+                                    type="number"
+                                    value={formData.requirement_value}
+                                    onChange={(e) => setFormData({ ...formData, requirement_value: parseInt(e.target.value) })}
+                                    placeholder="1"
+                                    required
+                                />
                             </div>
 
                             <div className="space-y-2">
@@ -263,14 +293,25 @@ const BadgesManager = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="points_required">Gereken Puan</Label>
+                                <Label htmlFor="points">Puan</Label>
                                 <Input
-                                    id="points_required"
+                                    id="points"
                                     type="number"
-                                    value={formData.points_required}
-                                    onChange={(e) => setFormData({ ...formData, points_required: parseInt(e.target.value) })}
-                                    placeholder="1000"
+                                    value={formData.points}
+                                    onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) })}
+                                    placeholder="10"
                                     required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="order_index">Sıra</Label>
+                                <Input
+                                    id="order_index"
+                                    type="number"
+                                    value={formData.order_index}
+                                    onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) })}
+                                    placeholder="0"
                                 />
                             </div>
                         </div>
@@ -284,17 +325,6 @@ const BadgesManager = () => {
                                 placeholder="Rozet kazanma koşulları..."
                                 rows={2}
                                 required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="requirement">Gereksinimler (JSON)</Label>
-                            <Textarea
-                                id="requirement"
-                                value={formData.requirement}
-                                onChange={(e) => setFormData({ ...formData, requirement: e.target.value })}
-                                placeholder='{"category": "tatlilar", "min_recipes": 5}'
-                                rows={3}
                             />
                         </div>
 
@@ -325,22 +355,22 @@ const BadgesManager = () => {
                                 <div className="flex items-center gap-2">
                                     <span className="text-3xl">{badge.icon}</span>
                                     <div>
-                                        <CardTitle className="text-lg">{badge.name}</CardTitle>
+                                        <CardTitle className="text-lg">{badge.title}</CardTitle>
                                         <Badge variant="outline" className="mt-1">
-                                            {getBadgeTypeLabel(badge.badge_type)}
+                                            {getRequirementTypeLabel(badge.requirement_type)}
                                         </Badge>
                                     </div>
                                 </div>
+                                <Badge variant={badge.is_active ? "default" : "secondary"}>
+                                    {badge.is_active ? "Aktif" : "Pasif"}
+                                </Badge>
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm text-gray-600 mb-3">{badge.description}</p>
-                            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                            <p className="text-sm text-muted-foreground mb-3">{badge.description}</p>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                                 <Star className="h-4 w-4" />
-                                {badge.points_required} puan gerekli
-                            </div>
-                            <div className="text-sm text-gray-500 mb-4">
-                                {badge.user_badge_count || 0} kullanıcı kazandı
+                                {badge.requirement_value} {getRequirementTypeLabel(badge.requirement_type).toLowerCase()} gerekli
                             </div>
                             <div className="flex gap-2">
                                 <Button

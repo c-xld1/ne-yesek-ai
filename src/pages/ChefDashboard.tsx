@@ -140,11 +140,11 @@ const ChefDashboard = () => {
 
     setOrders(ordersData || []);
 
-    const totalRevenue = ordersData?.reduce((sum, order) => sum + Number(order.total || 0), 0) || 0;
+    const totalRevenue = ordersData?.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
     setStats({
       totalOrders: ordersData?.length || 0,
       totalRevenue,
-      avgRating: Number(profile.average_rating) || 0,
+      avgRating: Number(profile.rating) || 0,
     });
   };
 
@@ -284,10 +284,9 @@ const ChefDashboard = () => {
     const { error } = await supabase
       .from("chef_profiles")
       .update({
-        business_hours: businessHours,
-        is_accepting_orders: chefSettings.is_accepting_orders,
-        minimum_order_amount: parseFloat(chefSettings.min_order_amount),
-        service_radius: parseInt(chefSettings.service_radius),
+        is_available: chefSettings.is_accepting_orders,
+        min_order_amount: parseFloat(chefSettings.min_order_amount),
+        delivery_radius: parseInt(chefSettings.service_radius),
       })
       .eq("id", chefProfile.id);
 

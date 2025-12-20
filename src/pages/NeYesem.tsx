@@ -13,21 +13,24 @@ import FeaturedDishesSlider from "@/components/FeaturedDishesSlider";
 import AdBanner from "@/components/AdBanner";
 import CartDropdown from "@/components/CartDropdown";
 import NeYesemHeader from "@/components/NeYesemHeader";
+import NeYesemHeroStats from "@/components/NeYesemHeroStats";
+import NeYesemQuickActions from "@/components/NeYesemQuickActions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 import { 
   ShoppingCart, Search, Filter, X, Sparkles,
-  ChefHat, TrendingUp, Clock, Star, MapPin, Zap, Calendar
+  ChefHat, TrendingUp, Clock, Star, MapPin, Zap, Calendar, Heart, ArrowRight
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock Data
 const mockBanners = [
-  { id: "1", image_url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&h=400&fit=crop", title: "Ev Yapımı Lezzetler" },
-  { id: "2", image_url: "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=1200&h=400&fit=crop", title: "Taze ve Sağlıklı" },
-  { id: "3", image_url: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=1200&h=400&fit=crop", title: "Şeflerimizden Özel Tarifler" },
+  { id: "1", image_url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&h=400&fit=crop", title: "Ev Yapımı Lezzetler", subtitle: "200+ ev şefinden taze yemekler kapınızda", cta: "Keşfet" },
+  { id: "2", image_url: "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=1200&h=400&fit=crop", title: "Taze ve Sağlıklı", subtitle: "Organik malzemelerle hazırlanan özel tarifler", cta: "Sipariş Ver" },
+  { id: "3", image_url: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=1200&h=400&fit=crop", title: "Şeflerimizden Özel Tarifler", subtitle: "Profesyonel lezzetler ev sıcaklığında", cta: "Şefleri Gör" },
 ];
 
 const mockPromotions = [
@@ -352,11 +355,15 @@ const NeYesem = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-background to-red-50/30">
         <Navbar />
         <div className="container mx-auto px-4 py-20 text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 text-lg font-medium">Lezzetler yükleniyor...</p>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto"
+          />
+          <p className="mt-4 text-muted-foreground text-lg font-medium">Lezzetler yükleniyor...</p>
         </div>
         <Footer />
       </div>
@@ -366,8 +373,15 @@ const NeYesem = () => {
   const popularChefs = chefs.slice(0, 8);
   const featuredDishes = menuItems.slice(0, 6);
 
+  const handleFilterDeliveryType = (type: string) => {
+    const newTypes = filters.deliveryTypes.includes(type)
+      ? filters.deliveryTypes.filter(t => t !== type)
+      : [...filters.deliveryTypes, type];
+    setFilters({ ...filters, deliveryTypes: newTypes });
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50/50 via-background to-red-50/30">
       <Navbar />
       
       {/* NeYesem Header Component */}
@@ -385,15 +399,22 @@ const NeYesem = () => {
       />
 
       {/* Hero Banner Slider */}
-      <div className="border-b bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <section className="border-b bg-gradient-to-b from-background to-muted/30">
+        <div className="max-w-7xl mx-auto px-4 py-6">
           <BannerSlider banners={mockBanners} />
         </div>
-      </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="border-b bg-background/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <NeYesemHeroStats />
+        </div>
+      </section>
 
       <div className="flex max-w-7xl mx-auto">
         {/* Filter Sidebar - Left Side */}
-  <div className="hidden lg:block lg:w-80 flex-shrink-0 border-r sticky top-0 h-[100vh]">
+        <div className="hidden lg:block lg:w-80 flex-shrink-0 border-r sticky top-0 h-[100vh] bg-background/50 backdrop-blur-sm">
           <FilterSidebar
             isOpen={true}
             onClose={() => {}}
@@ -404,25 +425,34 @@ const NeYesem = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 min-w-0 px-4 lg:px-8 py-6 space-y-10">
+        <div className="flex-1 min-w-0 px-4 lg:px-8 py-6 space-y-8">
         
-        {/* Promotions Slider - Minimalist */}
-        <section className="animate-fadeIn">
+        {/* Quick Actions */}
+        <section>
+          <NeYesemQuickActions onFilterDeliveryType={handleFilterDeliveryType} />
+        </section>
+
+        {/* Promotions Slider */}
+        <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-orange-500" />
+            <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
               Kampanyalar
             </h2>
+            <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 gap-1">
+              Tümü <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
           <PromotionSlider promotions={mockPromotions} />
         </section>
 
-        {/* Categories Slider - Minimalist */}
-        <section className="animate-fadeIn">
+        {/* Categories Slider */}
+        <section>
           <div className="mb-4">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+            <h2 className="text-xl md:text-2xl font-bold text-foreground">
               Kategoriler
             </h2>
+            <p className="text-sm text-muted-foreground mt-1">Ne yemek istersin?</p>
           </div>
           <CategorySlider 
             categories={categories} 
@@ -504,27 +534,29 @@ const NeYesem = () => {
           />
         </section>
 
-        {/* Popular Chefs Slider - Minimalist */}
+        {/* Popular Chefs Slider */}
         {popularChefs.length > 0 && (
-          <section className="animate-fadeIn">
+          <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-orange-500" />
+              <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
                 Popüler Şefler
               </h2>
-              <button 
+              <Button 
+                variant="ghost" 
+                size="sm"
                 onClick={() => navigate('/sefler')}
-                className="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1 hover:gap-2 transition-all"
+                className="text-primary hover:text-primary/80 gap-1"
               >
-                Tümü →
-              </button>
+                Tümü <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
             <PopularChefsSlider chefs={popularChefs} />
           </section>
         )}
 
         {/* Ad Banner 2 */}
-        <section className="animate-fadeIn">
+        <section>
           <AdBanner
             title="Organik Baharatlar ve Özel Soslar"
             description="Yemeklerinize lezzet katacak özel ürünler şimdi çok uygun fiyatlarla!"
@@ -534,11 +566,11 @@ const NeYesem = () => {
           />
         </section>
 
-        {/* Featured Dishes Slider - Minimalist */}
-        <section className="animate-fadeIn">
+        {/* Featured Dishes Slider */}
+        <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Star className="h-5 w-5 text-orange-500 fill-orange-500" />
+            <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
+              <Star className="h-5 w-5 text-primary fill-primary" />
               Öne Çıkan Yemekler
             </h2>
           </div>
@@ -546,7 +578,7 @@ const NeYesem = () => {
         </section>
 
         {/* Ad Banner 3 */}
-        <section className="animate-fadeIn">
+        <section>
           <AdBanner
             title="Premium Gıda Ürünleri İlk Siparişte %30 İndirim"
             description="Taze ve organik gıda ürünleri kapınıza kadar geliyor!"
@@ -556,118 +588,135 @@ const NeYesem = () => {
           />
         </section>
 
-        {/* All Menu Items Grid - Minimalist */}
-        <section className="animate-fadeIn">
+        {/* All Menu Items Grid */}
+        <section>
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-              Tüm Yemekler
-              <span className="text-sm font-normal text-gray-500 ml-2">
-                ({filteredItems.length})
-              </span>
-            </h2>
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                Tüm Yemekler
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {filteredItems.length} sonuç bulundu
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {filteredItems.map((item, index) => (
-              <Card 
-                key={item.id} 
-                className="group hover:shadow-lg transition-all overflow-hidden border rounded-xl bg-white cursor-pointer"
-                onClick={() => navigate(`/neyesem/urun/${item.slug || item.id}`)}
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
               >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={item.image_url}
-                    alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  
-                  {/* Top Badges */}
-                  <div className="absolute top-2 left-2 flex gap-1">
-                    {item.order_count && item.order_count > 100 && (
-                      <Badge className="bg-red-500 text-white text-xs px-2 py-1">
-                        <TrendingUp className="h-3 w-3" />
-                      </Badge>
-                    )}
-                    {item.average_rating >= 4.7 && (
-                      <Badge className="bg-orange-500 text-white text-xs px-2 py-1 gap-1">
-                        <Star className="h-3 w-3 fill-white" />
-                        {item.average_rating}
-                      </Badge>
-                    )}
+                <Card 
+                  className="group hover:shadow-xl transition-all duration-300 overflow-hidden border border-border/50 rounded-2xl bg-card cursor-pointer hover:-translate-y-1"
+                  onClick={() => navigate(`/neyesem/urun/${item.slug || item.id}`)}
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
+                    {/* Favorite button */}
+                    <button 
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <Heart className="h-4 w-4 text-muted-foreground hover:text-red-500 transition-colors" />
+                    </button>
+                    
+                    {/* Top Badges */}
+                    <div className="absolute top-3 left-3 flex gap-1.5">
+                      {item.order_count && item.order_count > 100 && (
+                        <Badge className="bg-red-500 text-white text-xs px-2 py-1 shadow-lg">
+                          <TrendingUp className="h-3 w-3 mr-1" /> Popüler
+                        </Badge>
+                      )}
+                      {item.average_rating >= 4.7 && (
+                        <Badge className="bg-primary text-primary-foreground text-xs px-2 py-1 gap-1 shadow-lg">
+                          <Star className="h-3 w-3 fill-current" />
+                          {item.average_rating}
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Delivery Type Badges */}
+                    <div className="absolute bottom-3 left-3 flex gap-1.5">
+                      {item.instant_delivery && (
+                        <Badge className="bg-green-500 text-white text-xs px-2 py-1 gap-1 shadow-lg">
+                          <Zap className="h-3 w-3" /> Hızlı
+                        </Badge>
+                      )}
+                      {item.scheduled_delivery && (
+                        <Badge className="bg-blue-500 text-white text-xs px-2 py-1 gap-1 shadow-lg">
+                          <Calendar className="h-3 w-3" /> Randevulu
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Price Badge */}
+                    <div className="absolute bottom-3 right-3 bg-background/95 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-lg">
+                      <span className="text-lg font-bold text-primary">₺{item.price}</span>
+                    </div>
                   </div>
 
-                  {/* Delivery Type Badges */}
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    {item.instant_delivery && (
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1">
-                        <Zap className="h-3 w-3" />
-                      </Badge>
+                  <CardContent className="p-4">
+                    <h3 className="font-bold text-base text-foreground mb-2 line-clamp-1">
+                      {item.name}
+                    </h3>
+                    
+                    {item.chef_profiles && (
+                      <div 
+                        className="flex items-center gap-2 mb-2 text-xs text-muted-foreground hover:text-primary cursor-pointer transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/sef/${item.chef_profiles?.slug || item.chef_profiles?.id}`);
+                        }}
+                      >
+                        <div className="flex items-center gap-1 flex-1 min-w-0">
+                          <ChefHat className="h-3.5 w-3.5 text-primary" />
+                          <span className="truncate font-medium">{item.chef_profiles.business_name}</span>
+                        </div>
+                        <div className="flex items-center gap-0.5">
+                          <MapPin className="h-3 w-3" />
+                          <span>{item.chef_profiles.city}</span>
+                        </div>
+                      </div>
                     )}
-                    {item.scheduled_delivery && (
-                      <Badge className="bg-blue-500 text-white text-xs px-2 py-1">
-                        <Calendar className="h-3 w-3" />
+
+                    <p className="text-muted-foreground text-xs mb-3 line-clamp-2">
+                      {item.description}
+                    </p>
+
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                        {categories.find(c => c.id === item.category)?.icon}
                       </Badge>
-                    )}
-                  </div>
+                      <Badge variant="outline" className="text-xs gap-1 px-2 py-0.5">
+                        <Clock className="h-3 w-3" />
+                        {item.prep_time}dk
+                      </Badge>
+                    </div>
 
-                  {/* Price Badge */}
-                  <div className="absolute bottom-2 right-2 bg-white px-3 py-1 rounded-lg shadow-lg">
-                    <span className="text-lg font-bold text-orange-600">
-                      ₺{item.price}
-                    </span>
-                  </div>
-                </div>
-
-                <CardContent className="p-4">
-                  <h3 className="font-bold text-base text-gray-900 mb-2 line-clamp-1">
-                    {item.name}
-                  </h3>
-                  
-                  {item.chef_profiles && (
-                    <div 
-                      className="flex items-center gap-2 mb-2 text-xs text-gray-600 hover:text-orange-600 cursor-pointer"
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/sef/${item.chef_profiles?.slug || item.chef_profiles?.id}`);
+                        addToCart(item);
                       }}
+                      className="w-full bg-primary hover:bg-primary/90 h-10 rounded-xl text-sm font-semibold gap-2"
                     >
-                      <div className="flex items-center gap-1 flex-1 min-w-0">
-                        <ChefHat className="h-3.5 w-3.5 text-orange-500" />
-                        <span className="truncate font-medium">{item.chef_profiles.business_name}</span>
-                      </div>
-                      <div className="flex items-center gap-0.5">
-                        <MapPin className="h-3 w-3" />
-                        <span>{item.chef_profiles.city}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <p className="text-gray-600 text-xs mb-3 line-clamp-2">
-                    {item.description}
-                  </p>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                      {categories.find(c => c.id === item.category)?.icon}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs gap-1 px-2 py-0.5">
-                      <Clock className="h-3 w-3" />
-                      {item.prep_time}dk
-                    </Badge>
-                  </div>
-
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart(item);
-                    }}
-                    className="w-full bg-orange-500 hover:bg-orange-600 h-10 rounded-lg text-sm font-semibold"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-1.5" />
-                    Sepete Ekle
-                  </Button>
-                </CardContent>
-              </Card>
+                      <ShoppingCart className="h-4 w-4" />
+                      Sepete Ekle
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
 

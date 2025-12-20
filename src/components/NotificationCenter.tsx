@@ -5,14 +5,38 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useNotifications } from "@/hooks/useNotifications";
+import { 
+  useNotifications, 
+  useUnreadNotificationCount, 
+  useMarkNotificationAsRead, 
+  useMarkAllNotificationsAsRead, 
+  useDeleteNotification 
+} from "@/hooks/useNotifications";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 
 const NotificationCenter = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, loading } = useNotifications();
+  
+  // Use individual hooks
+  const { data: notifications = [], isLoading: loading } = useNotifications();
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
+  const markAsReadMutation = useMarkNotificationAsRead();
+  const markAllAsReadMutation = useMarkAllNotificationsAsRead();
+  const deleteNotificationMutation = useDeleteNotification();
+
+  const markAsRead = (id: string) => {
+    markAsReadMutation.mutate(id);
+  };
+
+  const markAllAsRead = () => {
+    markAllAsReadMutation.mutate();
+  };
+
+  const deleteNotification = (id: string) => {
+    deleteNotificationMutation.mutate(id);
+  };
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -132,7 +156,7 @@ const NotificationCenter = () => {
                   </div>
                 ) : (
                   <AnimatePresence initial={false}>
-                    {notifications.map((notification) => {
+                    {notifications.map((notification: any) => {
                       const content = (
                         <div
                           className={cn(
@@ -164,7 +188,7 @@ const NotificationCenter = () => {
                                   {notification.message}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  {formatTime(notification.created_at)}
+                                  {formatTime(notification.createdAt)}
                                 </p>
                               </div>
 

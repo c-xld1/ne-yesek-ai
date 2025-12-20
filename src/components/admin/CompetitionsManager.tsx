@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Trophy, Users, Clock, Plus, Edit2, Trash2, Eye } from "lucide-react";
+import { Calendar, Trophy, Users, Clock, Plus, Edit2, Trash2, Eye, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface Competition {
     id: string;
@@ -18,15 +18,42 @@ interface Competition {
     status: string;
     start_date: string;
     end_date: string;
-    rules: any;
-    prizes: any;
+    rules: string[];
+    prizes: Record<string, string>;
     entry_count?: number;
     vote_count?: number;
 }
 
 const CompetitionsManager = () => {
-    const [competitions, setCompetitions] = useState<Competition[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [competitions, setCompetitions] = useState<Competition[]>([
+        {
+            id: "1",
+            title: "En Yaratıcı Kahvaltı",
+            description: "Türk kahvaltısına modern bir dokunuş ekleyin",
+            theme: "kahvalti",
+            status: "active",
+            start_date: "2025-01-01",
+            end_date: "2025-01-31",
+            rules: ["Özgün tarif olmalı", "Fotoğraf eklenmeli"],
+            prizes: { "1": "500 TL", "2": "300 TL", "3": "200 TL" },
+            entry_count: 25,
+            vote_count: 150,
+        },
+        {
+            id: "2",
+            title: "Sağlıklı Atıştırmalıklar",
+            description: "Düşük kalorili ama lezzetli atıştırmalık tarifleri",
+            theme: "saglikli",
+            status: "upcoming",
+            start_date: "2025-02-01",
+            end_date: "2025-02-28",
+            rules: ["Kalori bilgisi eklenmeli", "Porsiyon başına max 200 kcal"],
+            prizes: { "1": "400 TL", "2": "250 TL" },
+            entry_count: 0,
+            vote_count: 0,
+        },
+    ]);
+    
     const [editingId, setEditingId] = useState<string | null>(null);
     const { toast } = useToast();
 
@@ -42,70 +69,32 @@ const CompetitionsManager = () => {
         prizes: "",
     });
 
-    useEffect(() => {
-        fetchCompetitions();
-    }, []);
-
-    const fetchCompetitions = async () => {
-        try {
-            const { data, error } = await supabase
-                .from("competitions")
-                .select(`
-                    *,
-                    competition_entries(count),
-                    competition_votes(count)
-                `)
-                .order("created_at", { ascending: false });
-
-            if (error) throw error;
-
-            setCompetitions(data || []);
-        } catch (error) {
-            console.error("Error fetching competitions:", error);
-            toast({
-                variant: "destructive",
-                title: "Hata",
-                description: "Yarışmalar yüklenemedi",
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         try {
-            const competitionData = {
+            const newCompetition: Competition = {
+                id: editingId || Date.now().toString(),
                 title: formData.title,
                 description: formData.description,
                 theme: formData.theme,
                 status: formData.status,
                 start_date: formData.start_date,
                 end_date: formData.end_date,
-                rules: formData.rules ? JSON.parse(formData.rules) : null,
-                prizes: formData.prizes ? JSON.parse(formData.prizes) : null,
+                rules: formData.rules ? JSON.parse(formData.rules) : [],
+                prizes: formData.prizes ? JSON.parse(formData.prizes) : {},
+                entry_count: 0,
+                vote_count: 0,
             };
 
             if (editingId) {
-                const { error } = await supabase
-                    .from("competitions")
-                    .update(competitionData)
-                    .eq("id", editingId);
-
-                if (error) throw error;
-
+                setCompetitions(competitions.map(c => c.id === editingId ? newCompetition : c));
                 toast({
                     title: "Başarılı",
                     description: "Yarışma güncellendi",
                 });
             } else {
-                const { error } = await supabase
-                    .from("competitions")
-                    .insert([competitionData]);
-
-                if (error) throw error;
-
+                setCompetitions([...competitions, newCompetition]);
                 toast({
                     title: "Başarılı",
                     description: "Yeni yarışma oluşturuldu",
@@ -113,13 +102,12 @@ const CompetitionsManager = () => {
             }
 
             resetForm();
-            fetchCompetitions();
         } catch (error) {
             console.error("Error saving competition:", error);
             toast({
                 variant: "destructive",
                 title: "Hata",
-                description: "Yarışma kaydedilemedi",
+                description: "Yarışma kaydedilemedi. JSON formatını kontrol edin.",
             });
         }
     };
@@ -141,28 +129,11 @@ const CompetitionsManager = () => {
     const handleDelete = async (id: string) => {
         if (!confirm("Bu yarışmayı silmek istediğinizden emin misiniz?")) return;
 
-        try {
-            const { error } = await supabase
-                .from("competitions")
-                .delete()
-                .eq("id", id);
-
-            if (error) throw error;
-
-            toast({
-                title: "Başarılı",
-                description: "Yarışma silindi",
-            });
-
-            fetchCompetitions();
-        } catch (error) {
-            console.error("Error deleting competition:", error);
-            toast({
-                variant: "destructive",
-                title: "Hata",
-                description: "Yarışma silinemedi",
-            });
-        }
+        setCompetitions(competitions.filter(c => c.id !== id));
+        toast({
+            title: "Başarılı",
+            description: "Yarışma silindi",
+        });
     };
 
     const resetForm = () => {
@@ -180,20 +151,25 @@ const CompetitionsManager = () => {
     };
 
     const getStatusBadge = (status: string) => {
-        const colors = {
+        const colors: Record<string, string> = {
             active: "bg-green-100 text-green-700",
             upcoming: "bg-blue-100 text-blue-700",
             ended: "bg-gray-100 text-gray-700",
         };
-        return colors[status as keyof typeof colors] || colors.upcoming;
+        return colors[status] || colors.upcoming;
     };
-
-    if (loading) {
-        return <div className="text-center py-8">Yükleniyor...</div>;
-    }
 
     return (
         <div className="space-y-6">
+            {/* Info Alert */}
+            <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Bilgi</AlertTitle>
+                <AlertDescription>
+                    Yarışmalar şu anda demo modunda çalışmaktadır. Tam işlevsellik için veritabanı tabloları oluşturulmalıdır.
+                </AlertDescription>
+            </Alert>
+
             {/* Create/Edit Form */}
             <Card>
                 <CardHeader>
@@ -231,7 +207,7 @@ const CompetitionsManager = () => {
                                 <Label htmlFor="start_date">Başlangıç Tarihi</Label>
                                 <Input
                                     id="start_date"
-                                    type="datetime-local"
+                                    type="date"
                                     value={formData.start_date}
                                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                                     required
@@ -242,7 +218,7 @@ const CompetitionsManager = () => {
                                 <Label htmlFor="end_date">Bitiş Tarihi</Label>
                                 <Input
                                     id="end_date"
-                                    type="datetime-local"
+                                    type="date"
                                     value={formData.end_date}
                                     onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                                     required
@@ -280,7 +256,7 @@ const CompetitionsManager = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="rules">Kurallar (JSON)</Label>
+                            <Label htmlFor="rules">Kurallar (JSON Array)</Label>
                             <Textarea
                                 id="rules"
                                 value={formData.rules}
@@ -291,7 +267,7 @@ const CompetitionsManager = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="prizes">Ödüller (JSON)</Label>
+                            <Label htmlFor="prizes">Ödüller (JSON Object)</Label>
                             <Textarea
                                 id="prizes"
                                 value={formData.prizes}
@@ -339,7 +315,7 @@ const CompetitionsManager = () => {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
-                                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                                     <div className="flex items-center gap-1">
                                         <Calendar className="h-4 w-4" />
                                         {new Date(competition.start_date).toLocaleDateString("tr-TR")} - {new Date(competition.end_date).toLocaleDateString("tr-TR")}

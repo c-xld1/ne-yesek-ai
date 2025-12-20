@@ -166,7 +166,7 @@ const RecipeDetail = () => {
               >
                 <Share2 className="h-4 w-4" />
               </Button>
-              {user?.id === recipe.author_id && (
+              {user?.id === recipe.user_id && (
                 <>
                   <Button
                     size="sm"
@@ -210,7 +210,7 @@ const RecipeDetail = () => {
               <div className="text-center bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-3 hover:shadow-md transition-shadow cursor-pointer group">
                 <Clock className="h-5 w-5 text-orange-500 mx-auto mb-1 group-hover:scale-110 transition-transform" />
                 <div className="text-xs text-gray-500">Süre</div>
-                <div className="font-semibold text-sm text-gray-800">{recipe.cooking_time || "30dk"}</div>
+                <div className="font-semibold text-sm text-gray-800">{recipe.cook_time || 30}dk</div>
               </div>
               <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 hover:shadow-md transition-shadow cursor-pointer group">
                 <Users className="h-5 w-5 text-blue-500 mx-auto mb-1 group-hover:scale-110 transition-transform" />

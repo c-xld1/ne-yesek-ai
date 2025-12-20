@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, TrendingUp, RefreshCw, Calendar } from "lucide-react";
+import { Trophy, TrendingUp, RefreshCw, Calendar, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface LeaderboardEntry {
     rank: number;
@@ -15,106 +15,34 @@ interface LeaderboardEntry {
     points: number;
     badge_count: number;
     recipe_count: number;
-    profiles?: {
-        username: string;
-        avatar_url: string;
-    };
 }
 
+// Demo data
+const demoLeaders: LeaderboardEntry[] = [
+    { rank: 1, user_id: "1", username: "zeynep_mutfak", avatar_url: "", points: 2500, badge_count: 8, recipe_count: 45 },
+    { rank: 2, user_id: "2", username: "ayse_ana", avatar_url: "", points: 2100, badge_count: 6, recipe_count: 38 },
+    { rank: 3, user_id: "3", username: "mehmet_usta", avatar_url: "", points: 1850, badge_count: 5, recipe_count: 32 },
+    { rank: 4, user_id: "4", username: "fatma_chef", avatar_url: "", points: 1600, badge_count: 4, recipe_count: 28 },
+    { rank: 5, user_id: "5", username: "ali_gurme", avatar_url: "", points: 1400, badge_count: 3, recipe_count: 25 },
+];
+
 const LeaderboardManager = () => {
-    const [weeklyLeaders, setWeeklyLeaders] = useState<LeaderboardEntry[]>([]);
-    const [monthlyLeaders, setMonthlyLeaders] = useState<LeaderboardEntry[]>([]);
-    const [allTimeLeaders, setAllTimeLeaders] = useState<LeaderboardEntry[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [weeklyLeaders] = useState<LeaderboardEntry[]>(demoLeaders);
+    const [monthlyLeaders] = useState<LeaderboardEntry[]>(demoLeaders);
+    const [allTimeLeaders] = useState<LeaderboardEntry[]>(demoLeaders);
+    const [loading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const { toast } = useToast();
 
-    useEffect(() => {
-        fetchLeaderboards();
-    }, []);
-
-    const fetchLeaderboards = async () => {
-        try {
-            setLoading(true);
-
-            // Fetch weekly leaderboard
-            const { data: weekly, error: weeklyError } = await supabase
-                .from("leaderboards")
-                .select(`
-                    *,
-                    profiles:user_id (username, avatar_url)
-                `)
-                .eq("period", "weekly")
-                .order("rank", { ascending: true })
-                .limit(10);
-
-            if (weeklyError) throw weeklyError;
-
-            // Fetch monthly leaderboard
-            const { data: monthly, error: monthlyError } = await supabase
-                .from("leaderboards")
-                .select(`
-                    *,
-                    profiles:user_id (username, avatar_url)
-                `)
-                .eq("period", "monthly")
-                .order("rank", { ascending: true })
-                .limit(10);
-
-            if (monthlyError) throw monthlyError;
-
-            // Fetch all-time leaderboard
-            const { data: allTime, error: allTimeError } = await supabase
-                .from("leaderboards")
-                .select(`
-                    *,
-                    profiles:user_id (username, avatar_url)
-                `)
-                .eq("period", "all_time")
-                .order("rank", { ascending: true })
-                .limit(10);
-
-            if (allTimeError) throw allTimeError;
-
-            setWeeklyLeaders(weekly || []);
-            setMonthlyLeaders(monthly || []);
-            setAllTimeLeaders(allTime || []);
-        } catch (error) {
-            console.error("Error fetching leaderboards:", error);
-            toast({
-                variant: "destructive",
-                title: "Hata",
-                description: "Liderlik tablosu yüklenemedi",
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleRefreshLeaderboards = async () => {
-        try {
-            setRefreshing(true);
-
-            const { error } = await supabase.rpc("update_leaderboards");
-
-            if (error) throw error;
-
-            toast({
-                title: "Başarılı",
-                description: "Liderlik tabloları güncellendi",
-            });
-
-            await fetchLeaderboards();
-        } catch (error) {
-            console.error("Error refreshing leaderboards:", error);
-            toast({
-                variant: "destructive",
-                title: "Hata",
-                description: "Liderlik tablosu güncellenemedi",
-            });
-        } finally {
-            setRefreshing(false);
-        }
+        setRefreshing(true);
+        // Simulate refresh
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        toast({
+            title: "Bilgi",
+            description: "Liderlik tablosu demo modunda çalışmaktadır",
+        });
+        setRefreshing(false);
     };
 
     const renderLeaderboard = (leaders: LeaderboardEntry[], title: string) => (
@@ -140,56 +68,55 @@ const LeaderboardManager = () => {
                 {loading ? (
                     <div className="text-center py-8">Yükleniyor...</div>
                 ) : leaders.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-muted-foreground">
                         Henüz veri yok
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {leaders.map((leader, index) => {
-                            const profile = Array.isArray(leader.profiles) 
-                                ? leader.profiles[0] 
-                                : leader.profiles;
-
-                            return (
-                                <div
-                                    key={leader.user_id}
-                                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 text-white font-bold">
-                                            {leader.rank}
-                                        </div>
-                                        {profile?.avatar_url ? (
-                                            <img
-                                                src={profile.avatar_url}
-                                                alt={profile.username || "User"}
-                                                className="w-10 h-10 rounded-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                                <span className="text-gray-600 font-semibold">
-                                                    {(profile?.username || "?")[0].toUpperCase()}
-                                                </span>
-                                            </div>
-                                        )}
-                                        <div>
-                                            <div className="font-semibold">
-                                                {profile?.username || "Kullanıcı"}
-                                            </div>
-                                            <div className="text-sm text-gray-500">
-                                                Seviye {leader.level} • {leader.recipes_count} tarif
-                                            </div>
-                                        </div>
+                        {leaders.map((leader) => (
+                            <div
+                                key={leader.user_id}
+                                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-white ${
+                                        leader.rank === 1 ? "bg-gradient-to-br from-yellow-400 to-yellow-600" :
+                                        leader.rank === 2 ? "bg-gradient-to-br from-gray-300 to-gray-500" :
+                                        leader.rank === 3 ? "bg-gradient-to-br from-orange-400 to-orange-600" :
+                                        "bg-gradient-to-br from-primary to-primary/80"
+                                    }`}>
+                                        {leader.rank}
                                     </div>
-                                    <div className="text-right">
-                                        <div className="flex items-center gap-1 text-orange-600 font-bold">
-                                            <Trophy className="h-4 w-4" />
-                                            {leader.points.toLocaleString()} puan
+                                    {leader.avatar_url ? (
+                                        <img
+                                            src={leader.avatar_url}
+                                            alt={leader.username}
+                                            className="w-10 h-10 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                                            <span className="text-secondary-foreground font-semibold">
+                                                {leader.username[0].toUpperCase()}
+                                            </span>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <div className="font-semibold text-foreground">
+                                            @{leader.username}
+                                        </div>
+                                        <div className="text-sm text-muted-foreground">
+                                            {leader.recipe_count} tarif • {leader.badge_count} rozet
                                         </div>
                                     </div>
                                 </div>
-                            );
-                        })}
+                                <div className="text-right">
+                                    <div className="flex items-center gap-1 text-primary font-bold">
+                                        <Trophy className="h-4 w-4" />
+                                        {leader.points.toLocaleString()} puan
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </CardContent>
@@ -198,6 +125,15 @@ const LeaderboardManager = () => {
 
     return (
         <div className="space-y-6">
+            {/* Info Alert */}
+            <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Bilgi</AlertTitle>
+                <AlertDescription>
+                    Liderlik tablosu şu anda demo modunda çalışmaktadır. Tam işlevsellik için veritabanı tabloları oluşturulmalıdır.
+                </AlertDescription>
+            </Alert>
+
             <Card>
                 <CardHeader>
                     <CardTitle>Liderlik Tablosu Yönetimi</CardTitle>

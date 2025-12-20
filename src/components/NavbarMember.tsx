@@ -149,7 +149,7 @@ const NavbarMember: React.FC = () => {
                                     </DropdownMenuItem>
                                 )}
                                 {isChef && (
-                                    <DropdownMenuItem onClick={() => navigate("/chef-panel")} className="text-orange-600 focus:text-orange-600 focus:bg-orange-50">
+                                    <DropdownMenuItem onClick={() => navigate("/sef-paneli")} className="text-orange-600 focus:text-orange-600 focus:bg-orange-50">
                                         <ChefHat className="mr-2 h-4 w-4" />
                                         <span>Şef Paneli</span>
                                     </DropdownMenuItem>

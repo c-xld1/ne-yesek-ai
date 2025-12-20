@@ -125,12 +125,6 @@ const Navbar = () => {
               </div>
 
               <Link
-                to="/populer"
-                className="px-4 py-2 rounded-xl text-gray-700 hover:text-orange-600 font-medium transition-all duration-300 hover:bg-orange-50"
-              >
-                Popüler
-              </Link>
-              <Link
                 to="/yoresel"
                 className="px-4 py-2 rounded-xl text-gray-700 hover:text-orange-600 font-medium transition-all duration-300 hover:bg-orange-50"
               >
@@ -142,43 +136,13 @@ const Navbar = () => {
               >
                 Soru & Cevap
               </Link>
-              <div className="relative group">
-                <button className="px-4 py-2 rounded-xl text-gray-700 hover:text-orange-600 font-medium transition-all duration-300 hover:bg-orange-50 flex items-center gap-2">
-                  <ChefHat className="h-4 w-4" />
-                  Ev Yemekleri
-                  <ChevronDown className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
-                </button>
-                <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 p-4 z-50 border border-gray-100">
-                  <Link to="/hemen-teslimat" className="block py-2 px-3 hover:bg-orange-50 rounded-lg transition-colors">
-                    <span className="font-semibold">🔥 Hemen Teslimat</span>
-                    <p className="text-xs text-muted-foreground">Hazır yemekler</p>
-                  </Link>
-                  <Link to="/randevulu-siparis" className="block py-2 px-3 hover:bg-orange-50 rounded-lg transition-colors">
-                    <span className="font-semibold">📅 Randevulu Sipariş</span>
-                    <p className="text-xs text-muted-foreground">Önceden planlayın</p>
-                  </Link>
-                  <Link to="/marketplace" className="block py-2 px-3 hover:bg-orange-50 rounded-lg transition-colors">
-                    <span className="font-semibold">🛍️ Market</span>
-                    <p className="text-xs text-muted-foreground">Tüm menüler</p>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop Search */}
-            <div className="hidden md:flex flex-1 max-w-lg mx-6">
-              <form onSubmit={handleSearch} className="w-full">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Tarif ara..."
-                    className="w-full pl-10 pr-4 border-gray-200 focus:border-orange-500 focus:ring-orange-500"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-              </form>
+              <Link
+                to="/neyesem"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 font-semibold transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
+              >
+                <ChefHat className="h-4 w-4" />
+                Ne Yesem?
+              </Link>
             </div>
 
             {/* Desktop Auth Section */}
@@ -191,7 +155,7 @@ const Navbar = () => {
                     className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 font-medium"
                     asChild
                   >
-                    <Link to="/sharerecipe">
+                    <Link to="/tarif-paylas">
                       <PlusCircle className="mr-2 h-4 w-4" />
                       <span className="hidden lg:inline">Tarif Paylaş</span>
                     </Link>
@@ -286,7 +250,7 @@ const Navbar = () => {
 
                       <DrawerClose asChild>
                         <Link
-                          to="/sharerecipe"
+                          to="/tarif-paylas"
                           className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 rounded-2xl text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                         >
                           <div className="text-center">

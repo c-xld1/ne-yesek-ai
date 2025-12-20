@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Filter, Users, ChefHat, Award, Heart, BookOpen, TrendingUp } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Search, Filter, Users, ChefHat, Award, Heart, BookOpen, TrendingUp, Star } from "lucide-react";
 
 const Authors = () => {
   const [selectedCategory, setSelectedCategory] = useState("Tümü");

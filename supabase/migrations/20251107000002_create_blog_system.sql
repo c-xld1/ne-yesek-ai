@@ -42,6 +42,60 @@ CREATE TABLE IF NOT EXISTS public.blog_comments (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add missing columns if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='category') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN category TEXT;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='published') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN published BOOLEAN DEFAULT false;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='featured') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN featured BOOLEAN DEFAULT false;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='read_time') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN read_time INTEGER DEFAULT 5;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='view_count') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN view_count INTEGER DEFAULT 0;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='like_count') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN like_count INTEGER DEFAULT 0;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='comment_count') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN comment_count INTEGER DEFAULT 0;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='image_url') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN image_url TEXT;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='tags') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN tags TEXT[] DEFAULT ARRAY[]::TEXT[];
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='blog_posts' AND column_name='excerpt') THEN
+        ALTER TABLE public.blog_posts ADD COLUMN excerpt TEXT;
+    END IF;
+END $$;
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_blog_posts_author ON public.blog_posts(author_id);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_category ON public.blog_posts(category);

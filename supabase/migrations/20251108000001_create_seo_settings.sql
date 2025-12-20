@@ -37,17 +37,11 @@ CREATE POLICY "Allow public read access to seo_settings"
   TO public
   USING (true);
 
--- Allow authenticated users with admin role to manage
+-- Allow authenticated users with admin role to manage (using the is_admin function)
 CREATE POLICY "Allow admin users to manage seo_settings"
   ON seo_settings FOR ALL
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM user_roles
-      WHERE user_roles.user_id = auth.uid()
-      AND user_roles.role = 'admin'
-    )
-  );
+  USING (is_admin(auth.uid()));
 
 -- Create index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_seo_settings_page_key ON seo_settings(page_key);

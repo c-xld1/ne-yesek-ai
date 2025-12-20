@@ -44,24 +44,34 @@ const AdminDashboard = () => {
   const [userGrowthData, setUserGrowthData] = useState<ChartData[]>([]);
   const [orderTrendData, setOrderTrendData] = useState<ChartData[]>([]);
   const [categoryData, setCategoryData] = useState<ChartData[]>([]);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
 
   useEffect(() => {
     fetchStats();
-    generateChartData();
+    fetchRealChartData();
+    fetchRecentActivities();
+    
+    // Real-time güncelleme her 30 saniyede bir
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchRealChartData();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const fetchStats = async () => {
     try {
-      const [users, chefs, recipes, orders] = await Promise.all([
+      const [users, roles, recipes, orders] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact" }),
-        supabase.from("chef_profiles").select("id", { count: "exact" }),
+        supabase.from("user_roles").select("role").eq("role", "chef"),
         supabase.from("recipes").select("id", { count: "exact" }),
         supabase.from("orders").select("id", { count: "exact" }),
       ]);
 
       setStats({
         totalUsers: users.count || 0,
-        totalChefs: chefs.count || 0,
+        totalChefs: roles.data?.length || 0,
         totalRecipes: recipes.count || 0,
         totalOrders: orders.count || 0,
       });
@@ -72,31 +82,94 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchRealChartData = async () => {
+    try {
+      // Son 7 günlük kullanıcı ve sipariş verileri
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data: dailyData } = await supabase
+        .from("profiles")
+        .select("created_at")
+        .gte("created_at", sevenDaysAgo.toISOString());
+
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("created_at")
+        .gte("created_at", sevenDaysAgo.toISOString());
+
+      // Günlük gruplama
+      const days = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+      const dailyStats: ChartData[] = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        const dayName = days[date.getDay()];
+        
+        const usersCount = dailyData?.filter(u => {
+          const created = new Date(u.created_at);
+          return created.toDateString() === date.toDateString();
+        }).length || 0;
+
+        const ordersCount = orderData?.filter(o => {
+          const created = new Date(o.created_at);
+          return created.toDateString() === date.toDateString();
+        }).length || 0;
+
+        return { name: dayName, users: usersCount, orders: ordersCount };
+      });
+      setUserGrowthData(dailyStats);
+
+      // Kategori dağılımı (gerçek veriler)
+      const { data: recipesByCategory } = await supabase
+        .from("recipes")
+        .select("category_id, categories(name)");
+
+      const categoryMap = new Map<string, number>();
+      recipesByCategory?.forEach((recipe: any) => {
+        const categoryName = recipe.categories?.name || "Diğer";
+        categoryMap.set(categoryName, (categoryMap.get(categoryName) || 0) + 1);
+      });
+
+      const categories: ChartData[] = Array.from(categoryMap.entries())
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => (b.value || 0) - (a.value || 0))
+        .slice(0, 5);
+      setCategoryData(categories);
+
+      // Aylık sipariş trendi (son 6 ay)
+      const monthNames = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+      const monthlyOrders: ChartData[] = Array.from({ length: 6 }, (_, i) => {
+        const date = new Date();
+        date.setMonth(date.getMonth() - (5 - i));
+        return {
+          name: monthNames[date.getMonth()],
+          orders: Math.floor(Math.random() * 50) + 50, // TODO: Gerçek veri
+          revenue: (Math.floor(Math.random() * 10000) + 10000)
+        };
+      });
+      setOrderTrendData(monthlyOrders);
+
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+    }
+  };
+
+  const fetchRecentActivities = async () => {
+    try {
+      const { data } = await supabase
+        .from("activity_logs")
+        .select("*, profiles(username, fullname)")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      setRecentActivities(data || []);
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+    }
+  };
+
   const generateChartData = () => {
-    // Son 7 günlük kullanıcı artışı (örnek veri)
-    const userGrowth: ChartData[] = [
-      { name: "Pzt", users: 45, orders: 12 },
-      { name: "Sal", users: 52, orders: 19 },
-      { name: "Çar", users: 48, orders: 15 },
-      { name: "Per", users: 61, orders: 22 },
-      { name: "Cum", users: 55, orders: 18 },
-      { name: "Cmt", users: 67, orders: 28 },
-      { name: "Paz", users: 58, orders: 21 },
-    ];
-    setUserGrowthData(userGrowth);
-
-    // Aylık sipariş trendi
-    const orderTrend: ChartData[] = [
-      { name: "Oca", orders: 65, revenue: 12500 },
-      { name: "Şub", orders: 78, revenue: 15200 },
-      { name: "Mar", orders: 90, revenue: 18900 },
-      { name: "Nis", orders: 81, revenue: 16100 },
-      { name: "May", orders: 95, revenue: 21300 },
-      { name: "Haz", orders: 112, revenue: 24500 },
-    ];
-    setOrderTrendData(orderTrend);
-
-    // Kategori dağılımı
+    // Bu fonksiyon artık kullanılmıyor - fetchRealChartData kullanılıyor
     const categories: ChartData[] = [
       { name: "Türk Mutfağı", value: 45 },
       { name: "İtalyan", value: 25 },
@@ -288,33 +361,79 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-yellow-600" />
+              <TrendingUp className="h-5 w-5 text-yellow-600" />
               Son Aktiviteler
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Yeni kullanıcı kaydı</p>
-                  <p className="text-xs text-gray-500">5 dakika önce</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Yeni tarif eklendi</p>
-                  <p className="text-xs text-gray-500">15 dakika önce</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-orange-500 mt-2"></div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Şef başvurusu</p>
-                  <p className="text-xs text-gray-500">1 saat önce</p>
-                </div>
-              </div>
+              {recentActivities.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-4">Henüz aktivite yok</p>
+              ) : (
+                recentActivities.map((activity) => {
+                  const getActivityColor = (action: string) => {
+                    if (action.includes("create") || action.includes("add")) return "bg-green-500";
+                    if (action.includes("delete") || action.includes("ban")) return "bg-red-500";
+                    if (action.includes("update") || action.includes("edit")) return "bg-blue-500";
+                    if (action.includes("approve")) return "bg-purple-500";
+                    return "bg-gray-500";
+                  };
+
+                  const getActivityText = (action: string, resourceType: string) => {
+                    const actionMap: Record<string, string> = {
+                      create: "oluşturuldu",
+                      update: "güncellendi",
+                      delete: "silindi",
+                      add_role: "rol eklendi",
+                      remove_role: "rol kaldırıldı",
+                      approve: "onaylandı",
+                      reject: "reddedildi",
+                      ban: "yasaklandı",
+                      unban: "yasağı kaldırıldı",
+                      publish: "yayınlandı",
+                      unpublish: "yayından kaldırıldı",
+                      bulk_delete: "toplu silindi",
+                    };
+                    const resourceMap: Record<string, string> = {
+                      user: "Kullanıcı",
+                      recipe: "Tarif",
+                      blog_post: "Blog",
+                      chef_application: "Şef başvurusu",
+                      order: "Sipariş",
+                      seo_setting: "SEO ayarı",
+                    };
+                    return `${resourceMap[resourceType] || resourceType} ${actionMap[action] || action}`;
+                  };
+
+                  const timeAgo = (date: string) => {
+                    const now = new Date();
+                    const past = new Date(date);
+                    const diffMs = now.getTime() - past.getTime();
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const diffHours = Math.floor(diffMins / 60);
+                    const diffDays = Math.floor(diffHours / 24);
+
+                    if (diffDays > 0) return `${diffDays} gün önce`;
+                    if (diffHours > 0) return `${diffHours} saat önce`;
+                    if (diffMins > 0) return `${diffMins} dakika önce`;
+                    return "Az önce";
+                  };
+
+                  return (
+                    <div key={activity.id} className="flex items-start gap-3">
+                      <div className={`w-2 h-2 rounded-full ${getActivityColor(activity.action)} mt-2`}></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {getActivityText(activity.action, activity.resource_type)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {activity.profiles?.fullname || activity.profiles?.username || "Sistem"} • {timeAgo(activity.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </CardContent>
         </Card>

@@ -15,24 +15,103 @@ import {
   X,
   ShoppingBag,
   MessageSquare,
+  Activity,
+  ChevronDown,
+  ChevronRight,
+  BarChart3,
+  Star,
+  Percent,
+  Bell,
+  FileBarChart,
+  Layout,
+  Image,
+  Database,
+  Shield,
+  Bot,
 } from "lucide-react";
+
+interface MenuItem {
+  path: string;
+  icon: any;
+  label: string;
+}
+
+interface MenuGroup {
+  label: string;
+  items: MenuItem[];
+}
 
 const AdminLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(["main", "content", "analytics", "system"]);
 
-  const menuItems = [
-    { path: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-    { path: "/admin/users", icon: Users, label: "Kullanıcılar" },
-    { path: "/admin/chefs", icon: ChefHat, label: "Şefler" },
-    { path: "/admin/recipes", icon: FileText, label: "Tarifler" },
-    { path: "/admin/orders", icon: ShoppingBag, label: "Siparişler" },
-    { path: "/admin/blog", icon: MessageSquare, label: "Blog" },
-    { path: "/admin/seo", icon: Globe, label: "SEO Ayarları" },
-    { path: "/admin/settings", icon: Settings, label: "Ayarlar" },
+  const menuGroups: MenuGroup[] = [
+    {
+      label: "Ana Menü",
+      items: [
+        { path: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+      ],
+    },
+    {
+      label: "Kullanıcı Yönetimi",
+      items: [
+        { path: "/admin/users", icon: Users, label: "Kullanıcılar" },
+        { path: "/admin/chefs", icon: ChefHat, label: "Şefler" },
+      ],
+    },
+    {
+      label: "İçerik Yönetimi",
+      items: [
+        { path: "/admin/recipes", icon: FileText, label: "Tarifler" },
+        { path: "/admin/blog", icon: MessageSquare, label: "Blog" },
+        { path: "/admin/reviews", icon: Star, label: "Yorumlar" },
+        { path: "/admin/content", icon: Layout, label: "İçerik CMS" },
+        { path: "/admin/media", icon: Image, label: "Medya" },
+      ],
+    },
+    {
+      label: "Sipariş & Kampanya",
+      items: [
+        { path: "/admin/orders", icon: ShoppingBag, label: "Siparişler" },
+        { path: "/admin/promotions", icon: Percent, label: "Promosyonlar" },
+      ],
+    },
+    {
+      label: "Analitik & Raporlar",
+      items: [
+        { path: "/admin/analytics", icon: BarChart3, label: "Analitik" },
+        { path: "/admin/reports", icon: FileBarChart, label: "Raporlar" },
+        { path: "/admin/activity-logs", icon: Activity, label: "Aktivite Günlüğü" },
+      ],
+    },
+    {
+      label: "İletişim & Bildirim",
+      items: [
+        { path: "/admin/notifications", icon: Bell, label: "Bildirimler" },
+      ],
+    },
+    {
+      label: "Sistem & Güvenlik",
+      items: [
+        { path: "/admin/seo", icon: Globe, label: "SEO Ayarları" },
+        { path: "/admin/backup", icon: Database, label: "Yedekleme" },
+        { path: "/admin/security", icon: Shield, label: "Güvenlik" },
+        { path: "/admin/ai", icon: Bot, label: "AI Yönetimi" },
+        { path: "/admin/settings", icon: Settings, label: "Ayarlar" },
+      ],
+    },
   ];
+
+  const toggleGroup = (groupLabel: string) => {
+    setExpandedGroups((prev) =>
+      prev.includes(groupLabel)
+        ? prev.filter((g) => g !== groupLabel)
+        : [...prev, groupLabel]
+    );
+  };
 
   const handleLogout = () => {
     logout();
@@ -44,6 +123,15 @@ const AdminLayout = () => {
       return location.pathname === "/admin";
     }
     return location.pathname.startsWith(path);
+  };
+
+  const getActiveGroupLabel = () => {
+    for (const group of menuGroups) {
+      if (group.items.some((item) => isActivePath(item.path))) {
+        return group.items.find((item) => isActivePath(item.path))?.label || "Dashboard";
+      }
+    }
+    return "Dashboard";
   };
 
   return (
@@ -74,24 +162,55 @@ const AdminLayout = () => {
           </Button>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation with Collapsible Groups */}
         <nav className="flex-1 overflow-y-auto py-4">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = isActivePath(item.path);
+          {menuGroups.map((group) => {
+            const isExpanded = expandedGroups.includes(group.label);
+            const hasActiveItem = group.items.some((item) => isActivePath(item.path));
+
             return (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-purple-50 text-purple-700 border-r-4 border-purple-700"
-                    : "text-gray-700 hover:bg-gray-50 hover:text-purple-600"
-                }`}
-              >
-                <Icon className="h-5 w-5 flex-shrink-0" />
-                {sidebarOpen && <span>{item.label}</span>}
-              </button>
+              <div key={group.label} className="mb-2">
+                {/* Group Header */}
+                {sidebarOpen ? (
+                  <button
+                    onClick={() => toggleGroup(group.label)}
+                    className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-50 transition-colors"
+                  >
+                    <span>{group.label}</span>
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+                ) : (
+                  <div className="h-8 border-t border-gray-100" />
+                )}
+
+                {/* Group Items */}
+                {(isExpanded || !sidebarOpen) && (
+                  <div className={sidebarOpen ? "pl-2" : ""}>
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = isActivePath(item.path);
+                      return (
+                        <button
+                          key={item.path}
+                          onClick={() => navigate(item.path)}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors ${
+                            isActive
+                              ? "bg-purple-50 text-purple-700 border-r-4 border-purple-700"
+                              : "text-gray-700 hover:bg-gray-50 hover:text-purple-600"
+                          }`}
+                        >
+                          <Icon className="h-5 w-5 flex-shrink-0" />
+                          {sidebarOpen && <span>{item.label}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
@@ -134,7 +253,7 @@ const AdminLayout = () => {
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-20">
           <div>
             <h1 className="text-xl font-semibold text-gray-900">
-              {menuItems.find((item) => isActivePath(item.path))?.label || "Dashboard"}
+              {getActiveGroupLabel()}
             </h1>
           </div>
           <div className="flex items-center gap-4">

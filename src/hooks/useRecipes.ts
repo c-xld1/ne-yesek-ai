@@ -31,9 +31,12 @@ export const useRecipes = () => {
       return (recipes || []).map((recipe: any) => ({
         ...recipe,
         author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
-        author_username: recipe.profile?.username,
-        author_avatar: recipe.profile?.avatar_url,
+        username: recipe.profile?.username,
+        avatar_url: recipe.profile?.avatar_url,
         category_name: recipe.category?.name || 'Genel',
+        view_count: recipe.view_count || 0,
+        like_count: recipe.like_count || 0,
+        comment_count: recipe.comment_count || 0,
       }));
     },
   });
@@ -63,9 +66,12 @@ export const useFeaturedRecipes = () => {
       return (data || []).map((recipe: any) => ({
         ...recipe,
         author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
-        author_username: recipe.profile?.username,
-        author_avatar: recipe.profile?.avatar_url,
+        username: recipe.profile?.username,
+        avatar_url: recipe.profile?.avatar_url,
         category_name: recipe.category?.name || 'Genel',
+        view_count: recipe.view_count || 0,
+        like_count: recipe.like_count || 0,
+        comment_count: recipe.comment_count || 0,
       }));
     },
   });
@@ -93,9 +99,12 @@ export const useSearchRecipes = (searchTerm: string) => {
       return (data || []).map((recipe: any) => ({
         ...recipe,
         author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
-        author_username: recipe.profile?.username,
-        author_avatar: recipe.profile?.avatar_url,
+        username: recipe.profile?.username,
+        avatar_url: recipe.profile?.avatar_url,
         category_name: recipe.category?.name || 'Genel',
+        view_count: recipe.view_count || 0,
+        like_count: recipe.like_count || 0,
+        comment_count: recipe.comment_count || 0,
       }));
     },
     enabled: searchTerm.length > 0,
@@ -138,15 +147,25 @@ export const useRecipeById = (id: string) => {
   return useQuery({
     queryKey: ['recipe', id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Try to fetch by slug first, then by id
+      let query = supabase
         .from('recipes')
         .select(`
           *,
           category:categories(name, slug),
           profile:profiles(username, fullname, avatar_url, bio)
-        `)
-        .eq('id', id)
-        .maybeSingle();
+        `);
+
+      // Check if id looks like a UUID or a slug
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      
+      if (isUUID) {
+        query = query.eq('id', id);
+      } else {
+        query = (query as any).eq('slug', id);
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) {
         console.error('Error fetching recipe:', error);

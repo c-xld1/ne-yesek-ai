@@ -29,8 +29,7 @@ FOR UPDATE
 USING (true);
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_questions_category ON public.questions(category);
+-- Questions category index removed - category column doesn't exist in questions table
 CREATE INDEX IF NOT EXISTS idx_questions_created_at ON public.questions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_answers_question_id ON public.answers(question_id);
-CREATE INDEX IF NOT EXISTS idx_recipe_favorites_user_id ON public.recipe_favorites(user_id);
-CREATE INDEX IF NOT EXISTS idx_recipe_favorites_recipe_id ON public.recipe_favorites(recipe_id);
+-- Recipe favorites indexes will be created in 20251109000000_create_recipe_favorites.sql

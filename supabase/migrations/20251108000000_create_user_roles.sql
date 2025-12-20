@@ -7,30 +7,55 @@ CREATE TABLE IF NOT EXISTS user_roles (
   UNIQUE(user_id, role)
 );
 
+-- Create a helper function to check if user is admin (runs with SECURITY DEFINER to avoid recursion)
+CREATE OR REPLACE FUNCTION is_admin(user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM user_roles
+    WHERE user_roles.user_id = $1
+    AND user_roles.role = 'admin'
+  );
+$$;
+
 -- Enable RLS
 ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies if they exist
 DROP POLICY IF EXISTS "Users can read their own roles" ON user_roles;
 DROP POLICY IF EXISTS "Admins can manage all roles" ON user_roles;
+DROP POLICY IF EXISTS "Anyone can read all roles" ON user_roles;
+DROP POLICY IF EXISTS "Admins can insert roles" ON user_roles;
+DROP POLICY IF EXISTS "Admins can update roles" ON user_roles;
+DROP POLICY IF EXISTS "Admins can delete roles" ON user_roles;
 
--- Allow users to read their own roles
-CREATE POLICY "Users can read their own roles"
+-- Allow anyone authenticated to read all roles (needed for displaying user roles)
+CREATE POLICY "Anyone can read all roles"
   ON user_roles FOR SELECT
   TO authenticated
-  USING (auth.uid() = user_id);
+  USING (true);
 
--- Allow admins to manage all roles
-CREATE POLICY "Admins can manage all roles"
-  ON user_roles FOR ALL
+-- Allow admins to insert roles
+CREATE POLICY "Admins can insert roles"
+  ON user_roles FOR INSERT
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM user_roles ur
-      WHERE ur.user_id = auth.uid()
-      AND ur.role = 'admin'
-    )
-  );
+  WITH CHECK (is_admin(auth.uid()));
+
+-- Allow admins to update roles
+CREATE POLICY "Admins can update roles"
+  ON user_roles FOR UPDATE
+  TO authenticated
+  USING (is_admin(auth.uid()));
+
+-- Allow admins to delete roles
+CREATE POLICY "Admins can delete roles"
+  ON user_roles FOR DELETE
+  TO authenticated
+  USING (is_admin(auth.uid()));
 
 -- Create index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);

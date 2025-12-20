@@ -43,7 +43,8 @@ EXECUTE FUNCTION public.handle_updated_at();
 
 -- Update recipes policy to allow drafts
 DROP POLICY IF EXISTS "Recipes are viewable by everyone" ON public.recipes;
+DROP POLICY IF EXISTS "Published recipes are viewable by everyone" ON public.recipes;
 CREATE POLICY "Published recipes are viewable by everyone" 
 ON public.recipes 
 FOR SELECT 
-USING (is_draft = false OR auth.uid() = user_id);
+USING (is_draft = false OR auth.uid() = author_id);

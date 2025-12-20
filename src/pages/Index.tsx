@@ -38,7 +38,7 @@ const Index = () => {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <SEOHead 
         title="Ne Yesek AI - Yapay Zeka Destekli Tarif Platformu"
         description="Milyonlarca tarif, AI destekli kişisel öneriler ve mutfak deneyiminizi kolaylaştıran teknoloji. Ne Yesek AI ile lezzetli tarifler keşfedin!"
@@ -47,34 +47,6 @@ const Index = () => {
         type="website"
       />
       <Navbar />
-
-      {/* Test Data Status - Development Only */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-gray-100 border-b border-gray-200 p-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center gap-4 text-sm">
-              <Database className="h-4 w-4" />
-              <span className="font-medium">Database Status:</span>
-              {testData.connected ? (
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1 text-green-600">
-                    <CheckCircle className="h-4 w-4" />
-                    <span>Connected</span>
-                  </div>
-                  <span>Recipes: {testData.recipes}</span>
-                  <span>Profiles: {testData.profiles}</span>
-                  <span>Categories: {testData.categories}</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-red-600">
-                  <XCircle className="h-4 w-4" />
-                  <span>{testData.error || 'Connecting...'}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       <Hero />
       

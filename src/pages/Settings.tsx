@@ -5,22 +5,25 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
+import PremiumHeader from "@/components/PremiumHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { User, Bell, Lock, Mail, Trash2, Upload } from "lucide-react";
 
 const Settings = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [profile, setProfile] = useState<any>({
     fullname: "",
     username: "",
@@ -39,15 +42,44 @@ const Settings = () => {
     newFollowers: true,
     recipeLikes: true,
     weeklyDigest: false,
+    orderUpdates: true,
+    promotions: false,
+    systemUpdates: true,
+  });
+  const [privacy, setPrivacy] = useState({
+    profileVisibility: 'public',
+    showEmail: false,
+    showLocation: true,
+    allowMessages: true,
+    showActivity: true,
+    searchEngineIndexing: true,
+  });
+  const [preferences, setPreferences] = useState({
+    language: 'tr',
+    theme: 'light',
+    timezone: 'Europe/Istanbul',
+    dateFormat: 'DD/MM/YYYY',
+    measurementSystem: 'metric',
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate("/giris-yap");
-      return;
-    }
-    fetchProfile();
-  }, [user, navigate]);
+    const initializePage = async () => {
+      // Auth context'in yüklenmesini bekle
+      if (authLoading) {
+        return; // Auth henüz yükleniyor
+      }
+
+      if (!user) {
+        navigate("/giris-yap");
+        return;
+      }
+
+      await fetchProfile();
+      setIsInitializing(false);
+    };
+
+    initializePage();
+  }, [user, authLoading, navigate]);
 
   const fetchProfile = async () => {
     if (!user?.id) {
@@ -301,34 +333,94 @@ const Settings = () => {
     });
   };
 
-  if (!user) return null;
+  if (authLoading || isInitializing || !user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Yükleniyor...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">Ayarlar</h1>
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <PremiumHeader
+          title="Ayarlar & Tercihler ⚙️"
+          description="Hesabınızı yönetin, gizlilik ayarlarınızı düzenleyin ve uygulama tercihlerinizi özelleştirin."
+          emoji="🎨"
+          primaryBadge={{
+            icon: User,
+            text: "Profil Yönetimi",
+            animate: false
+          }}
+          secondaryBadge={{
+            icon: Lock,
+            text: "Güvenli"
+          }}
+          breadcrumbItems={[
+            { label: "Ana Sayfa", href: "/" },
+            { label: "Ayarlar", isActive: true }
+          ]}
+          className="mb-8"
+        />
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Profil
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              Bildirimler
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Lock className="h-4 w-4" />
-              Güvenlik
-            </TabsTrigger>
-            <TabsTrigger value="account" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              Hesap
-            </TabsTrigger>
-          </TabsList>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-2 overflow-x-auto">
+            <TabsList className="w-full grid grid-cols-3 sm:grid-cols-6 gap-2 bg-transparent h-auto">
+              <TabsTrigger 
+                value="profile" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-rose-500 data-[state=active]:text-white transition-all"
+              >
+                <User className="h-4 w-4" />
+                <span className="text-xs sm:text-sm">Profil</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="notifications" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white transition-all"
+              >
+                <Bell className="h-4 w-4" />
+                <span className="text-xs sm:text-sm">Bildirim</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="privacy" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white transition-all"
+              >
+                <Lock className="h-4 w-4" />
+                <span className="text-xs sm:text-sm">Gizlilik</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="preferences" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white transition-all"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="text-xs sm:text-sm">Tercih</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="security" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white transition-all"
+              >
+                <Lock className="h-4 w-4" />
+                <span className="text-xs sm:text-sm">Güvenlik</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="account" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-500 data-[state=active]:text-white transition-all"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="text-xs sm:text-sm">Hesap</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Profil Ayarları */}
           <TabsContent value="profile" className="space-y-6">
@@ -605,7 +697,320 @@ const Settings = () => {
                   />
                 </div>
 
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Sipariş Güncellemeleri</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Sipariş durumu değiştiğinde bildirim al
+                    </p>
+                  </div>
+                  <Switch
+                    checked={notifications.orderUpdates}
+                    onCheckedChange={(checked) =>
+                      setNotifications({ ...notifications, orderUpdates: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Kampanya ve İndirimler</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Özel teklifler ve kampanyalar hakkında bilgi al
+                    </p>
+                  </div>
+                  <Switch
+                    checked={notifications.promotions}
+                    onCheckedChange={(checked) =>
+                      setNotifications({ ...notifications, promotions: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Sistem Güncellemeleri</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Yeni özellikler ve güncellemeler
+                    </p>
+                  </div>
+                  <Switch
+                    checked={notifications.systemUpdates}
+                    onCheckedChange={(checked) =>
+                      setNotifications({ ...notifications, systemUpdates: checked })
+                    }
+                  />
+                </div>
+
                 <Button>Bildirimleri Kaydet</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Gizlilik Ayarları */}
+          <TabsContent value="privacy" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gizlilik Ayarları</CardTitle>
+                <CardDescription>Profilinizin görünürlüğünü ve gizliliğini kontrol edin</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label>Profil Görünürlüğü</Label>
+                  <select
+                    className="w-full p-2 border rounded-md"
+                    value={privacy.profileVisibility}
+                    onChange={(e) => setPrivacy({ ...privacy, profileVisibility: e.target.value })}
+                  >
+                    <option value="public">Herkes Görebilir</option>
+                    <option value="followers">Sadece Takipçiler</option>
+                    <option value="private">Özel (Sadece Ben)</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground">
+                    Profilinizin kimler tarafından görülebileceğini belirleyin
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>E-posta Adresimi Göster</Label>
+                    <p className="text-sm text-muted-foreground">
+                      E-posta adresiniz profilinizde görünsün mü?
+                    </p>
+                  </div>
+                  <Switch
+                    checked={privacy.showEmail}
+                    onCheckedChange={(checked) =>
+                      setPrivacy({ ...privacy, showEmail: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Konumu Göster</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Şehir ve ülke bilginiz görünsün mü?
+                    </p>
+                  </div>
+                  <Switch
+                    checked={privacy.showLocation}
+                    onCheckedChange={(checked) =>
+                      setPrivacy({ ...privacy, showLocation: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Mesaj Almaya İzin Ver</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Diğer kullanıcılar size mesaj gönderebilsin mi?
+                    </p>
+                  </div>
+                  <Switch
+                    checked={privacy.allowMessages}
+                    onCheckedChange={(checked) =>
+                      setPrivacy({ ...privacy, allowMessages: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Aktiviteyi Göster</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Son aktivite zamanınız görünsün mü?
+                    </p>
+                  </div>
+                  <Switch
+                    checked={privacy.showActivity}
+                    onCheckedChange={(checked) =>
+                      setPrivacy({ ...privacy, showActivity: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Arama Motorlarında Görün</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Profiliniz Google gibi arama motorlarında çıksın mı?
+                    </p>
+                  </div>
+                  <Switch
+                    checked={privacy.searchEngineIndexing}
+                    onCheckedChange={(checked) =>
+                      setPrivacy({ ...privacy, searchEngineIndexing: checked })
+                    }
+                  />
+                </div>
+
+                <Button>Gizlilik Ayarlarını Kaydet</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Veri ve İzinler</CardTitle>
+                <CardDescription>Verilerinizi yönetin ve izinleri kontrol edin</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium">Verilerimi İndir</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Tüm verilerinizin bir kopyasını indirin (tarifler, yorumlar, profil bilgileri)
+                  </p>
+                  <Button variant="outline">Veri Kopyası İste</Button>
+                </div>
+
+                <div className="space-y-2 pt-4 border-t">
+                  <h4 className="font-medium">Bağlı Uygulamalar</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Hesabınıza erişimi olan üçüncü taraf uygulamalar
+                  </p>
+                  <Button variant="outline">Bağlı Uygulamaları Yönet</Button>
+                </div>
+
+                <div className="space-y-2 pt-4 border-t">
+                  <h4 className="font-medium">Çerez Tercihleri</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Web sitesinde kullanılan çerezleri yönetin
+                  </p>
+                  <Button variant="outline">Çerez Ayarları</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tercihler */}
+          <TabsContent value="preferences" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Uygulama Tercihleri</CardTitle>
+                <CardDescription>Dil, tema ve görünüm ayarları</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Dil / Language</Label>
+                  <select
+                    className="w-full p-2 border rounded-md"
+                    value={preferences.language}
+                    onChange={(e) => setPreferences({ ...preferences, language: e.target.value })}
+                  >
+                    <option value="tr">Türkçe</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="fr">Français</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tema</Label>
+                  <select
+                    className="w-full p-2 border rounded-md"
+                    value={preferences.theme}
+                    onChange={(e) => setPreferences({ ...preferences, theme: e.target.value })}
+                  >
+                    <option value="light">Açık Tema</option>
+                    <option value="dark">Koyu Tema</option>
+                    <option value="auto">Sistem Ayarı</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Saat Dilimi</Label>
+                  <select
+                    className="w-full p-2 border rounded-md"
+                    value={preferences.timezone}
+                    onChange={(e) => setPreferences({ ...preferences, timezone: e.target.value })}
+                  >
+                    <option value="Europe/Istanbul">İstanbul (GMT+3)</option>
+                    <option value="Europe/London">Londra (GMT+0)</option>
+                    <option value="America/New_York">New York (GMT-5)</option>
+                    <option value="Asia/Tokyo">Tokyo (GMT+9)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tarih Formatı</Label>
+                  <select
+                    className="w-full p-2 border rounded-md"
+                    value={preferences.dateFormat}
+                    onChange={(e) => setPreferences({ ...preferences, dateFormat: e.target.value })}
+                  >
+                    <option value="DD/MM/YYYY">GG/AA/YYYY (31/12/2024)</option>
+                    <option value="MM/DD/YYYY">AA/GG/YYYY (12/31/2024)</option>
+                    <option value="YYYY-MM-DD">YYYY-AA-GG (2024-12-31)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Ölçü Birimi</Label>
+                  <select
+                    className="w-full p-2 border rounded-md"
+                    value={preferences.measurementSystem}
+                    onChange={(e) => setPreferences({ ...preferences, measurementSystem: e.target.value })}
+                  >
+                    <option value="metric">Metrik (kg, litre, cm)</option>
+                    <option value="imperial">İmparatorluk (lb, oz, inch)</option>
+                  </select>
+                </div>
+
+                <Button>Tercihleri Kaydet</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>İçerik Tercihleri</CardTitle>
+                <CardDescription>Görmek istediğiniz içerik türleri</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Vejetaryen Tarifleri Öne Çıkar</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Vejetaryen tarifleri öncelikli göster
+                    </p>
+                  </div>
+                  <Switch />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Hızlı Tarifler</Label>
+                    <p className="text-sm text-muted-foreground">
+                      30 dakikadan kısa tarifleri öne çıkar
+                    </p>
+                  </div>
+                  <Switch />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Bölgesel Tarifler</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Bölgenize özel tarifleri göster
+                    </p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+
+                <div className="space-y-2 pt-4 border-t">
+                  <Label>Alerjen Filtreleme</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Bu içerikleri tariflerde otomatik filtrele
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">Gluten</Badge>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">Süt</Badge>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">Yumurta</Badge>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">Fındık</Badge>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">Soya</Badge>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">Balık</Badge>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -636,16 +1041,86 @@ const Settings = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>İki Faktörlü Doğrulama</CardTitle>
+                <CardTitle>İki Faktörlü Doğrulama (2FA)</CardTitle>
                 <CardDescription>Hesabınız için ekstra güvenlik katmanı</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">2FA Durumu</p>
                     <p className="text-sm text-muted-foreground">Şu anda devre dışı</p>
                   </div>
                   <Button variant="outline">Etkinleştir</Button>
+                </div>
+                <div className="text-sm text-muted-foreground space-y-2 pt-4 border-t">
+                  <p>İki faktörlü doğrulama, hesabınıza ekstra bir güvenlik katmanı ekler:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>Her girişte telefonunuza kod gönderilir</li>
+                    <li>Hesap güvenliğinizi önemli ölçüde artırır</li>
+                    <li>Yetkisiz erişimleri engeller</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Oturum Yönetimi</CardTitle>
+                <CardDescription>Aktif oturumlarınızı görüntüleyin ve yönetin</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium">Windows - Chrome</p>
+                      <p className="text-sm text-muted-foreground">İstanbul, Türkiye • Şimdi aktif</p>
+                    </div>
+                    <Badge variant="secondary">Mevcut Oturum</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium">iPhone - Safari</p>
+                      <p className="text-sm text-muted-foreground">İstanbul, Türkiye • 2 saat önce</p>
+                    </div>
+                    <Button variant="outline" size="sm">Sonlandır</Button>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium">Android - Chrome</p>
+                      <p className="text-sm text-muted-foreground">Ankara, Türkiye • 1 gün önce</p>
+                    </div>
+                    <Button variant="outline" size="sm">Sonlandır</Button>
+                  </div>
+                </div>
+                <Button variant="destructive" className="w-full">
+                  Tüm Diğer Oturumları Sonlandır
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Güvenlik Günlüğü</CardTitle>
+                <CardDescription>Son hesap aktiviteleri</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between p-2 border-b">
+                    <span>Başarılı giriş</span>
+                    <span className="text-muted-foreground">2 saat önce</span>
+                  </div>
+                  <div className="flex justify-between p-2 border-b">
+                    <span>Profil güncellendi</span>
+                    <span className="text-muted-foreground">1 gün önce</span>
+                  </div>
+                  <div className="flex justify-between p-2 border-b">
+                    <span>Şifre değiştirildi</span>
+                    <span className="text-muted-foreground">5 gün önce</span>
+                  </div>
+                  <div className="flex justify-between p-2">
+                    <span>Yeni cihazdan giriş</span>
+                    <span className="text-muted-foreground">1 hafta önce</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

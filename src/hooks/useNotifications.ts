@@ -56,7 +56,7 @@ export const useNotifications = (type?: string) => {
         type: notification.type,
         title: notification.title,
         message: notification.message,
-        read: notification.read,
+        read: notification.is_read, // Fixed: use is_read from database
         time: formatTimeAgo(notification.created_at),
         avatar: notification.related_user?.avatar_url,
         data: notification.data,
@@ -84,7 +84,7 @@ export const useUnreadNotificationCount = () => {
         .from("notifications")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
-        .eq("read", false);
+        .eq("is_read", false); // Fixed: use is_read column
 
       if (error) {
         console.error("Error fetching unread count:", error);
@@ -106,7 +106,7 @@ export const useMarkNotificationAsRead = () => {
     mutationFn: async (notificationId: string) => {
       const { error } = await supabase
         .from("notifications")
-        .update({ read: true })
+        .update({ is_read: true }) // Fixed: use is_read column
         .eq("id", notificationId)
         .eq("user_id", user?.id);
 
@@ -128,9 +128,9 @@ export const useMarkAllNotificationsAsRead = () => {
     mutationFn: async () => {
       const { error } = await supabase
         .from("notifications")
-        .update({ read: true })
+        .update({ is_read: true }) // Fixed: use is_read column
         .eq("user_id", user?.id)
-        .eq("read", false);
+        .eq("is_read", false); // Fixed: use is_read column
 
       if (error) throw error;
     },

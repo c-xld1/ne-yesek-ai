@@ -20,9 +20,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import QnA from "./pages/QnA";
 import QnADetail from "./pages/QnADetail";
-import UserDashboard from "./pages/UserDashboard";
 import Authors from "./pages/Authors";
-import AdminPanel from "./pages/AdminPanel";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminGuard from "./components/admin/AdminGuard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -33,21 +31,32 @@ import AdminBlog from "./pages/admin/AdminBlog";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminSettings from "./pages/admin/AdminSettings";
 import SEOAdmin from "./pages/admin/SEOAdmin";
+import AdminActivityLogs from "./pages/admin/AdminActivityLogs";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminReviews from "./pages/admin/AdminReviews";
+import AdminPromotions from "./pages/admin/AdminPromotions";
+import AdminNotifications from "./pages/admin/AdminNotifications";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminContent from "./pages/admin/AdminContent";
+import AdminMedia from "./pages/admin/AdminMedia";
+import AdminBackup from "./pages/admin/AdminBackup";
+import AdminSecurity from "./pages/admin/AdminSecurity";
+import AdminAI from "./pages/admin/AdminAI";
 import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import Regional from "./pages/Regional";
 import QnANew from "./pages/QnANew";
-import Discover from "./pages/Discover";
-import MapView from "./pages/MapView";
 import ChefDashboard from "./pages/ChefDashboard";
 import ChefProfile from "./pages/ChefProfile";
-import Stats from "./pages/Stats";
 import ChefApplication from "./pages/ChefApplication";
-import Marketplace from "./pages/Marketplace";
-import InstantDelivery from "./pages/InstantDelivery";
-import ScheduledOrder from "./pages/ScheduledOrder";
+import NeYesem from "./pages/NeYesem";
+import Chefs from "./pages/Chefs";
+import FoodDetail from "./pages/FoodDetail";
 import Settings from "./pages/Settings";
-import DebugUser from "./pages/DebugUser";
+import GamificationAdmin from "./pages/GamificationAdmin";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import MapView from "./pages/MapView";
 
 const queryClient = new QueryClient();
 
@@ -60,9 +69,10 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/tarif/:id" element={<RecipeDetail />} />
+            <Route path="/tarif/:slug" element={<RecipeDetail />} />
             <Route path="/tarif-paylas" element={<ShareRecipe />} />
             <Route path="/tarifler" element={<Recipes />} />
+            <Route path="/kategori/:slug" element={<Recipes />} />
             <Route path="/yoresel" element={<Regional />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetail />} />
@@ -75,9 +85,8 @@ const App = () => (
             <Route path="/iletisim" element={<Contact />} />
             <Route path="/ipuclari" element={<CookingTips />} />
             <Route path="/soru-cevap" element={<QnA />} />
-            <Route path="/soru-cevap/:id" element={<QnADetail />} />
+            <Route path="/soru-cevap/:slug" element={<QnADetail />} />
             <Route path="/soru-cevap/yeni" element={<QnANew />} />
-            <Route path="/kontrol-paneli" element={<UserDashboard />} />
             <Route path="/yazarlar" element={<Authors />} />
             
             {/* Admin Routes with separate layout and guard */}
@@ -89,22 +98,33 @@ const App = () => (
               <Route path="orders" element={<AdminOrders />} />
               <Route path="blog" element={<AdminBlog />} />
               <Route path="seo" element={<SEOAdmin />} />
+              <Route path="activity-logs" element={<AdminActivityLogs />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="reviews" element={<AdminReviews />} />
+              <Route path="promotions" element={<AdminPromotions />} />
+              <Route path="notifications" element={<AdminNotifications />} />
+              <Route path="reports" element={<AdminReports />} />
+              <Route path="content" element={<AdminContent />} />
+              <Route path="media" element={<AdminMedia />} />
+              <Route path="backup" element={<AdminBackup />} />
+              <Route path="security" element={<AdminSecurity />} />
+              <Route path="ai" element={<AdminAI />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             
             <Route path="/bildirimler" element={<Notifications />} />
             <Route path="/favoriler" element={<Favorites />} />
-            <Route path="/kesfet" element={<Discover />} />
-            <Route path="/harita" element={<MapView />} />
+            <Route path="/neyesem" element={<NeYesem />} />
+            <Route path="/neyesem/urun/:slug" element={<FoodDetail />} />
+            <Route path="/neyesem/harita" element={<MapView />} />
+            <Route path="/sefler" element={<Chefs />} />
             <Route path="/sef-paneli" element={<ChefDashboard />} />
-            <Route path="/sef/:id" element={<ChefProfile />} />
+            <Route path="/sef/:slug" element={<ChefProfile />} />
             <Route path="/sef-basvuru" element={<ChefApplication />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/hemen-teslimat" element={<InstantDelivery />} />
-            <Route path="/randevulu-siparis" element={<ScheduledOrder />} />
-            <Route path="/istatistikler" element={<Stats />} />
+            <Route path="/neyesem/sepet" element={<Cart />} />
+            <Route path="/neyesem/odeme" element={<Checkout />} />
             <Route path="/ayarlar" element={<Settings />} />
-            <Route path="/debug-user" element={<DebugUser />} />
+            <Route path="/gamification-admin" element={<GamificationAdmin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

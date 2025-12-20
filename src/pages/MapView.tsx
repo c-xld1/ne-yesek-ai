@@ -1,206 +1,206 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
-import BottomNav from "@/components/BottomNav";
-import { Card } from "@/components/ui/card";
+import Footer from "@/components/Footer";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Navigation, Phone, Star, Clock } from "lucide-react";
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Search, Star, Navigation, Filter } from "lucide-react";
+
+interface Chef {
+  id: string;
+  business_name: string;
+  city: string;
+  district: string;
+  average_rating: number;
+  total_reviews: number;
+  minimum_order_amount: number;
+  delivery_radius: number;
+  avatar_url?: string;
+  is_available: boolean;
+}
 
 const MapView = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [selectedChef, setSelectedChef] = useState<any>(null);
-  const [chefs, setChefs] = useState<any[]>([]);
-  const [mapboxToken, setMapboxToken] = useState("");
-  const [loadingToken, setLoadingToken] = useState(true);
+  const navigate = useNavigate();
+  const [chefs, setChefs] = useState<Chef[]>([]);
+  const [selectedChef, setSelectedChef] = useState<Chef | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
-    const fetchChefs = async () => {
-      const { data } = await supabase
-        .from('chef_profiles')
-        .select(`
-          *,
-          profiles!chef_profiles_user_id_fkey(username, fullname, avatar_url)
-        `)
-        .eq('is_active', true);
-
-      if (data) setChefs(data);
-    };
-
-    const fetchMapboxToken = async () => {
-      const { data } = await supabase.functions.invoke('get-mapbox-token');
-      if (data?.token) {
-        setMapboxToken(data.token);
-      }
-      setLoadingToken(false);
-    };
-
     fetchChefs();
-    fetchMapboxToken();
+    getUserLocation();
   }, []);
 
-  const initializeMap = () => {
-    if (!mapContainer.current || !mapboxToken) return;
-
-    mapboxgl.accessToken = mapboxToken;
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [35.2433, 38.9637], // Türkiye merkezi
-      zoom: 6,
-    });
-
-    map.current.addControl(new mapboxgl.NavigationControl());
-
-    // Add chef markers
-    chefs.forEach((chef) => {
-      if (chef.latitude && chef.longitude) {
-        const el = document.createElement('div');
-        el.className = 'chef-marker';
-        el.style.backgroundColor = chef.is_available ? '#22c55e' : '#ef4444';
-        el.style.width = '30px';
-        el.style.height = '30px';
-        el.style.borderRadius = '50%';
-        el.style.cursor = 'pointer';
-        el.style.border = '3px solid white';
-        el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
-
-        new mapboxgl.Marker(el)
-          .setLngLat([chef.longitude, chef.latitude])
-          .addTo(map.current!);
-
-        el.addEventListener('click', () => {
-          setSelectedChef(chef);
-          map.current?.flyTo({
-            center: [chef.longitude, chef.latitude],
-            zoom: 14
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
           });
-        });
-      }
-    });
+        },
+        (error) => {
+          console.error("Location error:", error);
+        }
+      );
+    }
   };
 
-  useEffect(() => {
-    if (mapboxToken && chefs.length > 0) {
-      initializeMap();
-    }
+  const fetchChefs = async () => {
+    try {
+      const { data } = await supabase
+        .from("chef_profiles")
+        .select("*")
+        .eq("is_verified", true)
+        .eq("is_available", true);
 
-    return () => {
-      map.current?.remove();
-    };
-  }, [mapboxToken, chefs]);
+      setChefs(data || []);
+    } catch (error) {
+      console.error("Error fetching chefs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredChefs = chefs.filter(chef =>
+    chef.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    chef.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    chef.district.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
-      <div className="container mx-auto px-4 py-6 space-y-4">
-        <div className="space-y-4">
-          <h1 className="text-3xl font-bold">Yakınımdaki Şefler</h1>
-          
-          {loadingToken ? (
-            <Card className="p-4">
-              <p className="text-sm text-muted-foreground">Harita yükleniyor...</p>
-            </Card>
-          ) : !mapboxToken ? (
-            <Card className="p-4 space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Harita özelliği henüz yapılandırılmamış. Lütfen yöneticiyle iletişime geçin.
-              </p>
-            </Card>
-          ) : null}
 
-          <div className="flex gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-white" />
-              <span className="text-sm">Müsait</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-yellow-500 border-2 border-white" />
-              <span className="text-sm">Randevulu</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white" />
-              <span className="text-sm">Kapalı</span>
-            </div>
-          </div>
+      <div className="relative">
+        {/* Search Bar Overlay */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-md px-4">
+          <Card className="shadow-lg">
+            <CardContent className="p-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Şef veya bölge ara..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 border-0 focus-visible:ring-0"
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <div
-              ref={mapContainer}
-              className="w-full h-[500px] rounded-lg border shadow-sm"
-            />
-          </div>
-
-          <div className="space-y-4">
-            {selectedChef ? (
-              <Card className="p-6 space-y-4">
-                <div className="flex items-start gap-3">
-                  <img
-                    src={selectedChef.profiles?.avatar_url || "/placeholder.svg"}
-                    alt={selectedChef.business_name}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">
-                      {selectedChef.business_name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedChef.profiles?.fullname}
-                    </p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">
-                        {selectedChef.rating || "Yeni"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-sm text-muted-foreground">
-                  {selectedChef.description}
-                </p>
-
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Navigation className="h-4 w-4" />
-                    <span>{selectedChef.city}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    <span>{selectedChef.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span>
-                      {selectedChef.is_available ? "Şu an müsait" : "Randevulu"}
-                    </span>
-                  </div>
-                </div>
-
-                <Button 
-                  className="w-full"
-                  onClick={() => window.location.href = `/sef/${selectedChef.id}`}
-                >
-                  Menüyü Gör
-                </Button>
-              </Card>
-            ) : (
-              <Card className="p-6 text-center text-muted-foreground">
-                Haritadan bir şef seçin
-              </Card>
+        {/* Map Placeholder */}
+        <div className="relative bg-gradient-to-br from-blue-50 to-gray-100 h-[500px] flex items-center justify-center">
+          <div className="text-center">
+            <MapPin className="h-16 w-16 mx-auto text-orange-500 mb-4" />
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">Harita Görünümü</h2>
+            <p className="text-gray-500">Yakınımdaki şefler haritada gösterilecek</p>
+            {userLocation && (
+              <p className="text-sm text-gray-400 mt-2">
+                Konumunuz: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+              </p>
             )}
           </div>
+
+          {/* Location Button */}
+          <button
+            onClick={getUserLocation}
+            className="absolute bottom-4 right-4 bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-shadow"
+            title="Konumumu Bul"
+          >
+            <Navigation className="h-5 w-5 text-orange-500" />
+          </button>
+        </div>
+
+        {/* Chefs List */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Yakınımdaki Şefler ({filteredChefs.length})
+            </h2>
+            <Button variant="outline" size="sm">
+              <Filter className="h-4 w-4 mr-2" />
+              Filtrele
+            </Button>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Şefler yükleniyor...</p>
+            </div>
+          ) : filteredChefs.length === 0 ? (
+            <Card className="text-center py-12">
+              <CardContent>
+                <p className="text-gray-500">Şef bulunamadı</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredChefs.map((chef) => (
+                <Card
+                  key={chef.id}
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => navigate(`/sef/${chef.id}`)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        {chef.avatar_url ? (
+                          <img
+                            src={chef.avatar_url}
+                            alt={chef.business_name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-orange-500 text-white text-xl font-bold">
+                            {chef.business_name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 mb-1 truncate">
+                          {chef.business_name}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                          <MapPin className="h-3 w-3" />
+                          <span className="truncate">
+                            {chef.district}, {chef.city}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm font-medium">{chef.average_rating}</span>
+                            <span className="text-xs text-gray-400">({chef.total_reviews})</span>
+                          </div>
+                          {chef.is_available && (
+                            <Badge variant="secondary" className="text-xs">Müsait</Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>Min: {chef.minimum_order_amount} ₺</span>
+                          <span>Teslimat: {chef.delivery_radius} km</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      <BottomNav />
+      <Footer />
     </div>
   );
 };

@@ -175,24 +175,8 @@ USING (
     )
 );
 
--- Follows table
-CREATE TABLE public.follows (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    follower_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    following_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    UNIQUE (follower_id, following_id)
-);
-
-ALTER TABLE public.follows ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Follows are viewable by everyone"
-ON public.follows FOR SELECT
-USING (true);
-
-CREATE POLICY "Users can manage own follows"
-ON public.follows FOR ALL
-USING (auth.uid() = follower_id);
+-- Follows table already created in 20250710000009_create_follows_table.sql
+-- Skip duplicate creation
 
 -- Messages table
 CREATE TABLE public.messages (

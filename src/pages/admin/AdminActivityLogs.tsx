@@ -61,9 +61,10 @@ const AdminActivityLogs = () => {
 
   const filteredLogs = logs.filter((log) => {
     const searchLower = searchQuery.toLowerCase();
+    const logWithProfile = log as any;
     const matchesSearch = log.action.toLowerCase().includes(searchLower) ||
       log.resource_type.toLowerCase().includes(searchLower) ||
-      (log.profiles as any)?.username?.toLowerCase().includes(searchLower);
+      logWithProfile.profiles?.username?.toLowerCase().includes(searchLower);
     
     const matchesAction = actionFilter === "all" || log.action === actionFilter;
     const matchesResource = resourceFilter === "all" || log.resource_type === resourceFilter;
@@ -98,14 +99,17 @@ const AdminActivityLogs = () => {
     const headers = ["Tarih", "Kullanıcı", "İşlem", "Kaynak Türü", "Kaynak ID", "Detaylar"];
     const csvContent = [
       headers.join(","),
-      ...filteredLogs.map(log => [
-        new Date(log.created_at).toLocaleString("tr-TR"),
-        (log.profiles as any)?.username || "Sistem",
-        log.action,
-        log.resource_type,
-        log.resource_id || "-",
-        JSON.stringify(log.details || {}).replace(/,/g, ";")
-      ].join(","))
+      ...filteredLogs.map(log => {
+        const logWithProfile = log as any;
+        return [
+          new Date(log.created_at).toLocaleString("tr-TR"),
+          logWithProfile.profiles?.username || "Sistem",
+          log.action,
+          log.resource_type,
+          log.resource_id || "-",
+          JSON.stringify(log.details || {}).replace(/,/g, ";")
+        ].join(",");
+      })
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -123,21 +127,21 @@ const AdminActivityLogs = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Activity Logs</h2>
-          <p className="text-gray-600">
-            {stats.filtered} / {stats.total} kayıt gösteriliyor • {stats.today} bugün • {stats.week} bu hafta
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Activity Logs</h2>
+          <p className="text-sm text-gray-600">
+            {stats.filtered} / {stats.total} kayıt • {stats.today} bugün • {stats.week} hafta
           </p>
         </div>
-        <Button onClick={handleExportCSV}>
+        <Button onClick={handleExportCSV} size="sm">
           <Download className="h-4 w-4 mr-2" />
-          CSV İndir
+          <span className="hidden sm:inline">CSV </span>İndir
         </Button>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -278,10 +282,10 @@ const AdminActivityLogs = () => {
                     <TableCell>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {(log.profiles as any)?.fullname || "Sistem"}
+                          {(log as any).profiles?.fullname || "Sistem"}
                         </p>
                         <p className="text-sm text-gray-500">
-                          @{(log.profiles as any)?.username || "system"}
+                          @{(log as any).profiles?.username || "system"}
                         </p>
                       </div>
                     </TableCell>

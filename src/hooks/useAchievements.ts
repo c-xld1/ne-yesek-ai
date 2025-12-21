@@ -68,7 +68,7 @@ export const useCombinedAchievements = (userId?: string) => {
   const isLoading = definitionsLoading || userLoading;
 
   const achievements: Achievement[] = (definitions || []).map((def: any) => {
-    const userAchievement = userAchievements?.find((ua: any) => ua.achievement_key === def.key);
+    const userAchievement = (userAchievements as any[])?.find((ua: any) => ua.achievement_key === def.key);
     
     return {
       id: def.id,
@@ -82,7 +82,7 @@ export const useCombinedAchievements = (userId?: string) => {
       points: def.points,
       order_index: def.order_index,
       earned: !!userAchievement,
-      earnedDate: userAchievement?.earned_at,
+      earnedDate: userAchievement ? (userAchievement as any).earned_at : undefined,
     };
   });
 

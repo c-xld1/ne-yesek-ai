@@ -149,16 +149,15 @@ const NeYesem = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch chefs - simplified
-      const { data: chefsData } = await supabase
+      // Fetch chefs - simplified using any type to avoid deep type issues
+      const result = await supabase
         .from("chef_profiles")
         .select("*")
-        .eq("is_verified", true)
         .eq("is_active", true)
         .limit(20);
 
-      if (chefsData) {
-        setChefs(chefsData as any);
+      if (result.data) {
+        setChefs(result.data as any);
       }
 
       // Mock menu items

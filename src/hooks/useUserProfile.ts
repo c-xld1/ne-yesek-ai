@@ -31,23 +31,23 @@ export const useUserProfile = (username: string | undefined) => {
       let followingCount = 0;
 
       // Count recipes
-      const recipeResult: any = await supabase
+      const recipeResult = await supabase
         .from("recipes")
-        .select("*", { count: "exact", head: true })
-        .eq("author_id", data.id);
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", data.id);
       recipesCount = recipeResult.count || 0;
 
       // Count followers
-      const followerResult: any = await supabase
+      const followerResult = await supabase
         .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("followed_id", data.id);
+        .select("id", { count: "exact", head: true })
+        .eq("following_id", data.id);
       followersCount = followerResult.count || 0;
 
       // Count following
-      const followingResult: any = await supabase
+      const followingResult = await supabase
         .from("follows")
-        .select("*", { count: "exact", head: true })
+        .select("id", { count: "exact", head: true })
         .eq("follower_id", data.id);
       followingCount = followingResult.count || 0;
 

@@ -47,13 +47,20 @@ const Chefs = () => {
       const { data: chefsData } = await supabase
         .from("chef_profiles")
         .select("*")
-        .eq("is_verified", true)
         .eq("is_active", true)
-        .order("average_rating", { ascending: false });
+        .order("rating", { ascending: false });
 
       if (chefsData) {
-        setChefs(chefsData as any);
-        setFilteredChefs(chefsData as any);
+        const formattedChefs = chefsData.map((chef: any) => ({
+          id: chef.id,
+          business_name: chef.business_name,
+          bio: chef.description,
+          city: chef.city || "Bilinmiyor",
+          average_rating: chef.rating || 0,
+          total_reviews: chef.total_orders || 0,
+        }));
+        setChefs(formattedChefs);
+        setFilteredChefs(formattedChefs);
       }
     } catch (error) {
       console.error("Error:", error);

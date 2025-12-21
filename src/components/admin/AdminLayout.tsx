@@ -136,11 +136,19 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       {/* Sidebar */}
       <aside
         className={`${
-          sidebarOpen ? "w-64" : "w-20"
-        } bg-white border-r border-gray-200 transition-all duration-300 fixed h-full z-30 flex flex-col`}
+          sidebarOpen ? "w-64 translate-x-0" : "w-20 -translate-x-full lg:translate-x-0"
+        } bg-white border-r border-gray-200 transition-all duration-300 fixed h-full z-30 flex flex-col lg:translate-x-0`}
       >
         {/* Logo & Toggle */}
         <div className="h-16 border-b border-gray-200 flex items-center justify-between px-4">
@@ -248,11 +256,20 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 ${sidebarOpen ? "ml-64" : "ml-20"} transition-all duration-300`}>
+      <div className={`flex-1 ${sidebarOpen ? "lg:ml-64" : "lg:ml-20"} transition-all duration-300`}>
         {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-20">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg lg:text-xl font-semibold text-gray-900">
               {getActiveGroupLabel()}
             </h1>
           </div>
@@ -269,7 +286,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-4 lg:p-6">
           <Outlet />
         </main>
       </div>

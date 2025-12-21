@@ -64,8 +64,8 @@ const AdminAnalytics = () => {
       // Fetch top viewed recipes
       const { data: topRecipes } = await supabase
         .from("recipes")
-        .select("id, title, view_count")
-        .order("view_count", { ascending: false })
+        .select("id, title, views")
+        .order("views", { ascending: false })
         .limit(10);
 
       // Fetch user growth (last 30 days)
@@ -105,15 +105,15 @@ const AdminAnalytics = () => {
         .slice(0, 10);
 
       setAnalytics({
-        totalViews: topRecipes?.reduce((sum, r) => sum + (r.view_count || 0), 0) || 0,
+        totalViews: topRecipes?.reduce((sum, r: any) => sum + (r.views || 0), 0) || 0,
         totalUsers: usersCount || 0,
         totalRecipes: recipesCount || 0,
         totalOrders: ordersCount || 0,
         topRecipes:
-          topRecipes?.map((r) => ({
+          topRecipes?.map((r: any) => ({
             id: r.id,
             title: r.title,
-            views: r.view_count || 0,
+            views: r.views || 0,
           })) || [],
         topSearchTerms: [
           { term: "tavuk", count: 245 },
@@ -149,7 +149,7 @@ const AdminAnalytics = () => {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -208,11 +208,11 @@ const AdminAnalytics = () => {
       <Card>
         <CardContent className="pt-6">
           <Tabs defaultValue="popular">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
-              <TabsTrigger value="popular">Popüler Tarifler</TabsTrigger>
-              <TabsTrigger value="search">Arama Terimleri</TabsTrigger>
-              <TabsTrigger value="growth">Kullanıcı Büyümesi</TabsTrigger>
-              <TabsTrigger value="categories">Kategoriler</TabsTrigger>
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 mb-6">
+              <TabsTrigger value="popular" className="text-xs sm:text-sm">Popüler</TabsTrigger>
+              <TabsTrigger value="search" className="text-xs sm:text-sm">Arama</TabsTrigger>
+              <TabsTrigger value="growth" className="text-xs sm:text-sm">Büyüme</TabsTrigger>
+              <TabsTrigger value="categories" className="text-xs sm:text-sm">Kategori</TabsTrigger>
             </TabsList>
 
             <TabsContent value="popular" className="space-y-4">

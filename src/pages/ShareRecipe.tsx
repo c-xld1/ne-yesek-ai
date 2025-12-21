@@ -346,15 +346,17 @@ const ShareRecipe = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">
+      <div className="max-w-4xl mx-auto px-4 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold">
             {recipeId ? 'Tarifi Düzenle' : 'Yeni Tarif Paylaş'}
           </h1>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
               onClick={() => setShowPreview(!showPreview)}
+              className="flex-1 sm:flex-none"
+              size="sm"
             >
               <Eye className="h-4 w-4 mr-2" />
               {showPreview ? 'Düzenle' : 'Önizle'}
@@ -363,14 +365,17 @@ const ShareRecipe = () => {
               variant="outline"
               onClick={saveDraft}
               disabled={isSaving}
+              className="flex-1 sm:flex-none"
+              size="sm"
             >
               <Save className="h-4 w-4 mr-2" />
-              Taslak Kaydet
+              <span className="hidden sm:inline">Taslak </span>Kaydet
             </Button>
             <Button
               onClick={publishRecipe}
               disabled={isSaving}
-              className="bg-gradient-to-r from-orange-500 to-red-500"
+              className="flex-1 sm:flex-none bg-gradient-to-r from-orange-500 to-red-500"
+              size="sm"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Yayınla'}
             </Button>
@@ -386,22 +391,22 @@ const ShareRecipe = () => {
               <h2 className="text-2xl font-bold mb-2">{formData.title || 'Tarif Başlığı'}</h2>
               <p className="text-gray-600 mb-4">{formData.description || 'Tarif açıklaması'}</p>
               
-              <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">Hazırlık</p>
-                  <p className="font-semibold">{formData.prep_time} dk</p>
+                  <p className="text-xs sm:text-sm text-gray-500">Hazırlık</p>
+                  <p className="font-semibold text-sm sm:text-base">{formData.prep_time} dk</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">Pişirme</p>
-                  <p className="font-semibold">{formData.cook_time} dk</p>
+                  <p className="text-xs sm:text-sm text-gray-500">Pişirme</p>
+                  <p className="font-semibold text-sm sm:text-base">{formData.cook_time} dk</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">Porsiyon</p>
-                  <p className="font-semibold">{formData.servings}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">Porsiyon</p>
+                  <p className="font-semibold text-sm sm:text-base">{formData.servings}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">Zorluk</p>
-                  <p className="font-semibold">{formData.difficulty}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">Zorluk</p>
+                  <p className="font-semibold text-sm sm:text-base">{formData.difficulty}</p>
                 </div>
               </div>
 

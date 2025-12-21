@@ -29,14 +29,7 @@ export const useNotifications = (type?: string) => {
 
       let query = supabase
         .from("notifications")
-        .select(`
-          *,
-          related_user:profiles!notifications_related_user_id_fkey(
-            username,
-            fullname,
-            avatar_url
-          )
-        `)
+        .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
@@ -56,9 +49,9 @@ export const useNotifications = (type?: string) => {
         type: notification.type,
         title: notification.title,
         message: notification.message,
-        read: notification.is_read, // Fixed: use is_read from database
+        read: notification.read,
         time: formatTimeAgo(notification.created_at),
-        avatar: notification.related_user?.avatar_url,
+        avatar: null,
         data: notification.data,
         relatedUserId: notification.related_user_id,
         relatedRecipeId: notification.related_recipe_id,
@@ -82,9 +75,9 @@ export const useUnreadNotificationCount = () => {
 
       const { count, error } = await supabase
         .from("notifications")
-        .select("*", { count: "exact", head: true })
+        .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
-        .eq("is_read", false); // Fixed: use is_read column
+        .eq("read", false);
 
       if (error) {
         console.error("Error fetching unread count:", error);

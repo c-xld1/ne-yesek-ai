@@ -174,35 +174,47 @@ const Navbar = () => {
 
             {/* Mobile menu button */}
             <div className="flex md:hidden items-center space-x-2">
+              {user && <NotificationCenter />}
               <Drawer>
                 <DrawerTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MenuIcon size={24} />
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-orange-100/50 hover:from-primary/20 hover:to-orange-100"
+                  >
+                    <MenuIcon size={20} className="text-primary" />
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent className="bg-gradient-to-br from-orange-50 to-white border-t-4 border-orange-500">
-                  <DrawerHeader className="text-center pb-6">
-                    <DrawerTitle className="flex items-center justify-center gap-3 text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                      <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-lg">
-                        <Sparkles className="h-6 w-6 text-white" />
+                <DrawerContent className="bg-background border-t-0 rounded-t-3xl max-h-[90vh]">
+                  {/* Handle bar */}
+                  <div className="flex justify-center pt-3 pb-2">
+                    <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
+                  </div>
+                  
+                  <DrawerHeader className="text-center pb-4 pt-0">
+                    <DrawerTitle className="flex items-center justify-center gap-3 text-xl font-bold">
+                      <div className="p-2 bg-gradient-to-br from-primary to-orange-600 rounded-xl shadow-lg">
+                        <Sparkles className="h-5 w-5 text-primary-foreground" />
                       </div>
-                      NeYesek.AI
+                      <span className="bg-gradient-to-r from-primary to-orange-600 bg-clip-text text-transparent">
+                        NeYesek.AI
+                      </span>
                     </DrawerTitle>
-                    <DrawerDescription className="text-gray-600 font-medium">
-                      🍽️ Lezzetli tarifleri keşfedin ve paylaşın
+                    <DrawerDescription className="text-muted-foreground text-sm">
+                      Lezzetli tarifleri keşfedin
                     </DrawerDescription>
                   </DrawerHeader>
 
-                  <div className="px-6 pb-6 space-y-6 max-h-[65vh] overflow-y-auto">
-                    {/* Modern Search Card */}
-                    <div className="bg-white rounded-2xl p-4 shadow-lg border border-orange-100">
+                  <div className="px-4 pb-4 space-y-4 overflow-y-auto max-h-[55vh]">
+                    {/* Search Card */}
+                    <div className="bg-muted/50 rounded-2xl p-3">
                       <form onSubmit={handleSearch} className="w-full">
                         <div className="relative">
-                          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-400" />
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="text"
-                            placeholder="Hangi tarifi arıyorsunuz? 🔍"
-                            className="w-full pl-12 pr-4 py-3 border-orange-200 focus:border-orange-400 focus:ring-orange-400 rounded-xl bg-orange-50/50 text-gray-700 placeholder:text-gray-500"
+                            placeholder="Tarif ara..."
+                            className="w-full pl-10 pr-4 py-2.5 h-10 border-0 bg-background rounded-xl text-sm focus-visible:ring-1 focus-visible:ring-primary"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                           />
@@ -210,141 +222,135 @@ const Navbar = () => {
                       </form>
                     </div>
 
-                    {/* Quick Actions Cards */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <DrawerClose asChild>
-                        <Link
-                          to="/populer"
-                          className="bg-gradient-to-br from-red-500 to-orange-500 p-4 rounded-2xl text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                        >
-                          <div className="text-center">
-                            <span className="text-3xl mb-2 block">🔥</span>
-                            <span className="font-semibold text-sm">Popüler</span>
-                          </div>
-                        </Link>
-                      </DrawerClose>
-
-                      <DrawerClose asChild>
-                        <Link
-                          to="/yoresel"
-                          className="bg-gradient-to-br from-green-500 to-emerald-500 p-4 rounded-2xl text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                        >
-                          <div className="text-center">
-                            <span className="text-3xl mb-2 block">🌍</span>
-                            <span className="font-semibold text-sm">Yöresel</span>
-                          </div>
-                        </Link>
-                      </DrawerClose>
-
-                      <DrawerClose asChild>
-                        <Link
-                          to="/soru-cevap"
-                          className="bg-gradient-to-br from-blue-500 to-cyan-500 p-4 rounded-2xl text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                        >
-                          <div className="text-center">
-                            <span className="text-3xl mb-2 block">❓</span>
-                            <span className="font-semibold text-sm">Soru & Cevap</span>
-                          </div>
-                        </Link>
-                      </DrawerClose>
-
-                      <DrawerClose asChild>
-                        <Link
-                          to="/tarif-paylas"
-                          className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 rounded-2xl text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                        >
-                          <div className="text-center">
-                            <span className="text-3xl mb-2 block">👨‍🍳</span>
-                            <span className="font-semibold text-sm">Tarif Paylaş</span>
-                          </div>
-                        </Link>
-                      </DrawerClose>
+                    {/* Quick Actions Grid */}
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { icon: "🔥", label: "Popüler", path: "/populer", color: "from-red-500 to-orange-500" },
+                        { icon: "🌍", label: "Yöresel", path: "/yoresel", color: "from-green-500 to-emerald-500" },
+                        { icon: "❓", label: "S&C", path: "/soru-cevap", color: "from-blue-500 to-cyan-500" },
+                        { icon: "🍽️", label: "Ne Yesem", path: "/neyesem", color: "from-purple-500 to-pink-500" },
+                      ].map((item, i) => (
+                        <DrawerClose key={i} asChild>
+                          <Link
+                            to={item.path}
+                            className={`flex flex-col items-center justify-center p-3 rounded-2xl bg-gradient-to-br ${item.color} text-white shadow-md hover:shadow-lg transition-all duration-200 active:scale-95`}
+                          >
+                            <span className="text-xl mb-1">{item.icon}</span>
+                            <span className="text-[10px] font-medium">{item.label}</span>
+                          </Link>
+                        </DrawerClose>
+                      ))}
                     </div>
 
-                    {/* Categories Section */}
-                    <div className="bg-white rounded-2xl p-4 shadow-lg border border-orange-100">
+                    {/* Categories Accordion */}
+                    <div className="bg-card rounded-2xl border border-border overflow-hidden">
                       <button
-                        className="flex items-center justify-between w-full py-3 px-2 text-lg font-semibold text-gray-800 hover:bg-orange-50 rounded-xl transition-colors"
+                        className="flex items-center justify-between w-full p-3 text-left"
                         onClick={() => setOpenMobileCategory(openMobileCategory === 'tarifler' ? null : 'tarifler')}
                       >
-                        <span className="flex items-center gap-3">
-                          <span className="text-2xl">🍽️</span>
-                          <span>Tarif Kategorileri</span>
+                        <span className="flex items-center gap-2 font-medium text-foreground">
+                          <span className="text-lg">🍽️</span>
+                          Kategoriler
                         </span>
-                        <ChevronDown className={`h-5 w-5 text-orange-500 transition-transform duration-200 ${openMobileCategory === 'tarifler' ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${openMobileCategory === 'tarifler' ? 'rotate-180' : ''}`} />
                       </button>
 
                       {openMobileCategory === 'tarifler' && (
-                        <div className="mt-4 grid grid-cols-2 gap-2 animate-in slide-in-from-top-2 duration-200">
+                        <div className="px-3 pb-3 grid grid-cols-3 gap-2 animate-in slide-in-from-top-2 duration-200">
                           {menuCategories.map((category, index) => (
                             <DrawerClose key={index} asChild>
                               <Link
                                 to={category.path}
-                                className="flex flex-col items-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 rounded-xl transition-all duration-200 hover:scale-105 group"
+                                className="flex flex-col items-center p-2.5 bg-muted/50 hover:bg-muted rounded-xl transition-colors"
                               >
-                                <span className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">
-                                  {category.icon}
-                                </span>
-                                <span className="font-medium text-gray-700 text-sm text-center">{category.name}</span>
+                                <span className="text-xl mb-1">{category.icon}</span>
+                                <span className="text-[10px] font-medium text-foreground text-center leading-tight">{category.name}</span>
                               </Link>
                             </DrawerClose>
                           ))}
                         </div>
                       )}
                     </div>
+
+                    {/* Menu Links */}
+                    <div className="space-y-1">
+                      {[
+                        { icon: Home, label: "Ana Sayfa", path: "/" },
+                        { icon: ChefHat, label: "Şefler", path: "/sefler" },
+                        { icon: Bookmark, label: "Favorilerim", path: "/favoriler" },
+                      ].map((item, i) => (
+                        <DrawerClose key={i} asChild>
+                          <Link
+                            to={item.path}
+                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors"
+                          >
+                            <item.icon className="h-5 w-5 text-muted-foreground" />
+                            <span className="font-medium text-foreground">{item.label}</span>
+                          </Link>
+                        </DrawerClose>
+                      ))}
+                    </div>
                   </div>
 
-                  <DrawerFooter className="bg-gradient-to-r from-orange-50 to-red-50 border-t border-orange-100">
-                    {/* Auth Section */}
+                  <DrawerFooter className="border-t border-border bg-muted/30 pt-4">
                     {user ? (
-                      <div className="space-y-4">
-                        {/* User Profile Card */}
-                        <div className="flex items-center gap-4 p-4 bg-white rounded-2xl shadow-md border border-orange-100">
-                          <Avatar className="h-12 w-12 ring-2 ring-orange-200">
-                            <AvatarFallback className="bg-gradient-to-br from-orange-400 to-red-400 text-white font-bold text-lg">
-                              {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="font-semibold text-gray-800">{user.username || 'Kullanıcı'}</div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
-                          </div>
-                          <DrawerClose asChild>
-                            <Button variant="ghost" size="sm" className="text-orange-600 hover:bg-orange-50">
-                              <User className="h-4 w-4" />
-                            </Button>
-                          </DrawerClose>
-                        </div>
+                      <div className="space-y-3">
+                        {/* User Card */}
+                        <DrawerClose asChild>
+                          <Link
+                            to={user.username ? `/profil/${user.username}` : "/profil"}
+                            className="flex items-center gap-3 p-3 bg-card rounded-2xl border border-border hover:border-primary/20 transition-colors"
+                          >
+                            <Avatar className="h-11 w-11 ring-2 ring-primary/20">
+                              <AvatarFallback className="bg-gradient-to-br from-primary to-orange-600 text-primary-foreground font-semibold">
+                                {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-foreground truncate">{user.username || 'Kullanıcı'}</div>
+                              <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                            </div>
+                            <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
+                          </Link>
+                        </DrawerClose>
 
                         {/* Action Buttons */}
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-2">
                           <DrawerClose asChild>
-                            <Button variant="outline" size="lg" className="border-orange-200 text-orange-700 hover:bg-orange-50 rounded-xl">
-                              <Heart className="mr-2 h-4 w-4" />
-                              Favoriler
-                            </Button>
+                            <Link to="/favoriler">
+                              <Button variant="outline" className="w-full rounded-xl h-10 border-border">
+                                <Heart className="mr-2 h-4 w-4" />
+                                Favoriler
+                              </Button>
+                            </Link>
                           </DrawerClose>
                           <DrawerClose asChild>
-                            <Button size="lg" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl shadow-lg">
-                              <PlusCircle className="mr-2 h-4 w-4" />
-                              Paylaş
-                            </Button>
+                            <Link to="/tarif-paylas">
+                              <Button className="w-full rounded-xl h-10 bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90 text-primary-foreground">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Paylaş
+                              </Button>
+                            </Link>
                           </DrawerClose>
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
                         <DrawerClose asChild>
-                          <Button size="lg" className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl shadow-lg font-semibold">
-                            <LogIn className="mr-2 h-5 w-5" />
-                            Giriş Yap
-                          </Button>
+                          <Link to="/giris-yap">
+                            <Button variant="outline" className="w-full rounded-xl h-11 border-border font-medium">
+                              <LogIn className="mr-2 h-4 w-4" />
+                              Giriş Yap
+                            </Button>
+                          </Link>
                         </DrawerClose>
                         <DrawerClose asChild>
-                          <Button variant="outline" size="lg" className="w-full border-orange-300 text-orange-700 hover:bg-orange-50 rounded-xl font-semibold">
-                            <UserPlus className="mr-2 h-5 w-5" />
-                            Üye Ol
-                          </Button>
+                          <Link to="/kayit-ol">
+                            <Button className="w-full rounded-xl h-11 bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90 text-primary-foreground font-medium">
+                              <UserPlus className="mr-2 h-4 w-4" />
+                              Üye Ol
+                            </Button>
+                          </Link>
                         </DrawerClose>
                       </div>
                     )}
@@ -355,8 +361,6 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
-
-      {/* ... */}
     </>
   );
 };

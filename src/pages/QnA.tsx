@@ -59,7 +59,7 @@ const QnA = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen gradient-page">
       <Helmet>
         <title>Soru & Cevap - Yemek Pişirme İpuçları | Yemek Tarifi Sitesi</title>
         <meta name="description" content="Yemek pişirme hakkında sorularınızı sorun, uzmanlardan ve topluluktan cevaplar alın. Tarif ipuçları, pişirme teknikleri ve daha fazlası." />
@@ -69,16 +69,21 @@ const QnA = () => {
       
       <Navbar />
 
-      <main className="container mx-auto px-4 py-8 space-y-8">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Soru & Cevap</h1>
+      <main className="container mx-auto px-4 py-8 space-y-8 pb-24 md:pb-8">
+        {/* Header */}
+        <div className="text-center md:text-left">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full mb-3 text-sm font-medium">
+            <HelpCircle className="h-4 w-4" />
+            Topluluk
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Soru & Cevap</h1>
           <p className="text-muted-foreground">Yemek pişirme hakkında sorularınızı sorun, deneyimlerinizi paylaşın</p>
         </div>
 
         {/* Search and Filters */}
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="card-glass border-border/50">
+          <CardContent className="p-4 md:p-6 space-y-4">
+            <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -86,10 +91,10 @@ const QnA = () => {
                   placeholder="Sorularda ara..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-11 rounded-xl bg-background border-border"
                 />
               </div>
-              <Button onClick={() => navigate('/soru-sor')}>
+              <Button onClick={() => navigate('/soru-sor')} className="gradient-primary text-primary-foreground rounded-xl h-11">
                 <Plus className="mr-2 h-4 w-4" />
                 Soru Sor
               </Button>
@@ -101,11 +106,12 @@ const QnA = () => {
                 variant={selectedCategory === 'all' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedCategory('all')}
+                className={`rounded-full ${selectedCategory === 'all' ? 'gradient-primary text-primary-foreground' : 'border-border'}`}
               >
                 Tümü
               </Button>
               {categoriesLoading ? (
-                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-8 w-24 rounded-full" />
               ) : (
                 categories?.map((category) => (
                   <Button
@@ -113,6 +119,7 @@ const QnA = () => {
                     variant={selectedCategory === category.id ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSelectedCategory(category.id)}
+                    className={`rounded-full ${selectedCategory === category.id ? 'gradient-primary text-primary-foreground' : 'border-border'}`}
                   >
                     {category.name}
                   </Button>
@@ -126,7 +133,7 @@ const QnA = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="border rounded-md px-3 py-1 text-sm"
+                className="border border-border bg-background rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="newest">En Yeni</option>
                 <option value="popular">En Popüler</option>

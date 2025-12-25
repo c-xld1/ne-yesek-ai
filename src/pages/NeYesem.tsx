@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,14 +18,11 @@ import NeYesemHeroStats from "@/components/NeYesemHeroStats";
 import NeYesemQuickActions from "@/components/NeYesemQuickActions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { 
-  ShoppingCart, Search, Filter, X, Sparkles,
-  ChefHat, TrendingUp, Clock, Star, MapPin, Zap, Calendar, Heart, ArrowRight
+  ShoppingCart, Search, ChefHat, TrendingUp, Clock, Star, MapPin, Zap, Calendar, Heart, ArrowRight, Sparkles
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 // Mock Data
 const mockBanners = [
@@ -119,7 +117,7 @@ interface MenuItem {
 const NeYesem = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { cart, addToCart, removeFromCart, updateQuantity, getCartCount } = useCart();
   
   const [chefs, setChefs] = useState<Chef[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -129,7 +127,6 @@ const NeYesem = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showCartDropdown, setShowCartDropdown] = useState(false);
-  const [cart, setCart] = useState<MenuItem[]>([]);
   const [filters, setFilters] = useState({
     categories: [] as string[],
     priceRange: [0, 500] as [number, number],
@@ -149,7 +146,7 @@ const NeYesem = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch chefs - simplified using any type to avoid deep type issues
+      // Fetch chefs
       const result = await supabase
         .from("chef_profiles")
         .select("*")
@@ -157,7 +154,15 @@ const NeYesem = () => {
         .limit(20);
 
       if (result.data) {
-        setChefs(result.data as any);
+        const mappedChefs: Chef[] = result.data.map((chef: any) => ({
+          id: chef.id,
+          business_name: chef.business_name,
+          bio: chef.description,
+          city: chef.city || "İstanbul",
+          average_rating: chef.rating || 4.5,
+          total_reviews: chef.total_orders || 0,
+        }));
+        setChefs(mappedChefs);
       }
 
       // Mock menu items
@@ -208,25 +213,27 @@ const NeYesem = () => {
           order_count: 156,
           instant_delivery: true,
           scheduled_delivery: true,
-          chef_profiles: { business_name: "Mehmet Usta", city: "İzmir" }
+          chef_profiles: { id: "3", business_name: "Mehmet Usta", city: "İzmir" }
         },
         {
           id: "4",
+          slug: "vegan-buddha-bowl",
           name: "Vegan Buddha Bowl",
           description: "Kinoa, nohut, avokado ve taze sebzelerle hazırlanmış besleyici kase",
           category: "vegan",
           price: 68.00,
-          image_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
+          image_url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
           portion_size: "1 kase",
           prep_time: 20,
           average_rating: 4.6,
           order_count: 89,
           instant_delivery: true,
           scheduled_delivery: false,
-          chef_profiles: { business_name: "Yeşil Mutfak", city: "İstanbul" }
+          chef_profiles: { id: "4", business_name: "Yeşil Mutfak", city: "İstanbul" }
         },
         {
           id: "5",
+          slug: "karisik-izgara",
           name: "Karışık Izgara",
           description: "Tavuk, köfte, et, sucuk ve sebzeler",
           category: "et",
@@ -238,10 +245,11 @@ const NeYesem = () => {
           order_count: 312,
           instant_delivery: true,
           scheduled_delivery: true,
-          chef_profiles: { business_name: "Mangal Keyfi", city: "Bursa" }
+          chef_profiles: { id: "5", business_name: "Mangal Keyfi", city: "Bursa" }
         },
         {
           id: "6",
+          slug: "firin-sutlac",
           name: "Fırın Sütlaç",
           description: "Fırında pişirilmiş, üzeri karamelize geleneksel sütlaç",
           category: "tatlı",
@@ -253,7 +261,39 @@ const NeYesem = () => {
           order_count: 178,
           instant_delivery: true,
           scheduled_delivery: false,
-          chef_profiles: { business_name: "Tatlı Dünya", city: "İstanbul" }
+          chef_profiles: { id: "6", business_name: "Tatlı Dünya", city: "İstanbul" }
+        },
+        {
+          id: "7",
+          slug: "mercimek-corbasi",
+          name: "Mercimek Çorbası",
+          description: "Ev yapımı geleneksel mercimek çorbası, limon ve kruton ile",
+          category: "çorba",
+          price: 35.00,
+          image_url: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop",
+          portion_size: "1 kase",
+          prep_time: 10,
+          average_rating: 4.7,
+          order_count: 245,
+          instant_delivery: true,
+          scheduled_delivery: true,
+          chef_profiles: { id: "7", business_name: "Anadolu Mutfağı", city: "İstanbul" }
+        },
+        {
+          id: "8",
+          slug: "lahmacun",
+          name: "Lahmacun",
+          description: "İnce hamur üzerinde özel harç, taze sebzeler ile servis",
+          category: "et",
+          price: 25.00,
+          image_url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
+          portion_size: "2 adet",
+          prep_time: 15,
+          average_rating: 4.8,
+          order_count: 432,
+          instant_delivery: true,
+          scheduled_delivery: true,
+          chef_profiles: { id: "8", business_name: "Gaziantep Lezzetleri", city: "İstanbul" }
         },
       ];
 
@@ -311,46 +351,38 @@ const NeYesem = () => {
     setFilteredItems(filtered);
   };
 
-  const addToCart = (item: MenuItem) => {
-    setCart([...cart, item]);
-    toast({
-      title: "Sepete Eklendi ✓",
-      description: `${item.name} sepetinize eklendi`,
+  const handleAddToCart = (item: MenuItem) => {
+    addToCart({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      image_url: item.image_url,
+      chef_id: item.chef_profiles?.id || "",
+      chef_name: item.chef_profiles?.business_name || "",
+      prep_time: item.prep_time,
+      category: item.category,
     });
   };
 
-  const removeFromCart = (itemId: string) => {
-    // Remove all instances of this item
-    setCart(cart.filter(item => item.id !== itemId));
-    toast({
-      title: "Sepetten Çıkarıldı",
-      description: "Ürün sepetinizden kaldırıldı",
-    });
+  const handleRemoveFromCart = (itemId: string) => {
+    removeFromCart(itemId);
   };
 
-  const updateCartQuantity = (itemId: string, newQuantity: number) => {
-    const itemsOfType = cart.filter(item => item.id === itemId);
-    const currentQuantity = itemsOfType.length;
-    
-    if (newQuantity > currentQuantity) {
-      // Add more items
-      const itemToAdd = itemsOfType[0];
-      const itemsToAdd = Array(newQuantity - currentQuantity).fill(itemToAdd);
-      setCart([...cart, ...itemsToAdd]);
-    } else if (newQuantity < currentQuantity) {
-      // Remove items
-      const itemsToRemove = currentQuantity - newQuantity;
-      let removed = 0;
-      const newCart = cart.filter(item => {
-        if (item.id === itemId && removed < itemsToRemove) {
-          removed++;
-          return false;
-        }
-        return true;
-      });
-      setCart(newCart);
-    }
+  const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
+    updateQuantity(itemId, newQuantity);
   };
+
+  // Convert cart to dropdown format
+  const cartForDropdown = cart.map(item => ({
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    price: item.price,
+    image_url: item.image_url,
+    quantity: item.quantity,
+    chef_profiles: { business_name: item.chef_name },
+  }));
 
   if (loading) {
     return (
@@ -387,12 +419,12 @@ const NeYesem = () => {
       <NeYesemHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        cart={cart}
+        cart={cartForDropdown}
         showCartDropdown={showCartDropdown}
         onCartToggle={() => setShowCartDropdown(!showCartDropdown)}
         onCartClose={() => setShowCartDropdown(false)}
-        onRemoveItem={removeFromCart}
-        onUpdateQuantity={updateCartQuantity}
+        onRemoveItem={handleRemoveFromCart}
+        onUpdateQuantity={handleUpdateQuantity}
         onShowFilters={() => setShowFilters(true)}
         filterCount={filters.categories.length + filters.deliveryTypes.length + (filters.rating > 0 ? 1 : 0)}
       />
@@ -464,7 +496,7 @@ const NeYesem = () => {
         {(filters.categories.length > 0 || filters.rating > 0 || selectedCategory || filters.deliveryTypes.length > 0) && (
           <section className="animate-fadeIn">
             <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-sm font-medium text-gray-600">Aktif Filtreler:</span>
+              <span className="text-sm font-medium text-muted-foreground">Aktif Filtreler:</span>
               {selectedCategory && (
                 <Badge variant="secondary" className="px-3 py-1 text-xs">
                   {categories.find(c => c.id === selectedCategory)?.icon} {categories.find(c => c.id === selectedCategory)?.label}
@@ -514,7 +546,7 @@ const NeYesem = () => {
                     distance: 10,
                   });
                 }}
-                className="text-xs text-orange-600 hover:text-orange-700"
+                className="text-xs text-primary hover:text-primary/80"
               >
                 Tümünü Temizle
               </Button>
@@ -554,17 +586,6 @@ const NeYesem = () => {
           </section>
         )}
 
-        {/* Ad Banner 2 */}
-        <section>
-          <AdBanner
-            title="Organik Baharatlar ve Özel Soslar"
-            description="Yemeklerinize lezzet katacak özel ürünler şimdi çok uygun fiyatlarla!"
-            imageUrl="https://images.unsplash.com/photo-1596040033229-a0b4b4493b67?w=1200&h=400&fit=crop"
-            link="https://example.com"
-            sponsor="BaharatSepeti"
-          />
-        </section>
-
         {/* Featured Dishes Slider */}
         <section>
           <div className="flex items-center justify-between mb-4">
@@ -573,18 +594,7 @@ const NeYesem = () => {
               Öne Çıkan Yemekler
             </h2>
           </div>
-          <FeaturedDishesSlider dishes={featuredDishes} onAddToCart={addToCart} />
-        </section>
-
-        {/* Ad Banner 3 */}
-        <section>
-          <AdBanner
-            title="Premium Gıda Ürünleri İlk Siparişte %30 İndirim"
-            description="Taze ve organik gıda ürünleri kapınıza kadar geliyor!"
-            imageUrl="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=400&fit=crop"
-            link="https://example.com"
-            sponsor="TazeMarket"
-          />
+          <FeaturedDishesSlider dishes={featuredDishes} onAddToCart={handleAddToCart} />
         </section>
 
         {/* All Menu Items Grid */}
@@ -706,7 +716,7 @@ const NeYesem = () => {
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
-                        addToCart(item);
+                        handleAddToCart(item);
                       }}
                       className="w-full bg-primary hover:bg-primary/90 h-10 rounded-xl text-sm font-semibold gap-2"
                     >
@@ -721,13 +731,13 @@ const NeYesem = () => {
 
           {filteredItems.length === 0 && (
             <Card className="p-12 text-center border-dashed">
-              <div className="text-gray-300 mb-4">
+              <div className="text-muted-foreground/30 mb-4">
                 <Search className="h-16 w-16 mx-auto" />
               </div>
-              <h3 className="text-lg font-bold text-gray-700 mb-2">
+              <h3 className="text-lg font-bold text-foreground mb-2">
                 Sonuç Bulunamadı
               </h3>
-              <p className="text-gray-500 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 Arama kriterlerinize uygun yemek bulunamadı
               </p>
               <Button
@@ -744,7 +754,7 @@ const NeYesem = () => {
                     distance: 10,
                   });
                 }}
-                className="bg-orange-500 hover:bg-orange-600"
+                className="bg-primary hover:bg-primary/90"
               >
                 Filtreleri Temizle
               </Button>
@@ -766,23 +776,24 @@ const NeYesem = () => {
         />
       </div>
 
-      {/* Floating Cart Button - Minimalist */}
-      {cart.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-40">
+      {/* Floating Cart Button */}
+      {getCartCount() > 0 && (
+        <motion.div 
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="fixed bottom-24 right-6 z-40 md:bottom-6"
+        >
           <Button
-            className="h-14 w-14 rounded-full shadow-xl bg-orange-500 hover:bg-orange-600 relative hover:scale-105 transition-transform"
-            onClick={() => toast({ 
-              title: "Sepetiniz", 
-              description: `${cart.length} ürün sepetinizde`,
-              duration: 2000
-            })}
+            className="h-14 px-5 rounded-full shadow-xl bg-primary hover:bg-primary/90 relative hover:scale-105 transition-transform gap-2"
+            onClick={() => navigate("/neyesem/sepet")}
           >
             <ShoppingCart className="h-5 w-5" />
-            <Badge className="absolute -top-2 -right-2 bg-red-500 h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold shadow-md">
-              {cart.length}
+            <span className="font-semibold">Sepete Git</span>
+            <Badge className="bg-white text-primary h-6 min-w-[24px] rounded-full px-2 flex items-center justify-center text-xs font-bold">
+              {getCartCount()}
             </Badge>
           </Button>
-        </div>
+        </motion.div>
       )}
 
       <Footer />

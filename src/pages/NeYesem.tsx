@@ -147,14 +147,14 @@ const NeYesem = () => {
   const fetchData = async () => {
     try {
       // Fetch chefs
-      const result = await supabase
+      const chefsResult = await supabase
         .from("chef_profiles")
         .select("*")
         .eq("is_active", true)
         .limit(20);
 
-      if (result.data) {
-        const mappedChefs: Chef[] = result.data.map((chef: any) => ({
+      if (chefsResult.data) {
+        const mappedChefs: Chef[] = chefsResult.data.map((chef: any) => ({
           id: chef.id,
           business_name: chef.business_name,
           bio: chef.description,
@@ -165,140 +165,181 @@ const NeYesem = () => {
         setChefs(mappedChefs);
       }
 
-      // Mock menu items
-      const mockMenuItems: MenuItem[] = [
-        {
-          id: "1",
-          slug: "izgara-tavuk",
-          name: "Izgara Tavuk",
-          description: "Özel baharatlarla marine edilmiş, fırında pişirilmiş tavuk göğsü",
-          category: "tavuk",
-          price: 89.90,
-          image_url: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
-          portion_size: "1 porsiyon",
-          prep_time: 30,
-          average_rating: 4.8,
-          order_count: 127,
-          instant_delivery: true,
-          scheduled_delivery: true,
-          chef_profiles: { id: "1", slug: "zeynep-mutfak", business_name: "Zeynep'in Mutfağı", city: "İstanbul" }
-        },
-        {
-          id: "2",
-          slug: "etli-kuru-fasulye",
-          name: "Etli Kuru Fasulye",
-          description: "Geleneksel tarif ile pişirilmiş, pilav ile servis edilir",
-          category: "et",
-          price: 75.00,
-          image_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
-          portion_size: "1 porsiyon",
-          prep_time: 45,
-          average_rating: 4.9,
-          order_count: 203,
-          instant_delivery: false,
-          scheduled_delivery: true,
-          chef_profiles: { id: "2", slug: "ayse-ana-sofrasi", business_name: "Ayşe Ana'nın Sofrası", city: "Ankara" }
-        },
-        {
-          id: "3",
-          slug: "izmir-kofte",
-          name: "İzmir Köfte",
-          description: "Ev yapımı köfte, patates ve domates ile fırında pişirilir",
-          category: "köfte",
-          price: 95.00,
-          image_url: "https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&h=300&fit=crop",
-          portion_size: "4 adet",
-          prep_time: 35,
-          average_rating: 4.7,
-          order_count: 156,
-          instant_delivery: true,
-          scheduled_delivery: true,
-          chef_profiles: { id: "3", business_name: "Mehmet Usta", city: "İzmir" }
-        },
-        {
-          id: "4",
-          slug: "vegan-buddha-bowl",
-          name: "Vegan Buddha Bowl",
-          description: "Kinoa, nohut, avokado ve taze sebzelerle hazırlanmış besleyici kase",
-          category: "vegan",
-          price: 68.00,
-          image_url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
-          portion_size: "1 kase",
-          prep_time: 20,
-          average_rating: 4.6,
-          order_count: 89,
-          instant_delivery: true,
-          scheduled_delivery: false,
-          chef_profiles: { id: "4", business_name: "Yeşil Mutfak", city: "İstanbul" }
-        },
-        {
-          id: "5",
-          slug: "karisik-izgara",
-          name: "Karışık Izgara",
-          description: "Tavuk, köfte, et, sucuk ve sebzeler",
-          category: "et",
-          price: 135.00,
-          image_url: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop",
-          portion_size: "2 kişilik",
-          prep_time: 40,
-          average_rating: 4.9,
-          order_count: 312,
-          instant_delivery: true,
-          scheduled_delivery: true,
-          chef_profiles: { id: "5", business_name: "Mangal Keyfi", city: "Bursa" }
-        },
-        {
-          id: "6",
-          slug: "firin-sutlac",
-          name: "Fırın Sütlaç",
-          description: "Fırında pişirilmiş, üzeri karamelize geleneksel sütlaç",
-          category: "tatlı",
-          price: 45.00,
-          image_url: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop",
-          portion_size: "1 kase",
-          prep_time: 15,
-          average_rating: 4.8,
-          order_count: 178,
-          instant_delivery: true,
-          scheduled_delivery: false,
-          chef_profiles: { id: "6", business_name: "Tatlı Dünya", city: "İstanbul" }
-        },
-        {
-          id: "7",
-          slug: "mercimek-corbasi",
-          name: "Mercimek Çorbası",
-          description: "Ev yapımı geleneksel mercimek çorbası, limon ve kruton ile",
-          category: "çorba",
-          price: 35.00,
-          image_url: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop",
-          portion_size: "1 kase",
-          prep_time: 10,
-          average_rating: 4.7,
-          order_count: 245,
-          instant_delivery: true,
-          scheduled_delivery: true,
-          chef_profiles: { id: "7", business_name: "Anadolu Mutfağı", city: "İstanbul" }
-        },
-        {
-          id: "8",
-          slug: "lahmacun",
-          name: "Lahmacun",
-          description: "İnce hamur üzerinde özel harç, taze sebzeler ile servis",
-          category: "et",
-          price: 25.00,
-          image_url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
-          portion_size: "2 adet",
-          prep_time: 15,
-          average_rating: 4.8,
-          order_count: 432,
-          instant_delivery: true,
-          scheduled_delivery: true,
-          chef_profiles: { id: "8", business_name: "Gaziantep Lezzetleri", city: "İstanbul" }
-        },
-      ];
+      // Fetch meals from database
+      const mealsResult = await supabase
+        .from("meals")
+        .select(`
+          *,
+          chef_profiles!inner(
+            id,
+            business_name,
+            city,
+            rating
+          )
+        `)
+        .eq("is_available", true)
+        .limit(50);
 
-      setMenuItems(mockMenuItems);
-      setFilteredItems(mockMenuItems);
+      if (mealsResult.data && mealsResult.data.length > 0) {
+        const mappedItems: MenuItem[] = mealsResult.data.map((meal: any) => ({
+          id: meal.id,
+          slug: meal.id,
+          name: meal.name,
+          description: meal.description || "",
+          category: meal.category || "ana-yemek",
+          price: Number(meal.price) || 0,
+          image_url: meal.image_url || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop",
+          portion_size: `${meal.servings || 1} porsiyon`,
+          prep_time: meal.preparation_time || 30,
+          average_rating: meal.chef_profiles?.rating || 4.5,
+          order_count: 0,
+          instant_delivery: meal.ready_now || false,
+          scheduled_delivery: true,
+          chef_profiles: {
+            id: meal.chef_profiles?.id,
+            slug: meal.chef_profiles?.id,
+            business_name: meal.chef_profiles?.business_name || "Şef",
+            city: meal.chef_profiles?.city || "İstanbul",
+          },
+        }));
+        setMenuItems(mappedItems);
+        setFilteredItems(mappedItems);
+      } else {
+        // Fallback mock data if no meals in database
+        const mockMenuItems: MenuItem[] = [
+          {
+            id: "1",
+            slug: "izgara-tavuk",
+            name: "Izgara Tavuk",
+            description: "Özel baharatlarla marine edilmiş, fırında pişirilmiş tavuk göğsü",
+            category: "tavuk",
+            price: 89.90,
+            image_url: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
+            portion_size: "1 porsiyon",
+            prep_time: 30,
+            average_rating: 4.8,
+            order_count: 127,
+            instant_delivery: true,
+            scheduled_delivery: true,
+            chef_profiles: { id: "1", slug: "zeynep-mutfak", business_name: "Zeynep'in Mutfağı", city: "İstanbul" }
+          },
+          {
+            id: "2",
+            slug: "etli-kuru-fasulye",
+            name: "Etli Kuru Fasulye",
+            description: "Geleneksel tarif ile pişirilmiş, pilav ile servis edilir",
+            category: "et",
+            price: 75.00,
+            image_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
+            portion_size: "1 porsiyon",
+            prep_time: 45,
+            average_rating: 4.9,
+            order_count: 203,
+            instant_delivery: false,
+            scheduled_delivery: true,
+            chef_profiles: { id: "2", slug: "ayse-ana-sofrasi", business_name: "Ayşe Ana'nın Sofrası", city: "Ankara" }
+          },
+          {
+            id: "3",
+            slug: "izmir-kofte",
+            name: "İzmir Köfte",
+            description: "Ev yapımı köfte, patates ve domates ile fırında pişirilir",
+            category: "köfte",
+            price: 95.00,
+            image_url: "https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&h=300&fit=crop",
+            portion_size: "4 adet",
+            prep_time: 35,
+            average_rating: 4.7,
+            order_count: 156,
+            instant_delivery: true,
+            scheduled_delivery: true,
+            chef_profiles: { id: "3", business_name: "Mehmet Usta", city: "İzmir" }
+          },
+          {
+            id: "4",
+            slug: "vegan-buddha-bowl",
+            name: "Vegan Buddha Bowl",
+            description: "Kinoa, nohut, avokado ve taze sebzelerle hazırlanmış besleyici kase",
+            category: "vegan",
+            price: 68.00,
+            image_url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
+            portion_size: "1 kase",
+            prep_time: 20,
+            average_rating: 4.6,
+            order_count: 89,
+            instant_delivery: true,
+            scheduled_delivery: false,
+            chef_profiles: { id: "4", business_name: "Yeşil Mutfak", city: "İstanbul" }
+          },
+          {
+            id: "5",
+            slug: "karisik-izgara",
+            name: "Karışık Izgara",
+            description: "Tavuk, köfte, et, sucuk ve sebzeler",
+            category: "et",
+            price: 135.00,
+            image_url: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop",
+            portion_size: "2 kişilik",
+            prep_time: 40,
+            average_rating: 4.9,
+            order_count: 312,
+            instant_delivery: true,
+            scheduled_delivery: true,
+            chef_profiles: { id: "5", business_name: "Mangal Keyfi", city: "Bursa" }
+          },
+          {
+            id: "6",
+            slug: "firin-sutlac",
+            name: "Fırın Sütlaç",
+            description: "Fırında pişirilmiş, üzeri karamelize geleneksel sütlaç",
+            category: "tatlı",
+            price: 45.00,
+            image_url: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop",
+            portion_size: "1 kase",
+            prep_time: 15,
+            average_rating: 4.8,
+            order_count: 178,
+            instant_delivery: true,
+            scheduled_delivery: false,
+            chef_profiles: { id: "6", business_name: "Tatlı Dünya", city: "İstanbul" }
+          },
+          {
+            id: "7",
+            slug: "mercimek-corbasi",
+            name: "Mercimek Çorbası",
+            description: "Ev yapımı geleneksel mercimek çorbası, limon ve kruton ile",
+            category: "çorba",
+            price: 35.00,
+            image_url: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop",
+            portion_size: "1 kase",
+            prep_time: 10,
+            average_rating: 4.7,
+            order_count: 245,
+            instant_delivery: true,
+            scheduled_delivery: true,
+            chef_profiles: { id: "7", business_name: "Anadolu Mutfağı", city: "İstanbul" }
+          },
+          {
+            id: "8",
+            slug: "lahmacun",
+            name: "Lahmacun",
+            description: "İnce hamur üzerinde özel harç, taze sebzeler ile servis",
+            category: "et",
+            price: 25.00,
+            image_url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
+            portion_size: "2 adet",
+            prep_time: 15,
+            average_rating: 4.8,
+            order_count: 432,
+            instant_delivery: true,
+            scheduled_delivery: true,
+            chef_profiles: { id: "8", business_name: "Gaziantep Lezzetleri", city: "İstanbul" }
+          },
+        ];
+
+        setMenuItems(mockMenuItems);
+        setFilteredItems(mockMenuItems);
+      }
 
     } catch (error) {
       console.error("Error:", error);

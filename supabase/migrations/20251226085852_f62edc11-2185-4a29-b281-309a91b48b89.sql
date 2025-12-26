@@ -1,0 +1,9 @@
+-- Insert sample chef profiles using existing user IDs
+INSERT INTO public.chef_profiles (id, user_id, business_name, description, city, address, phone, rating, total_orders, is_active, is_available, min_order_amount, delivery_radius, latitude, longitude)
+VALUES 
+  (gen_random_uuid(), '68fbe442-5352-415f-9849-d31e1934bfd8', 'Zeynep''in Mutfağı', 'Geleneksel Türk mutfağının en lezzetli örneklerini sunuyoruz. 15 yıllık tecrübemizle ev yapımı lezzetler.', 'İstanbul', 'Kadıköy, Moda Caddesi No:45', '0532 123 4567', 4.9, 234, true, true, 50, 5, 40.9876, 29.0289),
+  (gen_random_uuid(), '5b169fc4-bac6-46f4-bab1-413d98fc521d', 'Ayşe Ana''nın Sofrası', 'Anneannemden öğrendiğim tariflerle, sevgiyle hazırlanan yemekler. Organik ve taze malzemeler kullanıyoruz.', 'Ankara', 'Çankaya, Tunalı Hilmi Caddesi No:78', '0533 234 5678', 4.8, 189, true, true, 40, 7, 39.9208, 32.8541),
+  (gen_random_uuid(), '05885991-d3ae-4fee-a0b7-dded510d4ab2', 'Mehmet Usta', 'Ege mutfağının eşsiz lezzetleri. 20 yıldır profesyonel aşçılık yapıyorum.', 'İzmir', 'Alsancak, Kıbrıs Şehitleri Caddesi No:23', '0534 345 6789', 4.7, 156, true, true, 60, 6, 38.4237, 27.1428),
+  (gen_random_uuid(), '37fec113-6f2d-4664-a593-b671b0f2291a', 'Yeşil Mutfak', 'Vegan ve vejetaryen lezzetler. Sağlıklı, besleyici ve lezzetli yemekler.', 'İstanbul', 'Beşiktaş, Akaretler No:12', '0535 456 7890', 4.6, 98, true, true, 45, 4, 41.0422, 29.0083),
+  (gen_random_uuid(), 'c8fa4497-d490-4101-8036-8aef500a9381', 'Gaziantep Lezzetleri', 'Orijinal Antep yemekleri. Lahmacun, kebap ve baklava ustasıyız.', 'İstanbul', 'Fatih, Aksaray No:56', '0536 567 8901', 4.8, 312, true, true, 35, 8, 41.0082, 28.9784)
+ON CONFLICT DO NOTHING;

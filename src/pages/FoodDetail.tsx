@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NeYesemHeader from "@/components/NeYesemHeader";
@@ -70,6 +72,7 @@ const FoodDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { addToCart, getCartCount, cart } = useCart();
 
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -222,12 +225,20 @@ const FoodDetail = () => {
     }
   }, []);
 
-  const addToCart = () => {
+  const handleAddToCart = () => {
     if (!selectedSeller) return;
-    toast({
-      title: "Sepete Eklendi ✓",
-      description: `${quantity}x ${foodItem.name} - ${selectedSeller.chef_name}`,
-    });
+    
+    addToCart({
+      id: foodItem.id + "-" + selectedSeller.id,
+      name: foodItem.name,
+      description: foodItem.description,
+      price: selectedSeller.price,
+      image_url: foodItem.image_url,
+      chef_id: selectedSeller.chef_id,
+      chef_name: selectedSeller.chef_name,
+      prep_time: selectedSeller.prep_time,
+      category: foodItem.category,
+    }, quantity);
   };
 
   const [selectedImage, setSelectedImage] = useState(0);
@@ -438,7 +449,7 @@ const FoodDetail = () => {
                       <Button
                         size="lg"
                         className="flex-1 bg-orange-500 hover:bg-orange-600 h-12 text-lg font-bold"
-                        onClick={addToCart}
+                        onClick={handleAddToCart}
                       >
                         <ShoppingCart className="h-5 w-5 mr-2" />
                         Sepete Ekle - ₺{(selectedSeller.price * quantity).toFixed(2)}

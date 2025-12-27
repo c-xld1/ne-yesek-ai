@@ -67,3 +67,15 @@ verify_jwt = false
 
 [functions.ai-recipe-assistant]
 verify_jwt = true
+
+[functions.neyesem-ai-matching]
+verify_jwt = false
+
+[functions.neyesem-chef-analytics]
+verify_jwt = true
+
+[functions.neyesem-trust-score]
+verify_jwt = true
+
+[functions.neyesem-order-optimizer]
+verify_jwt = true

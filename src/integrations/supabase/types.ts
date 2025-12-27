@@ -95,6 +95,53 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_recommendations: {
+        Row: {
+          chef_id: string | null
+          created_at: string | null
+          factors: Json | null
+          id: string
+          is_clicked: boolean | null
+          is_shown: boolean | null
+          reason: string
+          recommendation_type: string
+          score: number | null
+          user_id: string | null
+        }
+        Insert: {
+          chef_id?: string | null
+          created_at?: string | null
+          factors?: Json | null
+          id?: string
+          is_clicked?: boolean | null
+          is_shown?: boolean | null
+          reason: string
+          recommendation_type: string
+          score?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          chef_id?: string | null
+          created_at?: string | null
+          factors?: Json | null
+          id?: string
+          is_clicked?: boolean | null
+          is_shown?: boolean | null
+          reason?: string
+          recommendation_type?: string
+          score?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_recommendations_chef_id_fkey"
+            columns: ["chef_id"]
+            isOneToOne: false
+            referencedRelation: "chef_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       answer_likes: {
         Row: {
           answer_id: string | null
@@ -523,62 +570,268 @@ export type Database = {
       chef_profiles: {
         Row: {
           address: string | null
+          ai_status_label: string | null
+          avg_prep_time: number | null
           business_name: string
           city: string | null
+          commission_rate: number | null
           created_at: string | null
+          current_daily_orders: number | null
+          daily_order_limit: number | null
           delivery_radius: number | null
           description: string | null
           id: string
           is_active: boolean | null
           is_available: boolean | null
+          is_female: boolean | null
+          is_verified: boolean | null
           latitude: number | null
           longitude: number | null
           min_order_amount: number | null
           phone: string | null
           rating: number | null
+          status: string | null
+          total_earnings: number | null
           total_orders: number | null
+          trust_score: number | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           address?: string | null
+          ai_status_label?: string | null
+          avg_prep_time?: number | null
           business_name: string
           city?: string | null
+          commission_rate?: number | null
           created_at?: string | null
+          current_daily_orders?: number | null
+          daily_order_limit?: number | null
           delivery_radius?: number | null
           description?: string | null
           id?: string
           is_active?: boolean | null
           is_available?: boolean | null
+          is_female?: boolean | null
+          is_verified?: boolean | null
           latitude?: number | null
           longitude?: number | null
           min_order_amount?: number | null
           phone?: string | null
           rating?: number | null
+          status?: string | null
+          total_earnings?: number | null
           total_orders?: number | null
+          trust_score?: number | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           address?: string | null
+          ai_status_label?: string | null
+          avg_prep_time?: number | null
           business_name?: string
           city?: string | null
+          commission_rate?: number | null
           created_at?: string | null
+          current_daily_orders?: number | null
+          daily_order_limit?: number | null
           delivery_radius?: number | null
           description?: string | null
           id?: string
           is_active?: boolean | null
           is_available?: boolean | null
+          is_female?: boolean | null
+          is_verified?: boolean | null
           latitude?: number | null
           longitude?: number | null
           min_order_amount?: number | null
           phone?: string | null
           rating?: number | null
+          status?: string | null
+          total_earnings?: number | null
           total_orders?: number | null
+          trust_score?: number | null
           updated_at?: string | null
           user_id?: string
         }
         Relationships: []
+      }
+      courier_routes: {
+        Row: {
+          actual_delivery_time: string | null
+          actual_pickup_time: string | null
+          courier_id: string | null
+          created_at: string | null
+          delivery_latitude: number
+          delivery_longitude: number
+          distance_km: number | null
+          estimated_delivery_time: string | null
+          estimated_pickup_time: string | null
+          id: string
+          order_id: string | null
+          pickup_latitude: number
+          pickup_longitude: number
+          route_order: number | null
+          status: string | null
+        }
+        Insert: {
+          actual_delivery_time?: string | null
+          actual_pickup_time?: string | null
+          courier_id?: string | null
+          created_at?: string | null
+          delivery_latitude: number
+          delivery_longitude: number
+          distance_km?: number | null
+          estimated_delivery_time?: string | null
+          estimated_pickup_time?: string | null
+          id?: string
+          order_id?: string | null
+          pickup_latitude: number
+          pickup_longitude: number
+          route_order?: number | null
+          status?: string | null
+        }
+        Update: {
+          actual_delivery_time?: string | null
+          actual_pickup_time?: string | null
+          courier_id?: string | null
+          created_at?: string | null
+          delivery_latitude?: number
+          delivery_longitude?: number
+          distance_km?: number | null
+          estimated_delivery_time?: string | null
+          estimated_pickup_time?: string | null
+          id?: string
+          order_id?: string | null
+          pickup_latitude?: number
+          pickup_longitude?: number
+          route_order?: number | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courier_routes_courier_id_fkey"
+            columns: ["courier_id"]
+            isOneToOne: false
+            referencedRelation: "couriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courier_routes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couriers: {
+        Row: {
+          avatar_url: string | null
+          avg_delivery_time: number | null
+          created_at: string | null
+          current_latitude: number | null
+          current_load: number | null
+          current_longitude: number | null
+          fullname: string
+          id: string
+          is_active: boolean | null
+          max_load: number | null
+          phone: string
+          status: Database["public"]["Enums"]["courier_status"] | null
+          total_deliveries: number | null
+          trust_score: number | null
+          updated_at: string | null
+          user_id: string
+          vehicle_type: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          avg_delivery_time?: number | null
+          created_at?: string | null
+          current_latitude?: number | null
+          current_load?: number | null
+          current_longitude?: number | null
+          fullname: string
+          id?: string
+          is_active?: boolean | null
+          max_load?: number | null
+          phone: string
+          status?: Database["public"]["Enums"]["courier_status"] | null
+          total_deliveries?: number | null
+          trust_score?: number | null
+          updated_at?: string | null
+          user_id: string
+          vehicle_type?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          avg_delivery_time?: number | null
+          created_at?: string | null
+          current_latitude?: number | null
+          current_load?: number | null
+          current_longitude?: number | null
+          fullname?: string
+          id?: string
+          is_active?: boolean | null
+          max_load?: number | null
+          phone?: string
+          status?: Database["public"]["Enums"]["courier_status"] | null
+          total_deliveries?: number | null
+          trust_score?: number | null
+          updated_at?: string | null
+          user_id?: string
+          vehicle_type?: string | null
+        }
+        Relationships: []
+      }
+      delivery_slots: {
+        Row: {
+          chef_id: string | null
+          created_at: string | null
+          current_orders: number | null
+          delivery_type: Database["public"]["Enums"]["delivery_type"] | null
+          end_time: string
+          id: string
+          is_active: boolean | null
+          max_orders: number | null
+          slot_date: string
+          start_time: string
+        }
+        Insert: {
+          chef_id?: string | null
+          created_at?: string | null
+          current_orders?: number | null
+          delivery_type?: Database["public"]["Enums"]["delivery_type"] | null
+          end_time: string
+          id?: string
+          is_active?: boolean | null
+          max_orders?: number | null
+          slot_date: string
+          start_time: string
+        }
+        Update: {
+          chef_id?: string | null
+          created_at?: string | null
+          current_orders?: number | null
+          delivery_type?: Database["public"]["Enums"]["delivery_type"] | null
+          end_time?: string
+          id?: string
+          is_active?: boolean | null
+          max_orders?: number | null
+          slot_date?: string
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_slots_chef_id_fkey"
+            columns: ["chef_id"]
+            isOneToOne: false
+            referencedRelation: "chef_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       follows: {
         Row: {
@@ -818,42 +1071,110 @@ export type Database = {
           },
         ]
       }
+      order_status_logs: {
+        Row: {
+          changed_by: string | null
+          created_at: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          notes: string | null
+          order_id: string | null
+          status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          notes?: string | null
+          order_id?: string | null
+          status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          notes?: string | null
+          order_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
+          actual_delivery_time: string | null
+          ai_assigned: boolean | null
+          ai_notes: string | null
           chef_id: string
+          courier_id: string | null
           created_at: string | null
           customer_id: string
+          delay_risk_score: number | null
           delivery_address: string | null
+          delivery_latitude: number | null
+          delivery_longitude: number | null
           delivery_time: string | null
           delivery_type: string
+          estimated_delivery_time: string | null
           id: string
           notes: string | null
+          slot_id: string | null
           status: string | null
           total_amount: number
           updated_at: string | null
         }
         Insert: {
+          actual_delivery_time?: string | null
+          ai_assigned?: boolean | null
+          ai_notes?: string | null
           chef_id: string
+          courier_id?: string | null
           created_at?: string | null
           customer_id: string
+          delay_risk_score?: number | null
           delivery_address?: string | null
+          delivery_latitude?: number | null
+          delivery_longitude?: number | null
           delivery_time?: string | null
           delivery_type: string
+          estimated_delivery_time?: string | null
           id?: string
           notes?: string | null
+          slot_id?: string | null
           status?: string | null
           total_amount: number
           updated_at?: string | null
         }
         Update: {
+          actual_delivery_time?: string | null
+          ai_assigned?: boolean | null
+          ai_notes?: string | null
           chef_id?: string
+          courier_id?: string | null
           created_at?: string | null
           customer_id?: string
+          delay_risk_score?: number | null
           delivery_address?: string | null
+          delivery_latitude?: number | null
+          delivery_longitude?: number | null
           delivery_time?: string | null
           delivery_type?: string
+          estimated_delivery_time?: string | null
           id?: string
           notes?: string | null
+          slot_id?: string | null
           status?: string | null
           total_amount?: number
           updated_at?: string | null
@@ -864,6 +1185,20 @@ export type Database = {
             columns: ["chef_id"]
             isOneToOne: false
             referencedRelation: "chef_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_courier_id_fkey"
+            columns: ["courier_id"]
+            isOneToOne: false
+            referencedRelation: "couriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_slots"
             referencedColumns: ["id"]
           },
         ]
@@ -1392,6 +1727,33 @@ export type Database = {
         }
         Relationships: []
       }
+      trust_scores: {
+        Row: {
+          calculated_at: string | null
+          entity_id: string
+          entity_type: string
+          factors: Json | null
+          id: string
+          score: number
+        }
+        Insert: {
+          calculated_at?: string | null
+          entity_id: string
+          entity_type: string
+          factors?: Json | null
+          id?: string
+          score: number
+        }
+        Update: {
+          calculated_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          factors?: Json | null
+          id?: string
+          score?: number
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_key: string
@@ -1497,6 +1859,90 @@ export type Database = {
           },
         ]
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          order_id: string | null
+          status: string | null
+          type: string
+          wallet_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          status?: string | null
+          type: string
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          status?: string | null
+          type?: string
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          pending_balance: number | null
+          total_earned: number | null
+          total_withdrawn: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          pending_balance?: number | null
+          total_earned?: number | null
+          total_withdrawn?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          pending_balance?: number | null
+          total_earned?: number | null
+          total_withdrawn?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1519,6 +1965,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "chef" | "user"
+      courier_status: "available" | "busy" | "offline" | "break"
+      delivery_type: "instant" | "scheduled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1647,6 +2095,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "chef", "user"],
+      courier_status: ["available", "busy", "offline", "break"],
+      delivery_type: ["instant", "scheduled"],
     },
   },
 } as const

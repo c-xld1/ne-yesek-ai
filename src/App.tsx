@@ -58,6 +58,9 @@ import GamificationAdmin from "./pages/GamificationAdmin";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import MapView from "./pages/MapView";
+import ChefDashboardAI from "./pages/ChefDashboardAI";
+import CourierDashboard from "./pages/CourierDashboard";
+import OrderTracking from "./pages/OrderTracking";
 
 const queryClient = new QueryClient();
 
@@ -125,6 +128,9 @@ const App = () => (
             <Route path="/sef-basvuru" element={<ChefApplication />} />
             <Route path="/neyesem/sepet" element={<Cart />} />
             <Route path="/neyesem/odeme" element={<Checkout />} />
+            <Route path="/neyesem/siparis/:orderId" element={<OrderTracking />} />
+            <Route path="/sef-paneli-ai" element={<ChefDashboardAI />} />
+            <Route path="/kurye-paneli" element={<CourierDashboard />} />
             <Route path="/ayarlar" element={<Settings />} />
             <Route path="/gamification-admin" element={<GamificationAdmin />} />
             <Route path="*" element={<NotFound />} />

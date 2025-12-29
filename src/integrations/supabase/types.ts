@@ -172,13 +172,6 @@ export type Database = {
             referencedRelation: "answers"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "answer_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       answers: {
@@ -235,24 +228,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "answers_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "answers_question_id_fkey"
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "questions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "answers_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -786,6 +765,58 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_sales: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          date: string | null
+          id: string
+          product_id: string
+          quantity: number | null
+          store_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          date?: string | null
+          id?: string
+          product_id: string
+          quantity?: number | null
+          store_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          date?: string | null
+          id?: string
+          product_id?: string
+          quantity?: number | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_sales_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_sales_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       delivery_slots: {
         Row: {
           chef_id: string | null
@@ -853,6 +884,61 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      inventory_counts: {
+        Row: {
+          count_date: string | null
+          counted_by: string | null
+          counted_quantity: number
+          created_at: string | null
+          id: string
+          note: string | null
+          product_id: string
+          store_id: string
+        }
+        Insert: {
+          count_date?: string | null
+          counted_by?: string | null
+          counted_quantity: number
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          product_id: string
+          store_id: string
+        }
+        Update: {
+          count_date?: string | null
+          counted_by?: string | null
+          counted_quantity?: number
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          product_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_counts_counted_by_fkey"
+            columns: ["counted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_counts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_counts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       meals: {
         Row: {
@@ -1203,56 +1289,81 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      products: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
-          cover_image: string | null
+          barcode: string | null
+          box_quantity: number | null
           created_at: string | null
-          fullname: string
           id: string
-          instagram: string | null
-          location: string | null
-          twitter: string | null
-          updated_at: string | null
-          user_group: string | null
-          username: string
-          website: string | null
-          youtube: string | null
+          initial_stock: number | null
+          is_active: boolean | null
+          name: string
+          store_id: string
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_image?: string | null
+          barcode?: string | null
+          box_quantity?: number | null
           created_at?: string | null
-          fullname: string
-          id: string
-          instagram?: string | null
-          location?: string | null
-          twitter?: string | null
-          updated_at?: string | null
-          user_group?: string | null
-          username: string
-          website?: string | null
-          youtube?: string | null
+          id?: string
+          initial_stock?: number | null
+          is_active?: boolean | null
+          name: string
+          store_id: string
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_image?: string | null
+          barcode?: string | null
+          box_quantity?: number | null
           created_at?: string | null
-          fullname?: string
           id?: string
-          instagram?: string | null
-          location?: string | null
-          twitter?: string | null
-          updated_at?: string | null
-          user_group?: string | null
-          username?: string
-          website?: string | null
-          youtube?: string | null
+          initial_stock?: number | null
+          is_active?: boolean | null
+          name?: string
+          store_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          role: string | null
+          store_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          role?: string | null
+          store_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          store_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       question_likes: {
         Row: {
@@ -1282,13 +1393,6 @@ export type Database = {
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "questions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "question_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1386,22 +1490,7 @@ export type Database = {
           username?: string | null
           views?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "questions_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "questions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       recipe_comments: {
         Row: {
@@ -1540,13 +1629,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "recipes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1727,6 +1809,27 @@ export type Database = {
         }
         Relationships: []
       }
+      stores: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       trust_scores: {
         Row: {
           calculated_at: string | null
@@ -1848,13 +1951,6 @@ export type Database = {
             columns: ["recipe_id"]
             isOneToOne: false
             referencedRelation: "recipes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "video_stories_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

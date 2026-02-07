@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 interface TrustFactors {
@@ -18,26 +18,74 @@ interface TrustFactors {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
+    // Security: Validate authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Create client with user's auth token
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user's token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log('Trust Score request from user:', userId);
+
+    // Use service role for database operations
+    const supabaseService = createClient(
+      supabaseUrl,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
 
     const { entity_type, entity_id, recalculate_all } = await req.json();
 
+    // For recalculate_all, require admin role
     if (recalculate_all) {
+      const { data: adminRole } = await supabaseService
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .single();
+
+      if (!adminRole) {
+        return new Response(
+          JSON.stringify({ error: 'Admin access required for bulk recalculation' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       // Tüm şeflerin güven skorlarını yeniden hesapla
-      const { data: chefs } = await supabase
+      const { data: chefs } = await supabaseService
         .from('chef_profiles')
         .select('id')
         .eq('is_active', true);
 
       const results = [];
       for (const chef of chefs || []) {
-        const score = await calculateChefTrustScore(supabase, chef.id);
+        const score = await calculateChefTrustScore(supabaseService, chef.id);
         results.push({ chef_id: chef.id, score });
       }
 
@@ -55,17 +103,17 @@ serve(async (req) => {
     let factors: TrustFactors | null = null;
 
     if (entity_type === 'chef') {
-      const result = await calculateChefTrustScore(supabase, entity_id);
+      const result = await calculateChefTrustScore(supabaseService, entity_id);
       score = result.score;
       factors = result.factors;
     } else if (entity_type === 'courier') {
-      const result = await calculateCourierTrustScore(supabase, entity_id);
+      const result = await calculateCourierTrustScore(supabaseService, entity_id);
       score = result.score;
       factors = result.factors;
     }
 
     // Güven skorunu kaydet
-    await supabase.from('trust_scores').insert({
+    await supabaseService.from('trust_scores').insert({
       entity_type,
       entity_id,
       score,

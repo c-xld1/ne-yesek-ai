@@ -38,27 +38,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const login = async (identifier: string, password: string): Promise<{ success: boolean; error?: string }> => {
         setLoading(true);
         let email = identifier;
-        // Eğer identifier e-posta formatında değilse, username olarak id ve email bul
+        
+        // Eğer identifier e-posta formatında değilse, username olarak email'i bul
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(identifier)) {
-            // username ile id bul
-            // @ts-ignore - profiles table has dynamic columns
+            // Security fix: Query profiles table directly (RLS allows public read)
+            // instead of using admin API which requires service role key
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
-                .select('id')
+                .select('id, email')
                 .eq('username', identifier)
                 .single();
-            if (profileError || !profile?.id) {
+                
+            if (profileError || !profile) {
                 setLoading(false);
-                return { success: false, error: 'Kullanıcı adı veya e-posta bulunamadı.' };
+                return { success: false, error: 'Kullanıcı adı bulunamadı.' };
             }
-            // id ile Supabase Auth'dan email bul
-            const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profile.id);
-            if (userError || !userData?.user?.email) {
+            
+            // profiles table should have email column - if not, user needs to login with email
+            if (!profile.email) {
                 setLoading(false);
-                return { success: false, error: 'Kullanıcı e-posta bilgisi bulunamadı.' };
+                return { success: false, error: 'Lütfen e-posta adresinizle giriş yapın.' };
             }
-            email = userData.user.email;
+            
+            email = profile.email;
         }
+        
         let loginResponse;
         try {
             loginResponse = await supabase.auth.signInWithPassword({ email, password });
@@ -79,7 +83,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return { success: false, error: message };
         }
         if (data.user) {
-            // @ts-ignore - profiles table has dynamic columns
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('username, fullname, avatar_url, bio')
@@ -98,6 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
         return { success: true };
     };
+
     const signUp = async (email: string, password: string, username: string, fullname: string): Promise<{ success: boolean; error?: string }> => {
         setLoading(true);
         try {
@@ -196,7 +200,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-            // @ts-ignore - profiles table has dynamic columns
             const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('username, fullname, avatar_url, bio')
@@ -207,13 +210,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             // Eğer profil yoksa ve hata PGRST116 ise (no rows), profil oluştur
             if (!profile && (!error || error.code === 'PGRST116')) {
                 console.log('Creating missing profile for user:', session.user.id);
-                // @ts-ignore - profiles table has dynamic columns
                 const { data: newProfile } = await supabase
                     .from('profiles')
                     .insert({
                         id: session.user.id,
                         username: session.user.email?.split('@')[0] || `user_${session.user.id.substring(0, 8)}`,
                         fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
+                        email: session.user.email,
                         bio: "",
                         avatar_url: "",
                     } as any)
@@ -271,6 +274,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                             id: session.user.id,
                                             username: session.user.email?.split('@')[0] || `user_${session.user.id.substring(0, 8)}`,
                                             fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
+                                            email: session.user.email,
                                             bio: "",
                                             avatar_url: "",
                                         } as any)
@@ -329,6 +333,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                         id: session.user.id,
                                         username: session.user.email?.split('@')[0] || `user_${session.user.id.substring(0, 8)}`,
                                         fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
+                                        email: session.user.email,
                                         bio: "",
                                         avatar_url: "",
                                     } as any)

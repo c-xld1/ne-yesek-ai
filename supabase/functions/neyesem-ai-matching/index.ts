@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 interface MatchingRequest {
@@ -92,19 +92,52 @@ function getAIStatus(chef: any): string {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
+    // Security: Validate authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Create client with user's auth token
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user's token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log('AI Matching request from user:', userId);
+
+    // Use service role for database operations that need elevated access
+    const supabaseService = createClient(
+      supabaseUrl,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
 
     const body: MatchingRequest = await req.json();
-    const { user_latitude, user_longitude, delivery_type, max_distance_km = 10, user_id } = body;
+    const { user_latitude, user_longitude, delivery_type, max_distance_km = 10 } = body;
 
     // Aktif, onaylı, kadın şefleri getir
-    const { data: chefs, error: chefsError } = await supabase
+    const { data: chefs, error: chefsError } = await supabaseService
       .from('chef_profiles')
       .select(`
         *,
@@ -119,11 +152,11 @@ serve(async (req) => {
 
     // Kullanıcı geçmiş siparişlerini al
     let userHistory: any[] = [];
-    if (user_id) {
-      const { data: orders } = await supabase
+    if (userId) {
+      const { data: orders } = await supabaseService
         .from('orders')
         .select('chef_id')
-        .eq('customer_id', user_id)
+        .eq('customer_id', userId)
         .order('created_at', { ascending: false })
         .limit(10);
       userHistory = orders || [];
@@ -166,9 +199,9 @@ serve(async (req) => {
     scoredChefs.sort((a, b) => b.score - a.score);
 
     // AI önerilerini kaydet
-    if (user_id && scoredChefs.length > 0) {
+    if (userId && scoredChefs.length > 0) {
       const recommendations = scoredChefs.slice(0, 5).map(sc => ({
-        user_id,
+        user_id: userId,
         chef_id: sc.chef_id,
         recommendation_type: 'location_match',
         reason: sc.reasons.join(', '),
@@ -180,7 +213,7 @@ serve(async (req) => {
         }
       }));
 
-      await supabase.from('ai_recommendations').insert(recommendations);
+      await supabaseService.from('ai_recommendations').insert(recommendations);
     }
 
     return new Response(JSON.stringify({

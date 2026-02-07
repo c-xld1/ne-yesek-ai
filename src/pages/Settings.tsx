@@ -237,9 +237,10 @@ const Settings = () => {
     };
     console.log("Update data:", updateData);
 
+    // @ts-ignore - profiles table has dynamic columns
     const { data, error } = await supabase
       .from("profiles")
-      .update(updateData)
+      .update(updateData as any)
       .eq("id", user?.id)
       .select();
 

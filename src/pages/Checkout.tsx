@@ -106,28 +106,32 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Ödeme</h1>
+      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 pb-24 md:pb-8">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Ödeme</h1>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
             {/* Delivery Type */}
             <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" />Teslimat Tipi</CardTitle></CardHeader>
-              <CardContent>
-                <RadioGroup value={deliveryType} onValueChange={setDeliveryType}>
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <Clock className="h-4 w-4 md:h-5 md:w-5" />Teslimat Tipi
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <RadioGroup value={deliveryType} onValueChange={setDeliveryType} className="space-y-2 md:space-y-3">
+                  <div className="flex items-center space-x-2 p-3 md:p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="instant" id="instant" />
                     <Label htmlFor="instant" className="flex-1 cursor-pointer">
-                      <p className="font-medium">Hızlı Teslimat</p>
-                      <p className="text-sm text-gray-500">45-60 dakika içinde</p>
+                      <p className="font-medium text-sm md:text-base">Hızlı Teslimat</p>
+                      <p className="text-xs md:text-sm text-gray-500">45-60 dakika içinde</p>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 mt-3">
+                  <div className="flex items-center space-x-2 p-3 md:p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="scheduled" id="scheduled" />
                     <Label htmlFor="scheduled" className="flex-1 cursor-pointer">
-                      <p className="font-medium">Randevulu Teslimat</p>
-                      <p className="text-sm text-gray-500">İstediğiniz saatte</p>
+                      <p className="font-medium text-sm md:text-base">Randevulu Teslimat</p>
+                      <p className="text-xs md:text-sm text-gray-500">İstediğiniz saatte</p>
                     </Label>
                   </div>
                 </RadioGroup>
@@ -136,33 +140,65 @@ const Checkout = () => {
 
             {/* Delivery Address */}
             <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5" />Teslimat Adresi</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div><Label htmlFor="fullName">Ad Soyad</Label><Input id="fullName" value={addressForm.fullName} onChange={(e) => setAddressForm({ ...addressForm, fullName: e.target.value })} placeholder="Ad Soyad" /></div>
-                  <div><Label htmlFor="phone">Telefon</Label><Input id="phone" value={addressForm.phone} onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })} placeholder="+90 5XX XXX XX XX" /></div>
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <MapPin className="h-4 w-4 md:h-5 md:w-5" />Teslimat Adresi
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 md:space-y-4 pt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div>
+                    <Label htmlFor="fullName" className="text-xs md:text-sm">Ad Soyad</Label>
+                    <Input id="fullName" value={addressForm.fullName} onChange={(e) => setAddressForm({ ...addressForm, fullName: e.target.value })} placeholder="Ad Soyad" className="mt-1 h-9 md:h-10 text-sm md:text-base" />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone" className="text-xs md:text-sm">Telefon</Label>
+                    <Input id="phone" value={addressForm.phone} onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })} placeholder="+90 5XX XXX XX XX" className="mt-1 h-9 md:h-10 text-sm md:text-base" />
+                  </div>
                 </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div><Label htmlFor="city">İl</Label><Input id="city" value={addressForm.city} onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })} /></div>
-                  <div><Label htmlFor="district">İlçe</Label><Input id="district" value={addressForm.district} onChange={(e) => setAddressForm({ ...addressForm, district: e.target.value })} placeholder="İlçe" /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div>
+                    <Label htmlFor="city" className="text-xs md:text-sm">İl</Label>
+                    <Input id="city" value={addressForm.city} onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })} className="mt-1 h-9 md:h-10 text-sm md:text-base" />
+                  </div>
+                  <div>
+                    <Label htmlFor="district" className="text-xs md:text-sm">İlçe</Label>
+                    <Input id="district" value={addressForm.district} onChange={(e) => setAddressForm({ ...addressForm, district: e.target.value })} placeholder="İlçe" className="mt-1 h-9 md:h-10 text-sm md:text-base" />
+                  </div>
                 </div>
-                <div><Label htmlFor="address">Adres</Label><Textarea id="address" value={addressForm.address} onChange={(e) => setAddressForm({ ...addressForm, address: e.target.value })} placeholder="Mahalle, sokak, bina no, daire no" rows={3} /></div>
-                <div><Label htmlFor="notes">Sipariş Notu (Opsiyonel)</Label><Textarea id="notes" value={addressForm.notes} onChange={(e) => setAddressForm({ ...addressForm, notes: e.target.value })} placeholder="Kurye için not" rows={2} /></div>
+                <div>
+                  <Label htmlFor="address" className="text-xs md:text-sm">Adres</Label>
+                  <Textarea id="address" value={addressForm.address} onChange={(e) => setAddressForm({ ...addressForm, address: e.target.value })} placeholder="Mahalle, sokak, bina no, daire no" rows={3} className="mt-1 text-sm md:text-base" />
+                </div>
+                <div>
+                  <Label htmlFor="notes" className="text-xs md:text-sm">Sipariş Notu (Opsiyonel)</Label>
+                  <Textarea id="notes" value={addressForm.notes} onChange={(e) => setAddressForm({ ...addressForm, notes: e.target.value })} placeholder="Kurye için not" rows={2} className="mt-1 text-sm md:text-base" />
+                </div>
               </CardContent>
             </Card>
 
             {/* Payment Method */}
             <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" />Ödeme Yöntemi</CardTitle></CardHeader>
-              <CardContent>
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <CreditCard className="h-4 w-4 md:h-5 md:w-5" />Ödeme Yöntemi
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2 md:space-y-3">
+                  <div className="flex items-center space-x-2 p-3 md:p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex-1 cursor-pointer flex items-center gap-2"><CreditCard className="h-4 w-4" /><span className="font-medium">Kredi/Banka Kartı</span></Label>
+                    <Label htmlFor="card" className="flex-1 cursor-pointer flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      <span className="font-medium text-sm md:text-base">Kredi/Banka Kartı</span>
+                    </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 mt-3">
+                  <div className="flex items-center space-x-2 p-3 md:p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="cash" id="cash" />
-                    <Label htmlFor="cash" className="flex-1 cursor-pointer flex items-center gap-2"><Wallet className="h-4 w-4" /><span className="font-medium">Kapıda Ödeme</span></Label>
+                    <Label htmlFor="cash" className="flex-1 cursor-pointer flex items-center gap-2">
+                      <Wallet className="h-4 w-4" />
+                      <span className="font-medium text-sm md:text-base">Kapıda Ödeme</span>
+                    </Label>
                   </div>
                 </RadioGroup>
               </CardContent>
@@ -172,24 +208,26 @@ const Checkout = () => {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <Card className="sticky top-4">
-              <CardHeader><CardTitle>Sipariş Özeti</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="text-base md:text-lg">Sipariş Özeti</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 md:space-y-4 pt-0">
+                <div className="space-y-2 md:space-y-3">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-gray-600">{item.quantity}x {item.name}</span>
+                    <div key={item.id} className="flex justify-between text-xs md:text-sm">
+                      <span className="text-gray-600 truncate max-w-[60%]">{item.quantity}x {item.name}</span>
                       <span className="font-medium">{(item.price * item.quantity).toFixed(2)} ₺</span>
                     </div>
                   ))}
                 </div>
                 <Separator />
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm"><span className="text-gray-600">Ara Toplam</span><span className="font-medium">{getCartTotal().toFixed(2)} ₺</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-gray-600">Teslimat</span><span className="font-medium">{getDeliveryFee().toFixed(2)} ₺</span></div>
+                  <div className="flex justify-between text-xs md:text-sm"><span className="text-gray-600">Ara Toplam</span><span className="font-medium">{getCartTotal().toFixed(2)} ₺</span></div>
+                  <div className="flex justify-between text-xs md:text-sm"><span className="text-gray-600">Teslimat</span><span className="font-medium">{getDeliveryFee().toFixed(2)} ₺</span></div>
                 </div>
                 <Separator />
-                <div className="flex justify-between"><span className="text-lg font-bold">Toplam</span><span className="text-lg font-bold text-orange-600">{(getCartTotal() + getDeliveryFee()).toFixed(2)} ₺</span></div>
-                <Button onClick={handlePlaceOrder} disabled={loading} className="w-full bg-orange-500 hover:bg-orange-600 h-12">
+                <div className="flex justify-between"><span className="text-base md:text-lg font-bold">Toplam</span><span className="text-base md:text-lg font-bold text-orange-600">{(getCartTotal() + getDeliveryFee()).toFixed(2)} ₺</span></div>
+                <Button onClick={handlePlaceOrder} disabled={loading} className="w-full bg-orange-500 hover:bg-orange-600 h-10 md:h-12 text-sm md:text-base">
                   {loading ? "İşleniyor..." : <><CheckCircle className="h-4 w-4 mr-2" />Siparişi Tamamla</>}
                 </Button>
               </CardContent>

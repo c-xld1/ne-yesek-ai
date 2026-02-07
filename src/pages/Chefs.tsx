@@ -101,36 +101,36 @@ const Chefs = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 pb-24 md:pb-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <ChefHat className="h-8 w-8 text-orange-500" />
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <div className="mb-6 md:mb-8">
+          <div className="flex items-center gap-3 mb-3 md:mb-4">
+            <ChefHat className="h-6 w-6 md:h-8 md:w-8 text-orange-500" />
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
               Tüm Şefler
             </h1>
           </div>
-          <p className="text-gray-600">
+          <p className="text-sm md:text-base text-gray-600">
             Deneyimli şeflerimizden ev yapımı lezzetleri keşfedin
           </p>
         </div>
 
         {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative max-w-2xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="mb-6 md:mb-8">
+          <div className="relative w-full md:max-w-2xl">
+            <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
             <Input
               placeholder="Şef adı, şehir veya mutfak türü ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-12 text-base rounded-lg border-2 focus:border-orange-500"
+              className="pl-10 md:pl-12 h-10 md:h-12 text-sm md:text-base rounded-lg md:rounded-xl border-2 focus:border-orange-500"
             />
           </div>
         </div>
 
         {/* Results Count */}
-        <div className="mb-6">
-          <p className="text-gray-600">
+        <div className="mb-4 md:mb-6">
+          <p className="text-sm md:text-base text-gray-600">
             <span className="font-semibold text-gray-900">{filteredChefs.length}</span> şef bulundu
           </p>
         </div>
@@ -139,12 +139,12 @@ const Chefs = () => {
         {filteredChefs.length > 0 ? (
           <ChefsList chefs={filteredChefs} />
         ) : (
-          <div className="text-center py-20">
-            <ChefHat className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-700 mb-2">
+          <div className="text-center py-12 md:py-20">
+            <ChefHat className="h-12 w-12 md:h-16 md:w-16 text-gray-300 mx-auto mb-3 md:mb-4" />
+            <h3 className="text-lg md:text-xl font-bold text-gray-700 mb-2">
               Şef Bulunamadı
             </h3>
-            <p className="text-gray-500 mb-4">
+            <p className="text-sm md:text-base text-gray-500 mb-4">
               Arama kriterlerinize uygun şef bulunamadı
             </p>
             <Button

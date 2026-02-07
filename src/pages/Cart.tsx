@@ -46,33 +46,48 @@ const Cart = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Sepetim</h1>
-          <p className="text-gray-600">{cart.length} ürün</p>
+      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 pb-24 md:pb-8">
+        <div className="mb-4 md:mb-6">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 md:mb-2">Sepetim</h1>
+          <p className="text-sm md:text-base text-gray-600">{cart.length} ürün</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="lg:col-span-2 space-y-3 md:space-y-4">
             {cart.map((item) => (
               <Card key={item.id} className="overflow-hidden">
-                <CardContent className="p-4">
-                  <div className="flex gap-4">
-                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <CardContent className="p-3 md:p-4">
+                  <div className="flex gap-3 md:gap-4">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                       {item.image_url ? (
                         <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl">🍽️</div>
+                        <div className="w-full h-full flex items-center justify-center text-2xl md:text-3xl">🍽️</div>
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                      <p className="text-sm text-gray-500 mb-2">{item.chef_name}</p>
-                      {item.prep_time && <p className="text-xs text-gray-400">Hazırlık: {item.prep_time} dk</p>}
+                      <h3 className="font-semibold text-gray-900 mb-0.5 md:mb-1 text-sm md:text-base truncate">{item.name}</h3>
+                      <p className="text-xs md:text-sm text-gray-500 mb-1 md:mb-2 truncate">{item.chef_name}</p>
+                      {item.prep_time && <p className="text-xs text-gray-400 hidden sm:block">Hazırlık: {item.prep_time} dk</p>}
+                      
+                      {/* Mobile price and quantity */}
+                      <div className="flex items-center justify-between mt-2 md:hidden">
+                        <p className="text-base font-bold text-gray-900">{(item.price * item.quantity).toFixed(2)} ₺</p>
+                        <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-0.5">
+                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-200">
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="w-6 text-center font-medium text-sm">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-200">
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex flex-col items-end justify-between">
+                    {/* Desktop controls */}
+                    <div className="hidden md:flex flex-col items-end justify-between">
                       <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-500 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -90,6 +105,11 @@ const Cart = () => {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Mobile delete button */}
+                    <button onClick={() => removeFromCart(item.id)} className="md:hidden text-gray-400 hover:text-red-500 transition-colors self-start">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </CardContent>
               </Card>

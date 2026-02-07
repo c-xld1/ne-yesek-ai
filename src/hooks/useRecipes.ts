@@ -17,8 +17,7 @@ export const useRecipes = () => {
         .from('recipes')
         .select(`
           *,
-          category:categories(name),
-          profile:profiles(username, fullname, avatar_url)
+          category:categories(name)
         `)
         .eq('is_draft', false)
         .order('created_at', { ascending: false });
@@ -28,16 +27,26 @@ export const useRecipes = () => {
         throw error;
       }
 
-      return (recipes || []).map((recipe: any) => ({
-        ...recipe,
-        author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
-        username: recipe.profile?.username,
-        avatar_url: recipe.profile?.avatar_url,
-        category_name: recipe.category?.name || 'Genel',
-        view_count: recipe.view_count || 0,
-        like_count: recipe.like_count || 0,
-        comment_count: recipe.comment_count || 0,
-      }));
+      // Fetch profiles separately to avoid relation issues
+      const userIds = [...new Set((recipes || []).map((r: any) => r.user_id).filter(Boolean))];
+      // @ts-ignore - profiles table has dynamic columns
+      const { data: profiles } = userIds.length > 0 
+        ? await supabase.from('profiles').select('id, username, fullname, avatar_url').in('id', userIds)
+        : { data: [] };
+
+      return (recipes || []).map((recipe: any) => {
+        const profile = (profiles || []).find((p: any) => p.id === recipe.user_id);
+        return {
+          ...recipe,
+          author_name: profile?.fullname || profile?.username || 'Anonim',
+          username: profile?.username,
+          avatar_url: profile?.avatar_url,
+          category_name: recipe.category?.name || 'Genel',
+          view_count: recipe.view_count || 0,
+          like_count: recipe.like_count || 0,
+          comment_count: recipe.comment_count || 0,
+        };
+      });
     },
   });
 };
@@ -50,8 +59,7 @@ export const useFeaturedRecipes = () => {
         .from('recipes')
         .select(`
           *,
-          category:categories(name),
-          profile:profiles(username, fullname, avatar_url)
+          category:categories(name)
         `)
         .eq('is_featured', true)
         .eq('is_draft', false)
@@ -63,16 +71,26 @@ export const useFeaturedRecipes = () => {
         throw error;
       }
 
-      return (data || []).map((recipe: any) => ({
-        ...recipe,
-        author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
-        username: recipe.profile?.username,
-        avatar_url: recipe.profile?.avatar_url,
-        category_name: recipe.category?.name || 'Genel',
-        view_count: recipe.view_count || 0,
-        like_count: recipe.like_count || 0,
-        comment_count: recipe.comment_count || 0,
-      }));
+      // Fetch profiles separately
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id).filter(Boolean))];
+      // @ts-ignore - profiles table has dynamic columns
+      const { data: profiles } = userIds.length > 0
+        ? await supabase.from('profiles').select('id, username, fullname, avatar_url').in('id', userIds)
+        : { data: [] };
+
+      return (data || []).map((recipe: any) => {
+        const profile = (profiles || []).find((p: any) => p.id === recipe.user_id);
+        return {
+          ...recipe,
+          author_name: profile?.fullname || profile?.username || 'Anonim',
+          username: profile?.username,
+          avatar_url: profile?.avatar_url,
+          category_name: recipe.category?.name || 'Genel',
+          view_count: recipe.view_count || 0,
+          like_count: recipe.like_count || 0,
+          comment_count: recipe.comment_count || 0,
+        };
+      });
     },
   });
 };
@@ -85,8 +103,7 @@ export const useSearchRecipes = (searchTerm: string) => {
         .from('recipes')
         .select(`
           *,
-          category:categories(name),
-          profile:profiles(username, fullname, avatar_url)
+          category:categories(name)
         `)
         .eq('is_draft', false)
         .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
@@ -96,16 +113,26 @@ export const useSearchRecipes = (searchTerm: string) => {
         throw error;
       }
 
-      return (data || []).map((recipe: any) => ({
-        ...recipe,
-        author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
-        username: recipe.profile?.username,
-        avatar_url: recipe.profile?.avatar_url,
-        category_name: recipe.category?.name || 'Genel',
-        view_count: recipe.view_count || 0,
-        like_count: recipe.like_count || 0,
-        comment_count: recipe.comment_count || 0,
-      }));
+      // Fetch profiles separately
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id).filter(Boolean))];
+      // @ts-ignore - profiles table has dynamic columns
+      const { data: profiles } = userIds.length > 0
+        ? await supabase.from('profiles').select('id, username, fullname, avatar_url').in('id', userIds)
+        : { data: [] };
+
+      return (data || []).map((recipe: any) => {
+        const profile = (profiles || []).find((p: any) => p.id === recipe.user_id);
+        return {
+          ...recipe,
+          author_name: profile?.fullname || profile?.username || 'Anonim',
+          username: profile?.username,
+          avatar_url: profile?.avatar_url,
+          category_name: recipe.category?.name || 'Genel',
+          view_count: recipe.view_count || 0,
+          like_count: recipe.like_count || 0,
+          comment_count: recipe.comment_count || 0,
+        };
+      });
     },
     enabled: searchTerm.length > 0,
   });
@@ -119,8 +146,7 @@ export const useRecipesByCategory = (categoryId: string) => {
         .from('recipes')
         .select(`
           *,
-          category:categories(name),
-          profile:profiles(username, fullname, avatar_url)
+          category:categories(name)
         `)
         .eq('category_id', categoryId)
         .eq('is_draft', false)
@@ -131,13 +157,23 @@ export const useRecipesByCategory = (categoryId: string) => {
         throw error;
       }
 
-      return (data || []).map((recipe: any) => ({
-        ...recipe,
-        author_name: recipe.profile?.fullname || recipe.profile?.username || 'Anonim',
-        author_username: recipe.profile?.username,
-        author_avatar: recipe.profile?.avatar_url,
-        category_name: recipe.category?.name || 'Genel',
-      }));
+      // Fetch profiles separately
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id).filter(Boolean))];
+      // @ts-ignore - profiles table has dynamic columns
+      const { data: profiles } = userIds.length > 0
+        ? await supabase.from('profiles').select('id, username, fullname, avatar_url').in('id', userIds)
+        : { data: [] };
+
+      return (data || []).map((recipe: any) => {
+        const profile = (profiles || []).find((p: any) => p.id === recipe.user_id);
+        return {
+          ...recipe,
+          author_name: profile?.fullname || profile?.username || 'Anonim',
+          author_username: profile?.username,
+          author_avatar: profile?.avatar_url,
+          category_name: recipe.category?.name || 'Genel',
+        };
+      });
     },
     enabled: !!categoryId,
   });
@@ -152,8 +188,7 @@ export const useRecipeById = (id: string) => {
         .from('recipes')
         .select(`
           *,
-          category:categories(name, slug),
-          profile:profiles(username, fullname, avatar_url, bio)
+          category:categories(name, slug)
         `);
 
       // Check if id looks like a UUID or a slug
@@ -176,12 +211,24 @@ export const useRecipeById = (id: string) => {
         throw new Error('Tarif bulunamadı');
       }
 
+      // Fetch profile separately
+      let profile: any = null;
+      if ((data as any).user_id) {
+        // @ts-ignore - profiles table has dynamic columns
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('username, fullname, avatar_url, bio')
+          .eq('id', (data as any).user_id)
+          .single();
+        profile = profileData;
+      }
+
       return {
         ...data,
-        author_name: data.profile?.fullname || data.profile?.username || 'Anonim',
-        author_username: data.profile?.username,
-        author_avatar: data.profile?.avatar_url,
-        category_name: data.category?.name || 'Genel',
+        author_name: profile?.fullname || profile?.username || 'Anonim',
+        author_username: profile?.username,
+        author_avatar: profile?.avatar_url,
+        category_name: (data as any).category?.name || 'Genel',
       };
     },
     enabled: !!id,

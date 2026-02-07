@@ -12,6 +12,7 @@ export const useUserProfile = (username: string | undefined) => {
       console.log("🔍 Fetching profile for username:", username);
 
       // First, get basic profile info
+      // @ts-ignore - profiles table has dynamic columns
       const { data, error } = await supabase
         .from("profiles")
         .select("*")

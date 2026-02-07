@@ -82,13 +82,8 @@ const Hero = () => {
             Yapay Zeka Destekli
           </motion.div>
 
-          {/* Main Heading */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="space-y-4"
-          >
+          {/* Main Heading - Visible immediately for LCP */}
+          <div className="space-y-4">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight text-foreground">
               <span className="text-gradient">Ne Yesek</span>
               <span className="text-foreground">?</span>
@@ -97,13 +92,13 @@ const Hero = () => {
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
               className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed px-4"
             >
               Evinizdeki malzemelerle yapay zeka destekli tarif önerileri alın.
               <span className="text-primary font-semibold"> Dakikalar içinde</span> lezzetli yemekler pişirin!
             </motion.p>
-          </motion.div>
+          </div>
 
           {/* Search Bar */}
           <motion.div

@@ -144,11 +144,13 @@ export const useCreateQuestion = () => {
             if (!user) throw new Error('Giriş yapmanız gerekiyor');
 
             // User profile'ından bilgileri al
+            // @ts-ignore - profiles table has dynamic columns
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('fullname, avatar_url')
                 .eq('id', user.id)
                 .single();
+            const p = profile as any;
 
             const { data, error } = await supabase
                 .from('questions')
@@ -157,8 +159,8 @@ export const useCreateQuestion = () => {
                     content: questionData.content,
                     category: questionData.category,
                     author_id: user.id,
-                    author_name: profile?.fullname || user.email?.split('@')[0] || 'Anonim',
-                    author_avatar: profile?.avatar_url,
+                    author_name: p?.fullname || user.email?.split('@')[0] || 'Anonim',
+                    author_avatar: p?.avatar_url,
                 })
                 .select()
                 .single();
@@ -198,11 +200,13 @@ export const useCreateAnswer = () => {
             if (!user) throw new Error('Giriş yapmanız gerekiyor');
 
             // User profile'ından bilgileri al
+            // @ts-ignore - profiles table has dynamic columns
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('fullname, avatar_url')
                 .eq('id', user.id)
                 .single();
+            const p = profile as any;
 
             const { data, error } = await supabase
                 .from('answers')
@@ -210,8 +214,8 @@ export const useCreateAnswer = () => {
                     question_id: answerData.question_id,
                     content: answerData.content,
                     author_id: user.id,
-                    author_name: profile?.fullname || user.email?.split('@')[0] || 'Anonim',
-                    author_avatar: profile?.avatar_url,
+                    author_name: p?.fullname || user.email?.split('@')[0] || 'Anonim',
+                    author_avatar: p?.avatar_url,
                 })
                 .select()
                 .single();

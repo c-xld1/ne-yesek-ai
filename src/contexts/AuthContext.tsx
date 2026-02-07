@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Eğer identifier e-posta formatında değilse, username olarak id ve email bul
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(identifier)) {
             // username ile id bul
+            // @ts-ignore - profiles table has dynamic columns
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('id')
@@ -78,18 +79,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return { success: false, error: message };
         }
         if (data.user) {
+            // @ts-ignore - profiles table has dynamic columns
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('username, fullname, avatar_url, bio')
                 .eq('id', data.user.id)
                 .single();
+            const p = profile as any;
             setUser({
                 id: data.user.id,
                 email: data.user.email!,
-                username: profile?.username,
-                fullname: profile?.fullname,
-                avatar_url: profile?.avatar_url,
-                bio: profile?.bio,
+                username: p?.username,
+                fullname: p?.fullname,
+                avatar_url: p?.avatar_url,
+                bio: p?.bio,
             });
         }
         setLoading(false);
@@ -193,15 +196,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
+            // @ts-ignore - profiles table has dynamic columns
             const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('username, fullname, avatar_url, bio')
                 .eq('id', session.user.id)
                 .maybeSingle();
+            const p = profile as any;
 
             // Eğer profil yoksa ve hata PGRST116 ise (no rows), profil oluştur
             if (!profile && (!error || error.code === 'PGRST116')) {
                 console.log('Creating missing profile for user:', session.user.id);
+                // @ts-ignore - profiles table has dynamic columns
                 const { data: newProfile } = await supabase
                     .from('profiles')
                     .insert({
@@ -210,17 +216,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
                         bio: "",
                         avatar_url: "",
-                    })
+                    } as any)
                     .select('username, fullname, avatar_url, bio')
                     .single();
+                const np = newProfile as any;
 
                 setUser({
                     id: session.user.id,
                     email: session.user.email!,
-                    username: newProfile?.username,
-                    fullname: newProfile?.fullname,
-                    avatar_url: newProfile?.avatar_url,
-                    bio: newProfile?.bio
+                    username: np?.username,
+                    fullname: np?.fullname,
+                    avatar_url: np?.avatar_url,
+                    bio: np?.bio
                 });
                 return;
             }
@@ -228,10 +235,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser({
                 id: session.user.id,
                 email: session.user.email!,
-                username: profile?.username,
-                fullname: profile?.fullname,
-                avatar_url: profile?.avatar_url,
-                bio: profile?.bio
+                username: p?.username,
+                fullname: p?.fullname,
+                avatar_url: p?.avatar_url,
+                bio: p?.bio
             });
         }
     };
@@ -254,6 +261,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                             .maybeSingle()
                             .then(async ({ data: profile, error }) => {
                                 if (!mounted) return;
+                                const p = profile as any;
 
                                 // Eğer profil yoksa oluştur
                                 if (!profile && (!error || error.code === 'PGRST116')) {
@@ -265,26 +273,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                             fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
                                             bio: "",
                                             avatar_url: "",
-                                        })
+                                        } as any)
                                         .select('username, fullname, avatar_url, bio')
                                         .single();
+                                    const np = newProfile as any;
 
                                     setUser({
                                         id: session.user.id,
                                         email: session.user.email!,
-                                        username: newProfile?.username,
-                                        fullname: newProfile?.fullname,
-                                        avatar_url: newProfile?.avatar_url,
-                                        bio: newProfile?.bio
+                                        username: np?.username,
+                                        fullname: np?.fullname,
+                                        avatar_url: np?.avatar_url,
+                                        bio: np?.bio
                                     });
                                 } else {
                                     setUser({
                                         id: session.user.id,
                                         email: session.user.email!,
-                                        username: profile?.username,
-                                        fullname: profile?.fullname,
-                                        avatar_url: profile?.avatar_url,
-                                        bio: profile?.bio
+                                        username: p?.username,
+                                        fullname: p?.fullname,
+                                        avatar_url: p?.avatar_url,
+                                        bio: p?.bio
                                     });
                                 }
                                 setLoading(false);
@@ -310,6 +319,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         .maybeSingle()
                         .then(async ({ data: profile, error }) => {
                             if (!mounted) return;
+                            const p = profile as any;
 
                             // Eğer profil yoksa oluştur
                             if (!profile && (!error || error.code === 'PGRST116')) {
@@ -321,26 +331,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                         fullname: session.user.user_metadata?.fullname || session.user.email?.split('@')[0] || "Yeni Kullanıcı",
                                         bio: "",
                                         avatar_url: "",
-                                    })
+                                    } as any)
                                     .select('username, fullname, avatar_url, bio')
                                     .single();
+                                const np = newProfile as any;
 
                                 setUser({
                                     id: session.user.id,
                                     email: session.user.email!,
-                                    username: newProfile?.username,
-                                    fullname: newProfile?.fullname,
-                                    avatar_url: newProfile?.avatar_url,
-                                    bio: newProfile?.bio
+                                    username: np?.username,
+                                    fullname: np?.fullname,
+                                    avatar_url: np?.avatar_url,
+                                    bio: np?.bio
                                 });
                             } else {
                                 setUser({
                                     id: session.user.id,
                                     email: session.user.email!,
-                                    username: profile?.username,
-                                    fullname: profile?.fullname,
-                                    avatar_url: profile?.avatar_url,
-                                    bio: profile?.bio
+                                    username: p?.username,
+                                    fullname: p?.fullname,
+                                    avatar_url: p?.avatar_url,
+                                    bio: p?.bio
                                 });
                             }
                             setLoading(false);

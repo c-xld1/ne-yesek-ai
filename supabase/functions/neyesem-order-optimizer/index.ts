@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -19,19 +19,52 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
+    // Security: Validate authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Create client with user's auth token
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user's token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log('Order Optimizer request from user:', userId);
+
+    // Use service role for database operations
+    const supabaseService = createClient(
+      supabaseUrl,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
 
     const { action, order_id, chef_id, delivery_latitude, delivery_longitude } = await req.json();
 
     if (action === 'assign_courier') {
       // En uygun kuryeyi bul
-      const result = await assignOptimalCourier(supabase, order_id, chef_id, delivery_latitude, delivery_longitude);
+      const result = await assignOptimalCourier(supabaseService, order_id, chef_id, delivery_latitude, delivery_longitude);
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -39,7 +72,7 @@ serve(async (req) => {
 
     if (action === 'optimize_route') {
       // Kurye rotasını optimize et
-      const result = await optimizeCourierRoute(supabase, order_id);
+      const result = await optimizeCourierRoute(supabaseService, order_id);
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -47,7 +80,7 @@ serve(async (req) => {
 
     if (action === 'predict_delay') {
       // Gecikme riski tahmin et
-      const result = await predictDelayRisk(supabase, order_id);
+      const result = await predictDelayRisk(supabaseService, order_id);
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -55,7 +88,7 @@ serve(async (req) => {
 
     if (action === 'group_orders') {
       // Aynı bölgedeki siparişleri grupla
-      const result = await groupNearbyOrders(supabase);
+      const result = await groupNearbyOrders(supabaseService);
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -98,15 +131,19 @@ async function assignOptimalCourier(
     .from('couriers')
     .select('*')
     .eq('status', 'available')
-    .eq('is_active', true)
-    .lt('current_load', supabase.raw('max_load'));
+    .eq('is_active', true);
 
-  if (!couriers || couriers.length === 0) {
+  // Filter couriers with available capacity
+  const availableCouriers = (couriers || []).filter(
+    (c: any) => (c.current_load || 0) < (c.max_load || 3)
+  );
+
+  if (availableCouriers.length === 0) {
     return { success: false, error: 'No available couriers' };
   }
 
   // Her kurye için skor hesapla
-  const scoredCouriers = couriers.map((courier: any) => {
+  const scoredCouriers = availableCouriers.map((courier: any) => {
     const distanceToChef = calculateDistance(
       courier.current_latitude, courier.current_longitude,
       chef.latitude, chef.longitude
@@ -124,7 +161,7 @@ async function assignOptimalCourier(
     score -= distanceToChef * 5;
     
     // Yük durumu (az yüklü tercih edilir)
-    score -= (courier.current_load / courier.max_load) * 20;
+    score -= ((courier.current_load || 0) / (courier.max_load || 3)) * 20;
     
     // Güven skoru
     score += (courier.trust_score || 0) / 5;
@@ -167,11 +204,12 @@ async function assignOptimalCourier(
     .eq('id', orderId);
 
   // Kurye yükünü güncelle
+  const newLoad = (bestCourier.courier.current_load || 0) + 1;
   await supabase
     .from('couriers')
     .update({
-      current_load: bestCourier.courier.current_load + 1,
-      status: bestCourier.courier.current_load + 1 >= bestCourier.courier.max_load ? 'busy' : 'available'
+      current_load: newLoad,
+      status: newLoad >= (bestCourier.courier.max_load || 3) ? 'busy' : 'available'
     })
     .eq('id', bestCourier.courier.id);
 

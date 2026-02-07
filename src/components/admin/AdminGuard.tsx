@@ -38,7 +38,7 @@ const AdminGuard = ({ children }: AdminGuardProps) => {
     console.log("=".repeat(60));
     console.log("👤 User ID:", user.id);
 
-    // Check admin role
+    // Check admin role using server-side RLS
     const { data, error } = await supabase
       .from("user_roles")
       .select("role")
@@ -52,16 +52,31 @@ const AdminGuard = ({ children }: AdminGuardProps) => {
       console.log(`INSERT INTO user_roles (user_id, role) VALUES ('${user.id}', 'admin') ON CONFLICT (user_id, role) DO NOTHING;`);
       console.log("=".repeat(60));
       
-      // Development modunda erişime izin ver
-      console.log("⚠️ Development modu: Erişim izni veriliyor");
-      setIsAdmin(true);
-      setChecking(false);
+      // Security fix: No longer allow development mode bypass in production
+      // Only allow bypass in true local development (localhost)
+      const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
       
+      if (import.meta.env.DEV && isLocalhost) {
+        console.log("⚠️ Local development: Erişim izni veriliyor");
+        setIsAdmin(true);
+        setChecking(false);
+        
+        toast({
+          title: "Geliştirici Modu (Localhost)",
+          description: "Admin rolü yok ama localhost'ta erişim sağlandı.",
+          variant: "default",
+        });
+        return;
+      }
+      
+      // In production or non-localhost, deny access
       toast({
-        title: "Geliştirici Modu",
-        description: "Admin rolü yok ama development modunda erişim sağlandı.",
-        variant: "default",
+        title: "Erişim Reddedildi",
+        description: "Bu sayfaya erişim yetkiniz yok.",
+        variant: "destructive",
       });
+      navigate("/");
+      setChecking(false);
       return;
     }
 

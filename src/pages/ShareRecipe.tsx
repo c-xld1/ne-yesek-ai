@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { z } from "zod";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,30 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useCategories } from "@/hooks/useCategories";
+
+// Input validation schemas
+const ingredientSchema = z.object({
+  name: z.string().trim().min(1, 'Malzeme adı gerekli').max(100, 'Malzeme adı çok uzun'),
+  amount: z.string().trim().min(1, 'Miktar gerekli').max(50, 'Miktar çok uzun')
+});
+
+const instructionSchema = z.object({
+  step: z.number().int().positive(),
+  description: z.string().trim().min(3, 'Talimat en az 3 karakter olmalı').max(500, 'Talimat çok uzun')
+});
+
+const recipeSchema = z.object({
+  title: z.string().trim().min(3, 'Başlık en az 3 karakter olmalı').max(200, 'Başlık çok uzun'),
+  description: z.string().trim().min(10, 'Açıklama en az 10 karakter olmalı').max(2000, 'Açıklama çok uzun'),
+  ingredients: z.array(ingredientSchema).min(1, 'En az 1 malzeme ekleyin').max(50, 'En fazla 50 malzeme ekleyebilirsiniz'),
+  instructions: z.array(instructionSchema).min(1, 'En az 1 talimat ekleyin').max(50, 'En fazla 50 adım ekleyebilirsiniz'),
+  prep_time: z.number().int().min(0, 'Hazırlık süresi negatif olamaz').max(1440, 'Hazırlık süresi en fazla 24 saat olabilir'),
+  cook_time: z.number().int().min(0, 'Pişirme süresi negatif olamaz').max(1440, 'Pişirme süresi en fazla 24 saat olabilir'),
+  servings: z.number().int().min(1, 'En az 1 porsiyon olmalı').max(100, 'En fazla 100 porsiyon olabilir'),
+  difficulty: z.enum(['Kolay', 'Orta', 'Zor']),
+  category_id: z.string().min(1, 'Kategori seçiniz'),
+  image_url: z.string().url('Geçersiz URL').optional().or(z.literal(''))
+});
 
 interface RecipeFormData {
   title: string;
@@ -284,11 +309,45 @@ const ShareRecipe = () => {
   const publishRecipe = async () => {
     if (!user) return;
 
-    if (!formData.title || !formData.description || formData.ingredients.length === 0 || formData.instructions.length === 0) {
+    // Validate form data with zod schema
+    const validationData = {
+      ...formData,
+      ingredients: formData.ingredients.filter(i => i.name.trim() || i.amount.trim()),
+      instructions: formData.instructions.filter(i => i.description.trim())
+    };
+
+    try {
+      recipeSchema.parse(validationData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        toast({
+          variant: "destructive",
+          title: "Geçersiz Veri",
+          description: firstError.message,
+        });
+        return;
+      }
+    }
+
+    // Additional validation for empty ingredients/instructions
+    const validIngredients = formData.ingredients.filter(i => i.name.trim() && i.amount.trim());
+    const validInstructions = formData.instructions.filter(i => i.description.trim());
+
+    if (validIngredients.length === 0) {
       toast({
         variant: "destructive",
         title: "Eksik Bilgi",
-        description: "Lütfen tüm gerekli alanları doldurun.",
+        description: "En az bir malzeme eklemelisiniz.",
+      });
+      return;
+    }
+
+    if (validInstructions.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Eksik Bilgi",
+        description: "En az bir talimat eklemelisiniz.",
       });
       return;
     }
@@ -296,7 +355,16 @@ const ShareRecipe = () => {
     setIsSaving(true);
     try {
       const recipeData = {
-        ...formData,
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        ingredients: validIngredients,
+        instructions: validInstructions.map((inst, idx) => ({ ...inst, step: idx + 1 })),
+        category_id: formData.category_id,
+        prep_time: formData.prep_time,
+        cook_time: formData.cook_time,
+        servings: formData.servings,
+        difficulty: formData.difficulty,
+        image_url: formData.image_url,
         user_id: user.id,
         is_draft: false
       };

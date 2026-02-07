@@ -52,24 +52,8 @@ const AdminGuard = ({ children }: AdminGuardProps) => {
       console.log(`INSERT INTO user_roles (user_id, role) VALUES ('${user.id}', 'admin') ON CONFLICT (user_id, role) DO NOTHING;`);
       console.log("=".repeat(60));
       
-      // Security fix: No longer allow development mode bypass in production
-      // Only allow bypass in true local development (localhost)
-      const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-      
-      if (import.meta.env.DEV && isLocalhost) {
-        console.log("⚠️ Local development: Erişim izni veriliyor");
-        setIsAdmin(true);
-        setChecking(false);
-        
-        toast({
-          title: "Geliştirici Modu (Localhost)",
-          description: "Admin rolü yok ama localhost'ta erişim sağlandı.",
-          variant: "default",
-        });
-        return;
-      }
-      
-      // In production or non-localhost, deny access
+      // Security: Always require proper admin role - no development bypasses
+      // Developers should add admin roles manually in their local database
       toast({
         title: "Erişim Reddedildi",
         description: "Bu sayfaya erişim yetkiniz yok.",

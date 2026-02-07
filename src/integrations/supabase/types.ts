@@ -2088,6 +2088,10 @@ export type Database = {
       increment_story_likes: { Args: { story_id: string }; Returns: undefined }
       increment_story_views: { Args: { story_id: string }; Returns: undefined }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      secure_update_wallet_balance: {
+        Args: { p_amount: number; p_operation?: string; p_wallet_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "chef" | "user"

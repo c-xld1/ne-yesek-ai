@@ -374,9 +374,9 @@ const ErrorPage = ({
                                                 size="sm"
                                                 className={`mt-3 text-${config.color.primary} hover:bg-${config.color.primary}/10`}
                                             >
-                                                {suggestion.link.startsWith('javascript:') ? (
-                                                    <button onClick={() => eval(suggestion.link.replace('javascript:', ''))}>
-                                                        {suggestion.title === "Sayfayı Yenile" ? "Yenile" : "Git"}
+                                            {suggestion.link === 'javascript:window.location.reload()' ? (
+                                                    <button onClick={() => window.location.reload()}>
+                                                        Yenile
                                                     </button>
                                                 ) : (
                                                     <Link to={suggestion.link}>

@@ -316,22 +316,56 @@ const Settings = () => {
     });
   };
 
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+
   const handlePasswordChange = async () => {
-    toast({
-      title: "Bilgi",
-      description: "Şifre değiştirme özelliği yakında eklenecek",
-    });
+    if (!passwordData.newPassword || !passwordData.confirmPassword) {
+      toast({ title: "Hata", description: "Lütfen tüm alanları doldurun.", variant: "destructive" });
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      toast({ title: "Hata", description: "Şifre en az 6 karakter olmalıdır.", variant: "destructive" });
+      return;
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({ title: "Hata", description: "Şifreler eşleşmiyor.", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: passwordData.newPassword });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Hata", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "✅ Başarılı", description: "Şifreniz güncellendi." });
+      setPasswordData({ newPassword: "", confirmPassword: "" });
+    }
   };
 
   const handleDeleteAccount = async () => {
     if (!confirm("Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!")) {
       return;
     }
-
-    toast({
-      title: "Bilgi",
-      description: "Hesap silme özelliği yakında eklenecek",
-    });
+    if (!confirm("Son kez onaylıyor musunuz? TÜM VERİLERİNİZ SİLİNECEK!")) {
+      return;
+    }
+    setLoading(true);
+    // Delete user profile data
+    await supabase.from("recipes").delete().eq("user_id", user?.id);
+    await supabase.from("recipe_favorites").delete().eq("user_id", user?.id);
+    await supabase.from("recipe_comments").delete().eq("user_id", user?.id);
+    await supabase.from("follows").delete().eq("follower_id", user?.id);
+    await supabase.from("follows").delete().eq("following_id", user?.id);
+    await supabase.from("notifications").delete().eq("user_id", user?.id);
+    
+    // Sign out
+    await supabase.auth.signOut();
+    setLoading(false);
+    toast({ title: "Hesap silindi", description: "Hesabınız ve verileriniz silindi." });
+    navigate("/");
   };
 
   if (authLoading || isInitializing || !user) {
@@ -1025,18 +1059,28 @@ const Settings = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="current-password">Mevcut Şifre</Label>
-                  <Input id="current-password" type="password" />
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="new-password">Yeni Şifre</Label>
-                  <Input id="new-password" type="password" />
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                    placeholder="En az 6 karakter"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Yeni Şifre (Tekrar)</Label>
-                  <Input id="confirm-password" type="password" />
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                    placeholder="Şifreyi tekrar girin"
+                  />
                 </div>
-                <Button onClick={handlePasswordChange}>Şifreyi Güncelle</Button>
+                <Button onClick={handlePasswordChange} disabled={loading}>
+                  {loading ? "Güncelleniyor..." : "Şifreyi Güncelle"}
+                </Button>
               </CardContent>
             </Card>
 

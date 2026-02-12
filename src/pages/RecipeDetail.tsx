@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 const RecipeDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug: id } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
